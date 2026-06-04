@@ -1,0 +1,686 @@
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --forest: #1a3a2a; --moss: #2d5a3d; --gold: #c8922a; --amber: #e8a83a;
+    --cream: #f5f0e8; --sand: #e8dcc8;
+  }
+  body { font-family: var(--font-sans); background: var(--color-background-tertiary); display: flex; justify-content: center; padding: 1.5rem 0; }
+  .phone {
+    width: 375px; min-height: 812px;
+    background: var(--color-background-primary);
+    border-radius: 40px;
+    border: 0.5px solid var(--color-border-secondary);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .screen { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+  .screen.active { display: flex; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px 6px;
+    font-size: 12px; font-weight: 500;
+    color: var(--color-text-primary);
+    flex-shrink: 0;
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    display: flex; border-top: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+    padding: 8px 0 16px; flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    cursor: pointer; padding: 4px 0;
+  }
+  .nav-item i { font-size: 22px; color: var(--color-text-tertiary); }
+  .nav-item span { font-size: 10px; color: var(--color-text-tertiary); }
+  .nav-item.active i { color: var(--forest); }
+  .nav-item.active span { color: var(--forest); font-weight: 500; }
+
+  /* ── HOME SCREEN ── */
+  .home-header {
+    padding: 8px 20px 16px;
+    background: var(--forest);
+  }
+  .home-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .home-logo { font-size: 18px; font-weight: 500; color: #fff; }
+  .home-logo span { color: var(--amber); }
+  .home-icons { display: flex; gap: 12px; }
+  .home-icons i { font-size: 22px; color: rgba(255,255,255,0.8); }
+  .greeting { color: rgba(255,255,255,0.65); font-size: 13px; margin-bottom: 4px; }
+  .greeting-big { color: #fff; font-size: 20px; font-weight: 500; margin-bottom: 16px; }
+  .search-box {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px; padding: 10px 14px;
+  }
+  .search-box i { font-size: 18px; color: rgba(255,255,255,0.6); }
+  .search-box span { color: rgba(255,255,255,0.55); font-size: 14px; }
+
+  /* CATEGORIES */
+  .section-pad { padding: 20px 20px 0; }
+  .sec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .sec-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+  .sec-link { font-size: 13px; color: var(--gold); cursor: pointer; }
+  .cats { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .cats::-webkit-scrollbar { display: none; }
+  .cat {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    flex-shrink: 0; cursor: pointer;
+  }
+  .cat-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+  .cat-icon i { font-size: 24px; }
+  .cat.active .cat-icon { background: var(--forest); border-color: var(--forest); }
+  .cat.active .cat-icon i { color: #fff; }
+  .cat span { font-size: 11px; color: var(--color-text-secondary); }
+  .cat.active span { color: var(--forest); font-weight: 500; }
+
+  /* FEATURED CARD */
+  .featured-card {
+    margin: 20px 20px 0;
+    height: 200px; border-radius: 20px; overflow: hidden; position: relative; cursor: pointer;
+  }
+  .featured-img {
+    width: 100%; height: 100%; object-fit: cover;
+    background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 60px;
+  }
+  .feat-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(14,31,21,0.88) 0%, rgba(14,31,21,0.1) 60%);
+    padding: 16px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .feat-badge {
+    position: absolute; top: 14px; left: 14px;
+    background: var(--gold); color: #fff;
+    font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: 20px;
+  }
+  .feat-fav {
+    position: absolute; top: 12px; right: 14px;
+    width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .feat-fav i { font-size: 16px; color: #fff; }
+  .feat-title { color: #fff; font-size: 18px; font-weight: 500; margin-bottom: 6px; }
+  .feat-meta { display: flex; gap: 14px; color: rgba(255,255,255,0.7); font-size: 12px; }
+  .feat-meta span { display: flex; align-items: center; gap: 4px; }
+  .feat-meta i { font-size: 13px; }
+  .feat-price {
+    position: absolute; bottom: 16px; right: 16px;
+    color: var(--amber); font-size: 18px; font-weight: 500;
+  }
+
+  /* TOUR CARDS ROW */
+  .cards-row { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 4px; scrollbar-width: none; }
+  .cards-row::-webkit-scrollbar { display: none; }
+  .mini-card {
+    width: 160px; flex-shrink: 0; cursor: pointer;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg); overflow: hidden;
+  }
+  .mini-img {
+    width: 100%; height: 100px;
+    background: var(--color-background-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; position: relative;
+  }
+  .mini-type {
+    position: absolute; top: 8px; left: 8px;
+    background: rgba(14,31,21,0.75); color: #fff;
+    font-size: 9px; font-weight: 500; padding: 2px 7px; border-radius: 20px;
+  }
+  .mini-body { padding: 10px; }
+  .mini-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; line-height: 1.3; }
+  .mini-row { display: flex; justify-content: space-between; align-items: center; }
+  .mini-rating { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--color-text-secondary); }
+  .mini-rating i { font-size: 11px; color: var(--amber); }
+  .mini-price { font-size: 12px; font-weight: 500; color: var(--gold); }
+
+  /* ── EXPLORE SCREEN ── */
+  .explore-header { padding: 8px 20px 16px; background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .explore-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 14px; }
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--color-background-secondary); border-radius: 12px; padding: 10px 14px;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+  .search-bar i { font-size: 18px; color: var(--color-text-tertiary); }
+  .search-bar input {
+    border: none; background: transparent; font-size: 14px;
+    color: var(--color-text-primary); outline: none; flex: 1;
+    font-family: var(--font-sans);
+  }
+  .filter-row { display: flex; gap: 8px; overflow-x: auto; padding: 16px 20px 0; scrollbar-width: none; }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    border: 0.5px solid var(--color-border-tertiary);
+    color: var(--color-text-secondary);
+    background: var(--color-background-primary);
+  }
+  .filter-chip.active { background: var(--forest); color: #fff; border-color: var(--forest); }
+  .dest-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .dest-row {
+    display: flex; gap: 12px; align-items: center;
+    padding: 12px; border-radius: var(--border-radius-lg);
+    border: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary); cursor: pointer;
+  }
+  .dest-thumb {
+    width: 72px; height: 72px; border-radius: 12px; flex-shrink: 0;
+    background: var(--color-background-secondary);
+    display: flex; align-items: center; justify-content: center; font-size: 30px;
+  }
+  .dest-info { flex: 1; }
+  .dest-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .dest-loc { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 3px; margin-bottom: 6px; }
+  .dest-loc i { font-size: 12px; }
+  .dest-chips { display: flex; gap: 6px; }
+  .dest-chip {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    background: var(--color-background-secondary); color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+  .dest-price { font-size: 13px; font-weight: 500; color: var(--gold); align-self: flex-start; margin-top: 2px; }
+
+  /* ── BOOKINGS SCREEN ── */
+  .bookings-header { padding: 20px 20px 0; }
+  .bookings-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 16px; }
+  .booking-tabs { display: flex; gap: 0; margin-bottom: 20px; border-radius: 10px; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
+  .booking-tab { flex: 1; padding: 9px; text-align: center; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--color-text-secondary); background: var(--color-background-primary); }
+  .booking-tab.active { background: var(--forest); color: #fff; }
+  .booking-cards { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
+  .booking-card {
+    border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg);
+    overflow: hidden; background: var(--color-background-primary);
+  }
+  .booking-img {
+    height: 120px; background: var(--color-background-secondary);
+    display: flex; align-items: center; justify-content: center; font-size: 40px;
+    position: relative;
+  }
+  .booking-status {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px;
+  }
+  .status-upcoming { background: #E1F5EE; color: #0F6E56; }
+  .status-completed { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .booking-body { padding: 12px 14px; }
+  .booking-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+  .booking-details { display: flex; gap: 16px; margin-bottom: 10px; }
+  .booking-detail { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-text-secondary); }
+  .booking-detail i { font-size: 13px; }
+  .booking-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); }
+  .booking-price { font-size: 16px; font-weight: 500; color: var(--forest); }
+  .booking-btn {
+    padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: none;
+  }
+  .btn-view { background: var(--forest); color: #fff; }
+  .btn-rate { background: var(--color-background-secondary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary); }
+
+  /* ── PROFILE SCREEN ── */
+  .profile-header { background: var(--forest); padding: 20px 20px 30px; text-align: center; }
+  .avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px; font-size: 28px; color: #fff;
+  }
+  .profile-name { color: #fff; font-size: 18px; font-weight: 500; margin-bottom: 3px; }
+  .profile-email { color: rgba(255,255,255,0.6); font-size: 13px; }
+  .profile-stats { display: flex; gap: 0; margin: 20px 20px 0; border-radius: var(--border-radius-lg); overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
+  .pstat { flex: 1; padding: 14px 8px; text-align: center; background: var(--color-background-primary); }
+  .pstat:not(:last-child) { border-right: 0.5px solid var(--color-border-tertiary); }
+  .pstat-num { font-size: 20px; font-weight: 500; color: var(--forest); }
+  .pstat-label { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .profile-menu { padding: 16px 20px; display: flex; flex-direction: column; gap: 2px; }
+  .menu-section { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 0 6px; }
+  .menu-item {
+    display: flex; align-items: center; gap: 12px; padding: 13px 14px;
+    border-radius: var(--border-radius-md); cursor: pointer;
+  }
+  .menu-item:hover { background: var(--color-background-secondary); }
+  .menu-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; }
+  .menu-icon i { font-size: 18px; color: var(--color-text-secondary); }
+  .menu-label { flex: 1; font-size: 14px; color: var(--color-text-primary); }
+  .menu-arrow i { font-size: 16px; color: var(--color-text-tertiary); }
+
+  /* SCROLL FIX */
+  .screen { overflow-y: auto; max-height: 100%; }
+  .spacer { height: 20px; }
+</style>
+
+<h2 class="sr-only">Appy Pie Tour mobile app mockup with Home, Explore, Bookings, and Profile screens</h2>
+
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <i class="ti ti-wifi" style="font-size:14px;color:var(--color-text-primary)" aria-hidden="true"></i>
+      <i class="ti ti-signal-4g" style="font-size:14px;color:var(--color-text-primary)" aria-hidden="true"></i>
+      <i class="ti ti-battery-2" style="font-size:14px;color:var(--color-text-primary)" aria-hidden="true"></i>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen active" id="screen-home">
+    <div class="home-header">
+      <div class="home-topbar">
+        <div class="home-logo">Appy<span>Pie</span> Tour</div>
+        <div class="home-icons">
+          <i class="ti ti-bell" aria-hidden="true"></i>
+          <i class="ti ti-user-circle" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="greeting">Good morning, Alex 👋</div>
+      <div class="greeting-big">Where to next?</div>
+      <div class="search-box">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <span>Search destinations, tours...</span>
+      </div>
+    </div>
+
+    <div class="section-pad">
+      <div class="sec-header">
+        <span class="sec-title">Categories</span>
+        <span class="sec-link">See all</span>
+      </div>
+      <div class="cats">
+        <div class="cat active">
+          <div class="cat-icon"><i class="ti ti-mountain" aria-hidden="true"></i></div>
+          <span>Trekking</span>
+        </div>
+        <div class="cat">
+          <div class="cat-icon"><i class="ti ti-paw" aria-hidden="true"></i></div>
+          <span>Wildlife</span>
+        </div>
+        <div class="cat">
+          <div class="cat-icon"><i class="ti ti-kayak" aria-hidden="true"></i></div>
+          <span>Water</span>
+        </div>
+        <div class="cat">
+          <div class="cat-icon"><i class="ti ti-campfire" aria-hidden="true"></i></div>
+          <span>Camping</span>
+        </div>
+        <div class="cat">
+          <div class="cat-icon"><i class="ti ti-building-arch" aria-hidden="true"></i></div>
+          <span>Cultural</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-pad" style="padding-top:20px">
+      <div class="sec-header">
+        <span class="sec-title">Featured Tour</span>
+        <span class="sec-link">View all</span>
+      </div>
+    </div>
+    <div class="featured-card">
+      <div class="featured-img">🏔</div>
+      <div class="feat-overlay">
+        <div class="feat-badge">Bestseller</div>
+        <div class="feat-fav"><i class="ti ti-heart" aria-hidden="true"></i></div>
+        <div class="feat-title">Everest Base Camp Trek</div>
+        <div class="feat-meta">
+          <span><i class="ti ti-map-pin" aria-hidden="true"></i>Nepal</span>
+          <span><i class="ti ti-clock" aria-hidden="true"></i>16 Days</span>
+          <span><i class="ti ti-users" aria-hidden="true"></i>Max 12</span>
+        </div>
+      </div>
+      <div class="feat-price">$2,499</div>
+    </div>
+
+    <div class="section-pad" style="padding-top:20px">
+      <div class="sec-header">
+        <span class="sec-title">Popular Tours</span>
+        <span class="sec-link">See all</span>
+      </div>
+    </div>
+    <div class="cards-row">
+      <div class="mini-card">
+        <div class="mini-img">🦁<div class="mini-type">Wildlife</div></div>
+        <div class="mini-body">
+          <div class="mini-name">Serengeti Migration</div>
+          <div class="mini-row">
+            <div class="mini-rating"><i class="ti ti-star-filled" aria-hidden="true"></i>4.9</div>
+            <div class="mini-price">$3,299</div>
+          </div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-img">⛵<div class="mini-type">Water</div></div>
+        <div class="mini-body">
+          <div class="mini-name">Fjords Kayaking</div>
+          <div class="mini-row">
+            <div class="mini-rating"><i class="ti ti-star-filled" aria-hidden="true"></i>4.9</div>
+            <div class="mini-price">$1,649</div>
+          </div>
+        </div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-img">🌵<div class="mini-type">Desert</div></div>
+        <div class="mini-body">
+          <div class="mini-name">Sahara Caravan</div>
+          <div class="mini-row">
+            <div class="mini-rating"><i class="ti ti-star-filled" aria-hidden="true"></i>4.7</div>
+            <div class="mini-price">$899</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-pad" style="padding-top:20px">
+      <div class="sec-header">
+        <span class="sec-title">Top Destinations</span>
+        <span class="sec-link">Map view</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 20px;scrollbar-width:none">
+      <div style="flex-shrink:0;width:130px;border-radius:14px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)">
+        <div style="height:80px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:32px">🗻</div>
+        <div style="padding:8px;font-size:12px;font-weight:500;color:var(--color-text-primary)">Himalayas</div>
+        <div style="padding:0 8px 8px;font-size:11px;color:var(--color-text-tertiary)">Nepal & Tibet</div>
+      </div>
+      <div style="flex-shrink:0;width:130px;border-radius:14px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)">
+        <div style="height:80px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:32px">🌿</div>
+        <div style="padding:8px;font-size:12px;font-weight:500;color:var(--color-text-primary)">Amazon</div>
+        <div style="padding:0 8px 8px;font-size:11px;color:var(--color-text-tertiary)">Brazil & Peru</div>
+      </div>
+      <div style="flex-shrink:0;width:130px;border-radius:14px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)">
+        <div style="height:80px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:32px">🏔</div>
+        <div style="padding:8px;font-size:12px;font-weight:500;color:var(--color-text-primary)">Patagonia</div>
+        <div style="padding:0 8px 8px;font-size:11px;color:var(--color-text-tertiary)">Chile & Argentina</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- EXPLORE -->
+  <div class="screen" id="screen-explore">
+    <div class="explore-header">
+      <div class="explore-title">Explore</div>
+      <div class="search-bar">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input placeholder="Search tours & destinations..." />
+        <i class="ti ti-adjustments-horizontal" style="color:var(--gold);font-size:18px" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-chip active">All</div>
+      <div class="filter-chip">Trekking</div>
+      <div class="filter-chip">Wildlife</div>
+      <div class="filter-chip">Water</div>
+      <div class="filter-chip">Camping</div>
+      <div class="filter-chip">Desert</div>
+    </div>
+    <div class="dest-list">
+      <div class="dest-row">
+        <div class="dest-thumb">🏔</div>
+        <div class="dest-info">
+          <div class="dest-title">Everest Base Camp Trek</div>
+          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Nepal, Asia</div>
+          <div class="dest-chips">
+            <span class="dest-chip">16 days</span>
+            <span class="dest-chip">Challenging</span>
+            <span class="dest-chip">Max 12</span>
+          </div>
+        </div>
+        <div class="dest-price">$2,499</div>
+      </div>
+      <div class="dest-row">
+        <div class="dest-thumb">🦁</div>
+        <div class="dest-info">
+          <div class="dest-title">Serengeti Migration</div>
+          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Tanzania, Africa</div>
+          <div class="dest-chips">
+            <span class="dest-chip">10 days</span>
+            <span class="dest-chip">Moderate</span>
+            <span class="dest-chip">Max 8</span>
+          </div>
+        </div>
+        <div class="dest-price">$3,299</div>
+      </div>
+      <div class="dest-row">
+        <div class="dest-thumb">⛵</div>
+        <div class="dest-info">
+          <div class="dest-title">Fjords Kayaking Odyssey</div>
+          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Norway, Europe</div>
+          <div class="dest-chips">
+            <span class="dest-chip">7 days</span>
+            <span class="dest-chip">Easy–Mod</span>
+            <span class="dest-chip">Max 6</span>
+          </div>
+        </div>
+        <div class="dest-price">$1,649</div>
+      </div>
+      <div class="dest-row">
+        <div class="dest-thumb">🌿</div>
+        <div class="dest-info">
+          <div class="dest-title">Amazon Rainforest Trek</div>
+          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Brazil & Peru</div>
+          <div class="dest-chips">
+            <span class="dest-chip">12 days</span>
+            <span class="dest-chip">Challenging</span>
+            <span class="dest-chip">Max 8</span>
+          </div>
+        </div>
+        <div class="dest-price">$2,199</div>
+      </div>
+      <div class="dest-row">
+        <div class="dest-thumb">🌵</div>
+        <div class="dest-info">
+          <div class="dest-title">Sahara Camel Caravan</div>
+          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Morocco, Africa</div>
+          <div class="dest-chips">
+            <span class="dest-chip">5 days</span>
+            <span class="dest-chip">Easy</span>
+            <span class="dest-chip">Max 14</span>
+          </div>
+        </div>
+        <div class="dest-price">$899</div>
+      </div>
+      <div class="dest-row">
+        <div class="dest-thumb">🏕</div>
+        <div class="dest-info">
+          <div class="dest-title">Swiss Alps Traverse</div>
+          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Switzerland, Europe</div>
+          <div class="dest-chips">
+            <span class="dest-chip">8 days</span>
+            <span class="dest-chip">Moderate</span>
+            <span class="dest-chip">Max 10</span>
+          </div>
+        </div>
+        <div class="dest-price">$1,899</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- BOOKINGS -->
+  <div class="screen" id="screen-bookings">
+    <div class="bookings-header">
+      <div class="bookings-title">My Bookings</div>
+      <div class="booking-tabs">
+        <div class="booking-tab active">Upcoming</div>
+        <div class="booking-tab">Completed</div>
+        <div class="booking-tab">Cancelled</div>
+      </div>
+    </div>
+    <div class="booking-cards">
+      <div class="booking-card">
+        <div class="booking-img">🏔
+          <div class="booking-status status-upcoming">Upcoming</div>
+        </div>
+        <div class="booking-body">
+          <div class="booking-name">Everest Base Camp Trek</div>
+          <div class="booking-details">
+            <div class="booking-detail"><i class="ti ti-calendar" aria-hidden="true"></i>Aug 14, 2025</div>
+            <div class="booking-detail"><i class="ti ti-users" aria-hidden="true"></i>2 people</div>
+            <div class="booking-detail"><i class="ti ti-clock" aria-hidden="true"></i>16 days</div>
+          </div>
+          <div class="booking-footer">
+            <div class="booking-price">$4,998</div>
+            <button class="booking-btn btn-view">View Details</button>
+          </div>
+        </div>
+      </div>
+      <div class="booking-card">
+        <div class="booking-img">🦁
+          <div class="booking-status status-completed">Completed</div>
+        </div>
+        <div class="booking-body">
+          <div class="booking-name">Serengeti Migration Safari</div>
+          <div class="booking-details">
+            <div class="booking-detail"><i class="ti ti-calendar" aria-hidden="true"></i>Mar 5, 2025</div>
+            <div class="booking-detail"><i class="ti ti-users" aria-hidden="true"></i>1 person</div>
+            <div class="booking-detail"><i class="ti ti-clock" aria-hidden="true"></i>10 days</div>
+          </div>
+          <div class="booking-footer">
+            <div class="booking-price">$3,299</div>
+            <button class="booking-btn btn-rate">Rate Tour</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="screen" id="screen-profile">
+    <div class="profile-header">
+      <div class="avatar"><i class="ti ti-user" aria-hidden="true"></i></div>
+      <div class="profile-name">Alex Johnson</div>
+      <div class="profile-email">alex.johnson@email.com</div>
+    </div>
+    <div class="profile-stats">
+      <div class="pstat">
+        <div class="pstat-num">7</div>
+        <div class="pstat-label">Tours done</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-num">4</div>
+        <div class="pstat-label">Countries</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-num">4.9</div>
+        <div class="pstat-label">Avg rating</div>
+      </div>
+    </div>
+    <div class="profile-menu">
+      <div class="menu-section">Account</div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-user" aria-hidden="true"></i></div>
+        <div class="menu-label">Personal Info</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-heart" aria-hidden="true"></i></div>
+        <div class="menu-label">Wishlist</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-credit-card" aria-hidden="true"></i></div>
+        <div class="menu-label">Payment Methods</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-section">Preferences</div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-bell" aria-hidden="true"></i></div>
+        <div class="menu-label">Notifications</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-language" aria-hidden="true"></i></div>
+        <div class="menu-label">Language & Region</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-section">Support</div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-help-circle" aria-hidden="true"></i></div>
+        <div class="menu-label">Help Center</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-star" aria-hidden="true"></i></div>
+        <div class="menu-label">Rate the App</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item" style="margin-top:4px">
+        <div class="menu-icon" style="background:var(--color-background-danger)"><i class="ti ti-logout" style="color:var(--color-text-danger)" aria-hidden="true"></i></div>
+        <div class="menu-label" style="color:var(--color-text-danger)">Sign Out</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" aria-label="App navigation">
+    <div class="nav-item active" data-screen="home">
+      <i class="ti ti-home" aria-hidden="true"></i>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" data-screen="explore">
+      <i class="ti ti-compass" aria-hidden="true"></i>
+      <span>Explore</span>
+    </div>
+    <div class="nav-item" data-screen="bookings">
+      <i class="ti ti-calendar-event" aria-hidden="true"></i>
+      <span>Bookings</span>
+    </div>
+    <div class="nav-item" data-screen="profile">
+      <i class="ti ti-user-circle" aria-hidden="true"></i>
+      <span>Profile</span>
+    </div>
+  </nav>
+</div>
+
+<script>
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById('screen-' + item.dataset.screen).classList.add('active');
+    });
+  });
+  document.querySelectorAll('.booking-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.booking-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.cat').forEach(cat => {
+    cat.addEventListener('click', () => {
+      document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+      cat.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+  document.querySelector('.feat-fav').addEventListener('click', function() {
+    const icon = this.querySelector('i');
+    icon.classList.toggle('ti-heart');
+    icon.classList.toggle('ti-heart-filled');
+    this.style.background = icon.classList.contains('ti-heart-filled') ? 'rgba(232,168,58,0.3)' : 'rgba(255,255,255,0.2)';
+  });
+</script>
