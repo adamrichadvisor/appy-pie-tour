@@ -1,686 +1,1261 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appy Pie Tour — Adventure Awaits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --forest: #1a3a2a; --moss: #2d5a3d; --gold: #c8922a; --amber: #e8a83a;
-    --cream: #f5f0e8; --sand: #e8dcc8;
+    --forest: #1a3a2a;
+    --moss: #2d5a3d;
+    --sage: #5a8a6a;
+    --gold: #c8922a;
+    --amber: #e8a83a;
+    --cream: #f5f0e8;
+    --sand: #e8dcc8;
+    --white: #fdfcfa;
+    --dark: #0e1f15;
+    --text: #2a3830;
+    --muted: #6b7c72;
   }
-  body { font-family: var(--font-sans); background: var(--color-background-tertiary); display: flex; justify-content: center; padding: 1.5rem 0; }
-  .phone {
-    width: 375px; min-height: 812px;
-    background: var(--color-background-primary);
-    border-radius: 40px;
-    border: 0.5px solid var(--color-border-secondary);
-    overflow: hidden;
-    display: flex; flex-direction: column;
-    position: relative;
-  }
-  .screen { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
-  .screen.active { display: flex; }
-  .screen::-webkit-scrollbar { display: none; }
 
-  /* STATUS BAR */
-  .status-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 20px 6px;
-    font-size: 12px; font-weight: 500;
-    color: var(--color-text-primary);
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 4rem;
+    background: transparent;
+    transition: background 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(14, 31, 21, 0.92);
+    backdrop-filter: blur(12px);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--amber); }
+  .nav-links { display: flex; gap: 2.4rem; list-style: none; }
+  .nav-links a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--amber); }
+  .nav-cta {
+    background: var(--gold);
+    color: var(--white) !important;
+    padding: 0.6rem 1.4rem;
+    border-radius: 2rem;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--amber) !important; color: var(--dark) !important; }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(160deg, rgba(14,31,21,0.72) 0%, rgba(26,58,42,0.45) 50%, rgba(14,31,21,0.78) 100%),
+      url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1800&q=85') center/cover no-repeat;
+    transform: scale(1.04);
+    animation: slowzoom 18s ease-in-out infinite alternate;
+  }
+  @keyframes slowzoom {
+    from { transform: scale(1.04); }
+    to { transform: scale(1.12); }
+  }
+  /* Diagonal overlay strip */
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 160px;
+    background: var(--white);
+    clip-path: polygon(0 60%, 100% 0%, 100% 100%, 0% 100%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 4rem;
+    max-width: 860px;
+    animation: fadeup 1s ease both;
+  }
+  @keyframes fadeup {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(200,146,42,0.2);
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    padding: 0.35rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1.6rem;
+    animation: fadeup 1s 0.15s ease both;
+  }
+  .hero-badge::before { content: '✦'; font-size: 0.7rem; }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.4rem;
+    animation: fadeup 1s 0.25s ease both;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--amber);
+  }
+  .hero-sub {
+    color: rgba(255,255,255,0.8);
+    font-size: 1.15rem;
+    font-weight: 300;
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 2.4rem;
+    animation: fadeup 1s 0.35s ease both;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeup 1s 0.45s ease both;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--white);
+    border: none;
+    padding: 1rem 2.4rem;
+    border-radius: 3rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.25s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--amber); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(200,146,42,0.4); }
+  .btn-outline {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid rgba(255,255,255,0.5);
+    padding: 1rem 2.2rem;
+    border-radius: 3rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.25s;
+  }
+  .btn-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.1); }
+
+  .hero-stats {
+    position: absolute;
+    bottom: 10rem;
+    right: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    z-index: 2;
+    animation: fadeup 1s 0.55s ease both;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 1rem;
+    padding: 1rem 1.4rem;
+    text-align: right;
+    color: var(--white);
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.75rem; opacity: 0.7; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.15rem; }
+
+  /* ── SECTION BASE ── */
+  section { padding: 7rem 4rem; }
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .section-tag::before, .section-tag::after { content: '—'; opacity: 0.5; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--forest);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 540px;
+  }
+
+  /* ── DESTINATIONS ── */
+  #destinations { background: var(--white); }
+  .dest-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1.2rem;
+    margin-top: 3rem;
+  }
+  .dest-card {
+    position: relative;
+    border-radius: 1.4rem;
+    overflow: hidden;
+    cursor: pointer;
+    group: true;
+  }
+  .dest-card:nth-child(1) { grid-column: 1 / 3; grid-row: 1; height: 420px; }
+  .dest-card:nth-child(2) { grid-column: 3; grid-row: 1 / 3; height: 100%; }
+  .dest-card:nth-child(3) { grid-column: 1; grid-row: 2; height: 300px; }
+  .dest-card:nth-child(4) { grid-column: 2; grid-row: 2; height: 300px; }
+
+  .dest-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  .dest-card:hover .dest-img { transform: scale(1.06); }
+  .dest-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(14,31,21,0.85) 0%, rgba(14,31,21,0.1) 60%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.8rem;
+    transition: background 0.4s;
+  }
+  .dest-card:hover .dest-overlay { background: linear-gradient(to top, rgba(14,31,21,0.92) 0%, rgba(14,31,21,0.2) 60%); }
+  .dest-tag {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.7rem;
+    border-radius: 1rem;
+    margin-bottom: 0.6rem;
+    width: fit-content;
+  }
+  .dest-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.3rem;
+  }
+  .dest-card:nth-child(2) .dest-name { font-size: 1.3rem; }
+  .dest-meta {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .dest-meta span::before { content: '📍 '; }
+  .dest-arrow {
+    position: absolute;
+    top: 1.2rem; right: 1.2rem;
+    width: 2.4rem; height: 2.4rem;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1rem;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all 0.3s;
+  }
+  .dest-card:hover .dest-arrow { opacity: 1; transform: translateY(0); }
+
+  /* ── TOURS ── */
+  #tours { background: var(--cream); }
+  .tours-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .tab {
+    background: var(--white);
+    border: 1.5px solid var(--sand);
+    color: var(--muted);
+    padding: 0.5rem 1.2rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active, .tab:hover {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: var(--white);
+  }
+  .tours-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.8rem;
+  }
+  .tour-card {
+    background: var(--white);
+    border-radius: 1.4rem;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 16px rgba(14,31,21,0.06);
+  }
+  .tour-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 48px rgba(14,31,21,0.14);
+  }
+  .tour-img-wrap {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+  }
+  .tour-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+  .tour-card:hover .tour-img { transform: scale(1.06); }
+  .tour-badge {
+    position: absolute;
+    top: 1rem; left: 1rem;
+    background: var(--forest);
+    color: var(--white);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 1rem;
+  }
+  .tour-fav {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    width: 2rem; height: 2rem;
+    background: var(--white);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .tour-body { padding: 1.4rem; }
+  .tour-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+  .stars { color: var(--amber); font-size: 0.85rem; letter-spacing: 0.05em; }
+  .rating-val { font-weight: 600; font-size: 0.85rem; color: var(--text); }
+  .rating-cnt { color: var(--muted); font-size: 0.8rem; }
+  .tour-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+  .tour-info {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .tour-info span { display: flex; align-items: center; gap: 0.3rem; }
+  .tour-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sand);
+  }
+  .tour-price .from { color: var(--muted); font-size: 0.75rem; }
+  .tour-price .amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .tour-price .per { color: var(--muted); font-size: 0.75rem; }
+  .btn-book {
+    background: var(--forest);
+    color: var(--white);
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-book:hover { background: var(--moss); }
+
+  /* ── WHY US ── */
+  #why {
+    background: var(--forest);
+    position: relative;
+    overflow: hidden;
+  }
+  #why::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,146,42,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+  .why-left .section-title { color: var(--cream); }
+  .why-left .section-sub { color: rgba(245,240,232,0.65); }
+  .why-features { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .why-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+  .why-icon {
+    width: 3rem; height: 3rem;
+    background: rgba(200,146,42,0.15);
+    border: 1px solid rgba(200,146,42,0.3);
+    border-radius: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
     flex-shrink: 0;
   }
-  .status-icons { display: flex; gap: 6px; align-items: center; }
-
-  /* BOTTOM NAV */
-  .bottom-nav {
-    display: flex; border-top: 0.5px solid var(--color-border-tertiary);
-    background: var(--color-background-primary);
-    padding: 8px 0 16px; flex-shrink: 0;
+  .why-feature h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 0.25rem;
   }
-  .nav-item {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    cursor: pointer; padding: 4px 0;
+  .why-feature p { color: rgba(245,240,232,0.6); font-size: 0.9rem; line-height: 1.6; }
+  .why-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
   }
-  .nav-item i { font-size: 22px; color: var(--color-text-tertiary); }
-  .nav-item span { font-size: 10px; color: var(--color-text-tertiary); }
-  .nav-item.active i { color: var(--forest); }
-  .nav-item.active span { color: var(--forest); font-weight: 500; }
-
-  /* ── HOME SCREEN ── */
-  .home-header {
-    padding: 8px 20px 16px;
-    background: var(--forest);
-  }
-  .home-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .home-logo { font-size: 18px; font-weight: 500; color: #fff; }
-  .home-logo span { color: var(--amber); }
-  .home-icons { display: flex; gap: 12px; }
-  .home-icons i { font-size: 22px; color: rgba(255,255,255,0.8); }
-  .greeting { color: rgba(255,255,255,0.65); font-size: 13px; margin-bottom: 4px; }
-  .greeting-big { color: #fff; font-size: 20px; font-weight: 500; margin-bottom: 16px; }
-  .search-box {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 12px; padding: 10px 14px;
-  }
-  .search-box i { font-size: 18px; color: rgba(255,255,255,0.6); }
-  .search-box span { color: rgba(255,255,255,0.55); font-size: 14px; }
-
-  /* CATEGORIES */
-  .section-pad { padding: 20px 20px 0; }
-  .sec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .sec-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
-  .sec-link { font-size: 13px; color: var(--gold); cursor: pointer; }
-  .cats { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-  .cats::-webkit-scrollbar { display: none; }
-  .cat {
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    flex-shrink: 0; cursor: pointer;
-  }
-  .cat-icon {
-    width: 56px; height: 56px; border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--color-background-secondary);
-    border: 0.5px solid var(--color-border-tertiary);
-  }
-  .cat-icon i { font-size: 24px; }
-  .cat.active .cat-icon { background: var(--forest); border-color: var(--forest); }
-  .cat.active .cat-icon i { color: #fff; }
-  .cat span { font-size: 11px; color: var(--color-text-secondary); }
-  .cat.active span { color: var(--forest); font-weight: 500; }
-
-  /* FEATURED CARD */
-  .featured-card {
-    margin: 20px 20px 0;
-    height: 200px; border-radius: 20px; overflow: hidden; position: relative; cursor: pointer;
-  }
-  .featured-img {
-    width: 100%; height: 100%; object-fit: cover;
-    background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 100%);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 60px;
-  }
-  .feat-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(14,31,21,0.88) 0%, rgba(14,31,21,0.1) 60%);
-    padding: 16px;
-    display: flex; flex-direction: column; justify-content: flex-end;
-  }
-  .feat-badge {
-    position: absolute; top: 14px; left: 14px;
-    background: var(--gold); color: #fff;
-    font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: 20px;
-  }
-  .feat-fav {
-    position: absolute; top: 12px; right: 14px;
-    width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-  }
-  .feat-fav i { font-size: 16px; color: #fff; }
-  .feat-title { color: #fff; font-size: 18px; font-weight: 500; margin-bottom: 6px; }
-  .feat-meta { display: flex; gap: 14px; color: rgba(255,255,255,0.7); font-size: 12px; }
-  .feat-meta span { display: flex; align-items: center; gap: 4px; }
-  .feat-meta i { font-size: 13px; }
-  .feat-price {
-    position: absolute; bottom: 16px; right: 16px;
-    color: var(--amber); font-size: 18px; font-weight: 500;
-  }
-
-  /* TOUR CARDS ROW */
-  .cards-row { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 4px; scrollbar-width: none; }
-  .cards-row::-webkit-scrollbar { display: none; }
-  .mini-card {
-    width: 160px; flex-shrink: 0; cursor: pointer;
-    background: var(--color-background-primary);
-    border: 0.5px solid var(--color-border-tertiary);
-    border-radius: var(--border-radius-lg); overflow: hidden;
-  }
-  .mini-img {
-    width: 100%; height: 100px;
-    background: var(--color-background-secondary);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 36px; position: relative;
-  }
-  .mini-type {
-    position: absolute; top: 8px; left: 8px;
-    background: rgba(14,31,21,0.75); color: #fff;
-    font-size: 9px; font-weight: 500; padding: 2px 7px; border-radius: 20px;
-  }
-  .mini-body { padding: 10px; }
-  .mini-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; line-height: 1.3; }
-  .mini-row { display: flex; justify-content: space-between; align-items: center; }
-  .mini-rating { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--color-text-secondary); }
-  .mini-rating i { font-size: 11px; color: var(--amber); }
-  .mini-price { font-size: 12px; font-weight: 500; color: var(--gold); }
-
-  /* ── EXPLORE SCREEN ── */
-  .explore-header { padding: 8px 20px 16px; background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
-  .explore-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 14px; }
-  .search-bar {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--color-background-secondary); border-radius: 12px; padding: 10px 14px;
-    border: 0.5px solid var(--color-border-tertiary);
-  }
-  .search-bar i { font-size: 18px; color: var(--color-text-tertiary); }
-  .search-bar input {
-    border: none; background: transparent; font-size: 14px;
-    color: var(--color-text-primary); outline: none; flex: 1;
-    font-family: var(--font-sans);
-  }
-  .filter-row { display: flex; gap: 8px; overflow-x: auto; padding: 16px 20px 0; scrollbar-width: none; }
-  .filter-row::-webkit-scrollbar { display: none; }
-  .filter-chip {
-    flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
-    font-size: 12px; font-weight: 500; cursor: pointer;
-    border: 0.5px solid var(--color-border-tertiary);
-    color: var(--color-text-secondary);
-    background: var(--color-background-primary);
-  }
-  .filter-chip.active { background: var(--forest); color: #fff; border-color: var(--forest); }
-  .dest-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
-  .dest-row {
-    display: flex; gap: 12px; align-items: center;
-    padding: 12px; border-radius: var(--border-radius-lg);
-    border: 0.5px solid var(--color-border-tertiary);
-    background: var(--color-background-primary); cursor: pointer;
-  }
-  .dest-thumb {
-    width: 72px; height: 72px; border-radius: 12px; flex-shrink: 0;
-    background: var(--color-background-secondary);
-    display: flex; align-items: center; justify-content: center; font-size: 30px;
-  }
-  .dest-info { flex: 1; }
-  .dest-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
-  .dest-loc { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 3px; margin-bottom: 6px; }
-  .dest-loc i { font-size: 12px; }
-  .dest-chips { display: flex; gap: 6px; }
-  .dest-chip {
-    font-size: 10px; padding: 2px 8px; border-radius: 20px;
-    background: var(--color-background-secondary); color: var(--color-text-secondary);
-    border: 0.5px solid var(--color-border-tertiary);
-  }
-  .dest-price { font-size: 13px; font-weight: 500; color: var(--gold); align-self: flex-start; margin-top: 2px; }
-
-  /* ── BOOKINGS SCREEN ── */
-  .bookings-header { padding: 20px 20px 0; }
-  .bookings-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 16px; }
-  .booking-tabs { display: flex; gap: 0; margin-bottom: 20px; border-radius: 10px; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
-  .booking-tab { flex: 1; padding: 9px; text-align: center; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--color-text-secondary); background: var(--color-background-primary); }
-  .booking-tab.active { background: var(--forest); color: #fff; }
-  .booking-cards { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
-  .booking-card {
-    border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg);
-    overflow: hidden; background: var(--color-background-primary);
-  }
-  .booking-img {
-    height: 120px; background: var(--color-background-secondary);
-    display: flex; align-items: center; justify-content: center; font-size: 40px;
+  .why-img-card {
+    border-radius: 1.2rem;
+    overflow: hidden;
     position: relative;
   }
-  .booking-status {
-    position: absolute; top: 10px; right: 10px;
-    font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px;
+  .why-img-card:first-child { margin-top: 3rem; }
+  .why-img-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+  .why-img-label {
+    position: absolute;
+    bottom: 0.8rem; left: 0.8rem;
+    background: rgba(14,31,21,0.85);
+    color: var(--white);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+    border-radius: 1rem;
   }
-  .status-upcoming { background: #E1F5EE; color: #0F6E56; }
-  .status-completed { background: var(--color-background-secondary); color: var(--color-text-secondary); }
-  .booking-body { padding: 12px 14px; }
-  .booking-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
-  .booking-details { display: flex; gap: 16px; margin-bottom: 10px; }
-  .booking-detail { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-text-secondary); }
-  .booking-detail i { font-size: 13px; }
-  .booking-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); }
-  .booking-price { font-size: 16px; font-weight: 500; color: var(--forest); }
-  .booking-btn {
-    padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: none;
-  }
-  .btn-view { background: var(--forest); color: #fff; }
-  .btn-rate { background: var(--color-background-secondary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary); }
 
-  /* ── PROFILE SCREEN ── */
-  .profile-header { background: var(--forest); padding: 20px 20px 30px; text-align: center; }
-  .avatar {
-    width: 72px; height: 72px; border-radius: 50%;
-    background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+  /* ── TESTIMONIALS ── */
+  #testimonials { background: var(--cream); overflow: hidden; }
+  .testimonials-header { text-align: center; margin-bottom: 3.5rem; }
+  .testimonials-header .section-sub { margin: 0 auto; }
+  .testi-track {
+    display: flex;
+    gap: 1.8rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .testi-track::-webkit-scrollbar { display: none; }
+  .testi-card {
+    min-width: 340px;
+    background: var(--white);
+    border-radius: 1.4rem;
+    padding: 2rem;
+    box-shadow: 0 2px 20px rgba(14,31,21,0.06);
+    flex-shrink: 0;
+  }
+  .testi-quote {
+    font-size: 2.5rem;
+    color: var(--amber);
+    font-family: 'Playfair Display', serif;
+    line-height: 0.8;
+    margin-bottom: 0.8rem;
+  }
+  .testi-text {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+  .testi-person {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .testi-avatar {
+    width: 2.8rem; height: 2.8rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .testi-name { font-weight: 600; font-size: 0.9rem; color: var(--forest); }
+  .testi-dest { color: var(--muted); font-size: 0.8rem; }
+  .testi-stars { color: var(--amber); font-size: 0.75rem; }
+
+  /* ── NEWSLETTER ── */
+  #newsletter {
+    background: var(--white);
+    padding: 5rem 4rem;
+  }
+  .newsletter-inner {
+    background: linear-gradient(135deg, var(--forest) 0%, var(--moss) 100%);
+    border-radius: 2rem;
+    padding: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .newsletter-inner::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(200,146,42,0.18) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .newsletter-inner::after {
+    content: '🌿';
+    position: absolute;
+    right: 4rem;
+    bottom: -1rem;
+    font-size: 8rem;
+    opacity: 0.08;
+  }
+  .newsletter-text .section-title { color: var(--white); margin-bottom: 0.5rem; }
+  .newsletter-text p { color: rgba(255,255,255,0.65); font-size: 1rem; }
+  .newsletter-form {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .newsletter-form input {
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    color: var(--white);
+    padding: 0.9rem 1.5rem;
+    border-radius: 3rem;
+    font-size: 0.95rem;
+    outline: none;
+    min-width: 280px;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s;
+  }
+  .newsletter-form input::placeholder { color: rgba(255,255,255,0.45); }
+  .newsletter-form input:focus { border-color: var(--amber); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--dark);
+    color: rgba(255,255,255,0.6);
+    padding: 4rem 4rem 2rem;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+  .footer-brand .logo { display: block; margin-bottom: 1rem; font-size: 1.4rem; }
+  .footer-brand p { font-size: 0.88rem; line-height: 1.7; max-width: 280px; }
+  .footer-socials { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
+  .social-btn {
+    width: 2.2rem; height: 2.2rem;
+    background: rgba(255,255,255,0.08);
+    border-radius: 0.5rem;
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 10px; font-size: 28px; color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
   }
-  .profile-name { color: #fff; font-size: 18px; font-weight: 500; margin-bottom: 3px; }
-  .profile-email { color: rgba(255,255,255,0.6); font-size: 13px; }
-  .profile-stats { display: flex; gap: 0; margin: 20px 20px 0; border-radius: var(--border-radius-lg); overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
-  .pstat { flex: 1; padding: 14px 8px; text-align: center; background: var(--color-background-primary); }
-  .pstat:not(:last-child) { border-right: 0.5px solid var(--color-border-tertiary); }
-  .pstat-num { font-size: 20px; font-weight: 500; color: var(--forest); }
-  .pstat-label { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
-  .profile-menu { padding: 16px 20px; display: flex; flex-direction: column; gap: 2px; }
-  .menu-section { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 0 6px; }
-  .menu-item {
-    display: flex; align-items: center; gap: 12px; padding: 13px 14px;
-    border-radius: var(--border-radius-md); cursor: pointer;
+  .social-btn:hover { background: var(--gold); }
+  .footer-col h5 {
+    color: var(--white);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
   }
-  .menu-item:hover { background: var(--color-background-secondary); }
-  .menu-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; }
-  .menu-icon i { font-size: 18px; color: var(--color-text-secondary); }
-  .menu-label { flex: 1; font-size: 14px; color: var(--color-text-primary); }
-  .menu-arrow i { font-size: 16px; color: var(--color-text-tertiary); }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-col a {
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--amber); }
+  .footer-bottom {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-bottom p { font-size: 0.82rem; }
 
-  /* SCROLL FIX */
-  .screen { overflow-y: auto; max-height: 100%; }
-  .spacer { height: 20px; }
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    nav { padding: 1.2rem 2rem; }
+    .nav-links { gap: 1.4rem; }
+    section { padding: 5rem 2rem; }
+    .dest-grid { grid-template-columns: 1fr 1fr; }
+    .dest-card:nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+    .dest-card:nth-child(2) { grid-column: 1; grid-row: 2; height: 280px; }
+    .dest-card:nth-child(3) { grid-column: 2; grid-row: 2; }
+    .dest-card:nth-child(4) { grid-column: 1 / 3; grid-row: 3; height: 260px; }
+    .tours-grid { grid-template-columns: 1fr 1fr; }
+    .why-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero-content { padding: 0 1.5rem; }
+    .hero-stats { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .dest-grid { grid-template-columns: 1fr; }
+    .dest-card:nth-child(n) { grid-column: 1; grid-row: auto; height: 260px; }
+    .tours-grid { grid-template-columns: 1fr; }
+    .why-right { display: none; }
+    .newsletter-inner { padding: 2.5rem 1.5rem; }
+    .newsletter-form input { min-width: 100%; }
+    .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+  }
 </style>
+</head>
+<body>
 
-<h2 class="sr-only">Appy Pie Tour mobile app mockup with Home, Explore, Bookings, and Profile screens</h2>
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo">Appy<span>Pie</span> Tour</div>
+  <ul class="nav-links">
+    <li><a href="#destinations">Destinations</a></li>
+    <li><a href="#tours">Tours</a></li>
+    <li><a href="#why">About</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#newsletter" class="nav-cta">Book Now</a></li>
+  </ul>
+</nav>
 
-<div class="phone">
-  <div class="status-bar">
-    <span>9:41</span>
-    <div class="status-icons">
-      <i class="ti ti-wifi" style="font-size:14px;color:var(--color-text-primary)" aria-hidden="true"></i>
-      <i class="ti ti-signal-4g" style="font-size:14px;color:var(--color-text-primary)" aria-hidden="true"></i>
-      <i class="ti ti-battery-2" style="font-size:14px;color:var(--color-text-primary)" aria-hidden="true"></i>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Premium Adventure Tours</div>
+    <h1 class="hero-title">Where the <em>Wild</em><br>Calls Your Name</h1>
+    <p class="hero-sub">Handcrafted outdoor adventures across the world's most breathtaking landscapes. Expert guides, small groups, unforgettable memories.</p>
+    <div class="hero-actions">
+      <a href="#tours" class="btn-primary">Explore Tours →</a>
+      <a href="#destinations" class="btn-outline">▶ Watch Story</a>
     </div>
   </div>
-
-  <!-- HOME -->
-  <div class="screen active" id="screen-home">
-    <div class="home-header">
-      <div class="home-topbar">
-        <div class="home-logo">Appy<span>Pie</span> Tour</div>
-        <div class="home-icons">
-          <i class="ti ti-bell" aria-hidden="true"></i>
-          <i class="ti ti-user-circle" aria-hidden="true"></i>
-        </div>
-      </div>
-      <div class="greeting">Good morning, Alex 👋</div>
-      <div class="greeting-big">Where to next?</div>
-      <div class="search-box">
-        <i class="ti ti-search" aria-hidden="true"></i>
-        <span>Search destinations, tours...</span>
-      </div>
+  <div class="hero-stats">
+    <div class="stat-card">
+      <div class="stat-num">4.9★</div>
+      <div class="stat-label">Avg. Rating</div>
     </div>
-
-    <div class="section-pad">
-      <div class="sec-header">
-        <span class="sec-title">Categories</span>
-        <span class="sec-link">See all</span>
-      </div>
-      <div class="cats">
-        <div class="cat active">
-          <div class="cat-icon"><i class="ti ti-mountain" aria-hidden="true"></i></div>
-          <span>Trekking</span>
-        </div>
-        <div class="cat">
-          <div class="cat-icon"><i class="ti ti-paw" aria-hidden="true"></i></div>
-          <span>Wildlife</span>
-        </div>
-        <div class="cat">
-          <div class="cat-icon"><i class="ti ti-kayak" aria-hidden="true"></i></div>
-          <span>Water</span>
-        </div>
-        <div class="cat">
-          <div class="cat-icon"><i class="ti ti-campfire" aria-hidden="true"></i></div>
-          <span>Camping</span>
-        </div>
-        <div class="cat">
-          <div class="cat-icon"><i class="ti ti-building-arch" aria-hidden="true"></i></div>
-          <span>Cultural</span>
-        </div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-num">850+</div>
+      <div class="stat-label">Tours Done</div>
     </div>
-
-    <div class="section-pad" style="padding-top:20px">
-      <div class="sec-header">
-        <span class="sec-title">Featured Tour</span>
-        <span class="sec-link">View all</span>
-      </div>
+    <div class="stat-card">
+      <div class="stat-num">12K</div>
+      <div class="stat-label">Happy Travelers</div>
     </div>
-    <div class="featured-card">
-      <div class="featured-img">🏔</div>
-      <div class="feat-overlay">
-        <div class="feat-badge">Bestseller</div>
-        <div class="feat-fav"><i class="ti ti-heart" aria-hidden="true"></i></div>
-        <div class="feat-title">Everest Base Camp Trek</div>
-        <div class="feat-meta">
-          <span><i class="ti ti-map-pin" aria-hidden="true"></i>Nepal</span>
-          <span><i class="ti ti-clock" aria-hidden="true"></i>16 Days</span>
-          <span><i class="ti ti-users" aria-hidden="true"></i>Max 12</span>
-        </div>
-      </div>
-      <div class="feat-price">$2,499</div>
-    </div>
-
-    <div class="section-pad" style="padding-top:20px">
-      <div class="sec-header">
-        <span class="sec-title">Popular Tours</span>
-        <span class="sec-link">See all</span>
-      </div>
-    </div>
-    <div class="cards-row">
-      <div class="mini-card">
-        <div class="mini-img">🦁<div class="mini-type">Wildlife</div></div>
-        <div class="mini-body">
-          <div class="mini-name">Serengeti Migration</div>
-          <div class="mini-row">
-            <div class="mini-rating"><i class="ti ti-star-filled" aria-hidden="true"></i>4.9</div>
-            <div class="mini-price">$3,299</div>
-          </div>
-        </div>
-      </div>
-      <div class="mini-card">
-        <div class="mini-img">⛵<div class="mini-type">Water</div></div>
-        <div class="mini-body">
-          <div class="mini-name">Fjords Kayaking</div>
-          <div class="mini-row">
-            <div class="mini-rating"><i class="ti ti-star-filled" aria-hidden="true"></i>4.9</div>
-            <div class="mini-price">$1,649</div>
-          </div>
-        </div>
-      </div>
-      <div class="mini-card">
-        <div class="mini-img">🌵<div class="mini-type">Desert</div></div>
-        <div class="mini-body">
-          <div class="mini-name">Sahara Caravan</div>
-          <div class="mini-row">
-            <div class="mini-rating"><i class="ti ti-star-filled" aria-hidden="true"></i>4.7</div>
-            <div class="mini-price">$899</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-pad" style="padding-top:20px">
-      <div class="sec-header">
-        <span class="sec-title">Top Destinations</span>
-        <span class="sec-link">Map view</span>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 20px;scrollbar-width:none">
-      <div style="flex-shrink:0;width:130px;border-radius:14px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)">
-        <div style="height:80px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:32px">🗻</div>
-        <div style="padding:8px;font-size:12px;font-weight:500;color:var(--color-text-primary)">Himalayas</div>
-        <div style="padding:0 8px 8px;font-size:11px;color:var(--color-text-tertiary)">Nepal & Tibet</div>
-      </div>
-      <div style="flex-shrink:0;width:130px;border-radius:14px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)">
-        <div style="height:80px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:32px">🌿</div>
-        <div style="padding:8px;font-size:12px;font-weight:500;color:var(--color-text-primary)">Amazon</div>
-        <div style="padding:0 8px 8px;font-size:11px;color:var(--color-text-tertiary)">Brazil & Peru</div>
-      </div>
-      <div style="flex-shrink:0;width:130px;border-radius:14px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)">
-        <div style="height:80px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:32px">🏔</div>
-        <div style="padding:8px;font-size:12px;font-weight:500;color:var(--color-text-primary)">Patagonia</div>
-        <div style="padding:0 8px 8px;font-size:11px;color:var(--color-text-tertiary)">Chile & Argentina</div>
-      </div>
-    </div>
-    <div class="spacer"></div>
   </div>
+</section>
 
-  <!-- EXPLORE -->
-  <div class="screen" id="screen-explore">
-    <div class="explore-header">
-      <div class="explore-title">Explore</div>
-      <div class="search-bar">
-        <i class="ti ti-search" aria-hidden="true"></i>
-        <input placeholder="Search tours & destinations..." />
-        <i class="ti ti-adjustments-horizontal" style="color:var(--gold);font-size:18px" aria-hidden="true"></i>
-      </div>
-    </div>
-    <div class="filter-row">
-      <div class="filter-chip active">All</div>
-      <div class="filter-chip">Trekking</div>
-      <div class="filter-chip">Wildlife</div>
-      <div class="filter-chip">Water</div>
-      <div class="filter-chip">Camping</div>
-      <div class="filter-chip">Desert</div>
-    </div>
-    <div class="dest-list">
-      <div class="dest-row">
-        <div class="dest-thumb">🏔</div>
-        <div class="dest-info">
-          <div class="dest-title">Everest Base Camp Trek</div>
-          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Nepal, Asia</div>
-          <div class="dest-chips">
-            <span class="dest-chip">16 days</span>
-            <span class="dest-chip">Challenging</span>
-            <span class="dest-chip">Max 12</span>
-          </div>
-        </div>
-        <div class="dest-price">$2,499</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-thumb">🦁</div>
-        <div class="dest-info">
-          <div class="dest-title">Serengeti Migration</div>
-          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Tanzania, Africa</div>
-          <div class="dest-chips">
-            <span class="dest-chip">10 days</span>
-            <span class="dest-chip">Moderate</span>
-            <span class="dest-chip">Max 8</span>
-          </div>
-        </div>
-        <div class="dest-price">$3,299</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-thumb">⛵</div>
-        <div class="dest-info">
-          <div class="dest-title">Fjords Kayaking Odyssey</div>
-          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Norway, Europe</div>
-          <div class="dest-chips">
-            <span class="dest-chip">7 days</span>
-            <span class="dest-chip">Easy–Mod</span>
-            <span class="dest-chip">Max 6</span>
-          </div>
-        </div>
-        <div class="dest-price">$1,649</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-thumb">🌿</div>
-        <div class="dest-info">
-          <div class="dest-title">Amazon Rainforest Trek</div>
-          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Brazil & Peru</div>
-          <div class="dest-chips">
-            <span class="dest-chip">12 days</span>
-            <span class="dest-chip">Challenging</span>
-            <span class="dest-chip">Max 8</span>
-          </div>
-        </div>
-        <div class="dest-price">$2,199</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-thumb">🌵</div>
-        <div class="dest-info">
-          <div class="dest-title">Sahara Camel Caravan</div>
-          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Morocco, Africa</div>
-          <div class="dest-chips">
-            <span class="dest-chip">5 days</span>
-            <span class="dest-chip">Easy</span>
-            <span class="dest-chip">Max 14</span>
-          </div>
-        </div>
-        <div class="dest-price">$899</div>
-      </div>
-      <div class="dest-row">
-        <div class="dest-thumb">🏕</div>
-        <div class="dest-info">
-          <div class="dest-title">Swiss Alps Traverse</div>
-          <div class="dest-loc"><i class="ti ti-map-pin" aria-hidden="true"></i>Switzerland, Europe</div>
-          <div class="dest-chips">
-            <span class="dest-chip">8 days</span>
-            <span class="dest-chip">Moderate</span>
-            <span class="dest-chip">Max 10</span>
-          </div>
-        </div>
-        <div class="dest-price">$1,899</div>
-      </div>
-    </div>
-    <div class="spacer"></div>
+<!-- DESTINATIONS -->
+<section id="destinations">
+  <div class="reveal">
+    <div class="section-tag">Top Picks</div>
+    <h2 class="section-title">Extraordinary <em style="font-style:italic;color:var(--gold)">Destinations</em></h2>
+    <p class="section-sub">From Himalayan treks to Amazonian expeditions — we cover the world's wildest corners.</p>
   </div>
-
-  <!-- BOOKINGS -->
-  <div class="screen" id="screen-bookings">
-    <div class="bookings-header">
-      <div class="bookings-title">My Bookings</div>
-      <div class="booking-tabs">
-        <div class="booking-tab active">Upcoming</div>
-        <div class="booking-tab">Completed</div>
-        <div class="booking-tab">Cancelled</div>
+  <div class="dest-grid">
+    <div class="dest-card reveal reveal-delay-1">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1502786129293-79981df4e689?w=900&q=80" alt="Himalayas">
+      <div class="dest-overlay">
+        <div class="dest-tag">Bestseller</div>
+        <div class="dest-name">Himalayan Circuit</div>
+        <div class="dest-meta"><span>Nepal & Tibet</span> · 14 Days</div>
       </div>
+      <div class="dest-arrow">↗</div>
     </div>
-    <div class="booking-cards">
-      <div class="booking-card">
-        <div class="booking-img">🏔
-          <div class="booking-status status-upcoming">Upcoming</div>
-        </div>
-        <div class="booking-body">
-          <div class="booking-name">Everest Base Camp Trek</div>
-          <div class="booking-details">
-            <div class="booking-detail"><i class="ti ti-calendar" aria-hidden="true"></i>Aug 14, 2025</div>
-            <div class="booking-detail"><i class="ti ti-users" aria-hidden="true"></i>2 people</div>
-            <div class="booking-detail"><i class="ti ti-clock" aria-hidden="true"></i>16 days</div>
-          </div>
-          <div class="booking-footer">
-            <div class="booking-price">$4,998</div>
-            <button class="booking-btn btn-view">View Details</button>
-          </div>
-        </div>
+    <div class="dest-card reveal reveal-delay-2">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1609240132543-b1f2a84e4a2e?w=700&q=80" alt="Patagonia">
+      <div class="dest-overlay">
+        <div class="dest-tag">New</div>
+        <div class="dest-name">Patagonia Wild</div>
+        <div class="dest-meta"><span>Chile & Argentina</span> · 10 Days</div>
       </div>
-      <div class="booking-card">
-        <div class="booking-img">🦁
-          <div class="booking-status status-completed">Completed</div>
-        </div>
-        <div class="booking-body">
-          <div class="booking-name">Serengeti Migration Safari</div>
-          <div class="booking-details">
-            <div class="booking-detail"><i class="ti ti-calendar" aria-hidden="true"></i>Mar 5, 2025</div>
-            <div class="booking-detail"><i class="ti ti-users" aria-hidden="true"></i>1 person</div>
-            <div class="booking-detail"><i class="ti ti-clock" aria-hidden="true"></i>10 days</div>
-          </div>
-          <div class="booking-footer">
-            <div class="booking-price">$3,299</div>
-            <button class="booking-btn btn-rate">Rate Tour</button>
-          </div>
-        </div>
-      </div>
+      <div class="dest-arrow">↗</div>
     </div>
-    <div class="spacer"></div>
+    <div class="dest-card reveal reveal-delay-3">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&q=80" alt="Sahara">
+      <div class="dest-overlay">
+        <div class="dest-tag">Adventure</div>
+        <div class="dest-name">Sahara Crossing</div>
+        <div class="dest-meta"><span>Morocco</span> · 7 Days</div>
+      </div>
+      <div class="dest-arrow">↗</div>
+    </div>
+    <div class="dest-card reveal reveal-delay-4">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80" alt="Rainforest">
+      <div class="dest-overlay">
+        <div class="dest-tag">Eco Tour</div>
+        <div class="dest-name">Amazon Deep Dive</div>
+        <div class="dest-meta"><span>Brazil & Peru</span> · 12 Days</div>
+      </div>
+      <div class="dest-arrow">↗</div>
+    </div>
   </div>
+</section>
 
-  <!-- PROFILE -->
-  <div class="screen" id="screen-profile">
-    <div class="profile-header">
-      <div class="avatar"><i class="ti ti-user" aria-hidden="true"></i></div>
-      <div class="profile-name">Alex Johnson</div>
-      <div class="profile-email">alex.johnson@email.com</div>
+<!-- TOURS -->
+<section id="tours">
+  <div class="tours-header reveal">
+    <div>
+      <div class="section-tag">Our Packages</div>
+      <h2 class="section-title">Curated <em style="font-style:italic;color:var(--gold)">Experiences</em></h2>
     </div>
-    <div class="profile-stats">
-      <div class="pstat">
-        <div class="pstat-num">7</div>
-        <div class="pstat-label">Tours done</div>
-      </div>
-      <div class="pstat">
-        <div class="pstat-num">4</div>
-        <div class="pstat-label">Countries</div>
-      </div>
-      <div class="pstat">
-        <div class="pstat-num">4.9</div>
-        <div class="pstat-label">Avg rating</div>
-      </div>
+    <div class="filter-tabs">
+      <span class="tab active">All</span>
+      <span class="tab">Trekking</span>
+      <span class="tab">Wildlife</span>
+      <span class="tab">Cultural</span>
+      <span class="tab">Water</span>
     </div>
-    <div class="profile-menu">
-      <div class="menu-section">Account</div>
-      <div class="menu-item">
-        <div class="menu-icon"><i class="ti ti-user" aria-hidden="true"></i></div>
-        <div class="menu-label">Personal Info</div>
-        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon"><i class="ti ti-heart" aria-hidden="true"></i></div>
-        <div class="menu-label">Wishlist</div>
-        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon"><i class="ti ti-credit-card" aria-hidden="true"></i></div>
-        <div class="menu-label">Payment Methods</div>
-        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
-      </div>
-      <div class="menu-section">Preferences</div>
-      <div class="menu-item">
-        <div class="menu-icon"><i class="ti ti-bell" aria-hidden="true"></i></div>
-        <div class="menu-label">Notifications</div>
-        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon"><i class="ti ti-language" aria-hidden="true"></i></div>
-        <div class="menu-label">Language & Region</div>
-        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
-      </div>
-      <div class="menu-section">Support</div>
-      <div class="menu-item">
-        <div class="menu-icon"><i class="ti ti-help-circle" aria-hidden="true"></i></div>
-        <div class="menu-label">Help Center</div>
-        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon"><i class="ti ti-star" aria-hidden="true"></i></div>
-        <div class="menu-label">Rate the App</div>
-        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
-      </div>
-      <div class="menu-item" style="margin-top:4px">
-        <div class="menu-icon" style="background:var(--color-background-danger)"><i class="ti ti-logout" style="color:var(--color-text-danger)" aria-hidden="true"></i></div>
-        <div class="menu-label" style="color:var(--color-text-danger)">Sign Out</div>
-      </div>
-    </div>
-    <div class="spacer"></div>
   </div>
+  <div class="tours-grid">
 
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav" aria-label="App navigation">
-    <div class="nav-item active" data-screen="home">
-      <i class="ti ti-home" aria-hidden="true"></i>
-      <span>Home</span>
+    <div class="tour-card reveal reveal-delay-1">
+      <div class="tour-img-wrap">
+        <img class="tour-img" src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80" alt="Trek">
+        <div class="tour-badge">🏔 Trekking</div>
+        <div class="tour-fav">♡</div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-val">5.0</span>
+          <span class="rating-cnt">(248 reviews)</span>
+        </div>
+        <div class="tour-name">Everest Base Camp Trek</div>
+        <div class="tour-info">
+          <span>⏱ 16 Days</span>
+          <span>👥 Max 12</span>
+          <span>🎯 Challenging</span>
+        </div>
+        <div class="tour-footer">
+          <div class="tour-price">
+            <div class="from">From</div>
+            <span class="amount">$2,499</span>
+            <span class="per"> /person</span>
+          </div>
+          <button class="btn-book">Book Now</button>
+        </div>
+      </div>
     </div>
-    <div class="nav-item" data-screen="explore">
-      <i class="ti ti-compass" aria-hidden="true"></i>
-      <span>Explore</span>
+
+    <div class="tour-card reveal reveal-delay-2">
+      <div class="tour-img-wrap">
+        <img class="tour-img" src="https://images.unsplash.com/photo-1587308765840-10f3b6fa8c5f?w=600&q=80" alt="Safari">
+        <div class="tour-badge">🦁 Wildlife</div>
+        <div class="tour-fav">♡</div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-val">4.9</span>
+          <span class="rating-cnt">(187 reviews)</span>
+        </div>
+        <div class="tour-name">Serengeti Great Migration</div>
+        <div class="tour-info">
+          <span>⏱ 10 Days</span>
+          <span>👥 Max 8</span>
+          <span>🎯 Moderate</span>
+        </div>
+        <div class="tour-footer">
+          <div class="tour-price">
+            <div class="from">From</div>
+            <span class="amount">$3,299</span>
+            <span class="per"> /person</span>
+          </div>
+          <button class="btn-book">Book Now</button>
+        </div>
+      </div>
     </div>
-    <div class="nav-item" data-screen="bookings">
-      <i class="ti ti-calendar-event" aria-hidden="true"></i>
-      <span>Bookings</span>
+
+    <div class="tour-card reveal reveal-delay-3">
+      <div class="tour-img-wrap">
+        <img class="tour-img" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" alt="Alps">
+        <div class="tour-badge">🏕 Camping</div>
+        <div class="tour-fav">♡</div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-val">4.8</span>
+          <span class="rating-cnt">(312 reviews)</span>
+        </div>
+        <div class="tour-name">Swiss Alps Traverse</div>
+        <div class="tour-info">
+          <span>⏱ 8 Days</span>
+          <span>👥 Max 10</span>
+          <span>🎯 Moderate</span>
+        </div>
+        <div class="tour-footer">
+          <div class="tour-price">
+            <div class="from">From</div>
+            <span class="amount">$1,899</span>
+            <span class="per"> /person</span>
+          </div>
+          <button class="btn-book">Book Now</button>
+        </div>
+      </div>
     </div>
-    <div class="nav-item" data-screen="profile">
-      <i class="ti ti-user-circle" aria-hidden="true"></i>
-      <span>Profile</span>
+
+    <div class="tour-card reveal reveal-delay-1">
+      <div class="tour-img-wrap">
+        <img class="tour-img" src="https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=600&q=80" alt="Kayak">
+        <div class="tour-badge">🚣 Water</div>
+        <div class="tour-fav">♡</div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-val">4.9</span>
+          <span class="rating-cnt">(95 reviews)</span>
+        </div>
+        <div class="tour-name">Fjords Kayaking Odyssey</div>
+        <div class="tour-info">
+          <span>⏱ 7 Days</span>
+          <span>👥 Max 6</span>
+          <span>🎯 Easy–Mod</span>
+        </div>
+        <div class="tour-footer">
+          <div class="tour-price">
+            <div class="from">From</div>
+            <span class="amount">$1,649</span>
+            <span class="per"> /person</span>
+          </div>
+          <button class="btn-book">Book Now</button>
+        </div>
+      </div>
     </div>
-  </nav>
-</div>
+
+    <div class="tour-card reveal reveal-delay-2">
+      <div class="tour-img-wrap">
+        <img class="tour-img" src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=600&q=80" alt="Desert">
+        <div class="tour-badge">🌵 Desert</div>
+        <div class="tour-fav">♡</div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-rating">
+          <span class="stars">★★★★☆</span>
+          <span class="rating-val">4.7</span>
+          <span class="rating-cnt">(143 reviews)</span>
+        </div>
+        <div class="tour-name">Sahara Camel Caravan</div>
+        <div class="tour-info">
+          <span>⏱ 5 Days</span>
+          <span>👥 Max 14</span>
+          <span>🎯 Easy</span>
+        </div>
+        <div class="tour-footer">
+          <div class="tour-price">
+            <div class="from">From</div>
+            <span class="amount">$899</span>
+            <span class="per"> /person</span>
+          </div>
+          <button class="btn-book">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tour-card reveal reveal-delay-3">
+      <div class="tour-img-wrap">
+        <img class="tour-img" src="https://images.unsplash.com/photo-1540202404-a2f29d0c7a1d?w=600&q=80" alt="Jungle">
+        <div class="tour-badge">🌿 Eco</div>
+        <div class="tour-fav">♡</div>
+      </div>
+      <div class="tour-body">
+        <div class="tour-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-val">5.0</span>
+          <span class="rating-cnt">(76 reviews)</span>
+        </div>
+        <div class="tour-name">Amazon Rainforest Trek</div>
+        <div class="tour-info">
+          <span>⏱ 12 Days</span>
+          <span>👥 Max 8</span>
+          <span>🎯 Challenging</span>
+        </div>
+        <div class="tour-footer">
+          <div class="tour-price">
+            <div class="from">From</div>
+            <span class="amount">$2,199</span>
+            <span class="per"> /person</span>
+          </div>
+          <button class="btn-book">Book Now</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="why-grid">
+    <div class="why-left reveal">
+      <div class="section-tag" style="color:var(--amber)">Why Choose Us</div>
+      <h2 class="section-title">Adventure with <em style="font-style:italic;color:var(--amber)">Purpose</em></h2>
+      <p class="section-sub" style="color:rgba(245,240,232,0.65)">We don't just take you places. We connect you with the soul of every landscape, guided by people who live and breathe the outdoors.</p>
+      <div class="why-features">
+        <div class="why-feature reveal reveal-delay-1">
+          <div class="why-icon">🧭</div>
+          <div>
+            <h4>Expert Local Guides</h4>
+            <p>Every guide is a certified local expert with deep knowledge of terrain, culture, and wildlife.</p>
+          </div>
+        </div>
+        <div class="why-feature reveal reveal-delay-2">
+          <div class="why-icon">🌱</div>
+          <div>
+            <h4>Eco-Responsible Travel</h4>
+            <p>We leave no trace. 2% of every booking funds conservation projects in tour destinations.</p>
+          </div>
+        </div>
+        <div class="why-feature reveal reveal-delay-3">
+          <div class="why-icon">🛡</div>
+          <div>
+            <h4>Safety First, Always</h4>
+            <p>24/7 emergency support, full insurance coverage, and rigorous safety protocols on every tour.</p>
+          </div>
+        </div>
+        <div class="why-feature reveal reveal-delay-4">
+          <div class="why-icon">⭐</div>
+          <div>
+            <h4>Small Group Experience</h4>
+            <p>Max 14 travelers per group ensures a personal, authentic experience — never a tourist crowd.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="why-right reveal">
+      <div class="why-img-card">
+        <img src="https://images.unsplash.com/photo-1464207687429-7505649dae38?w=500&q=80" alt="Guide">
+        <div class="why-img-label">Expert Guides</div>
+      </div>
+      <div class="why-img-card">
+        <img src="https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=500&q=80" alt="Camp">
+        <div class="why-img-label">Base Camps</div>
+      </div>
+      <div class="why-img-card">
+        <img src="https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=500&q=80" alt="Summit">
+        <div class="why-img-label">Summit Views</div>
+      </div>
+      <div class="why-img-card" style="margin-top:3rem">
+        <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=500&q=80" alt="Forest">
+        <div class="why-img-label">Wild Nature</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testimonials-header reveal">
+    <div class="section-tag">Real Stories</div>
+    <h2 class="section-title">Travelers Who <em style="font-style:italic;color:var(--gold)">Came Back for More</em></h2>
+    <p class="section-sub">Don't just take our word for it — hear from the adventurers who trusted us with their most precious moments.</p>
+  </div>
+  <div class="testi-track" id="testiTrack">
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">The Everest trek was the most transformative experience of my life. Our guide Pemba knew every secret path and story. Appy Pie Tour went above and beyond at every step.</p>
+      <div class="testi-person">
+        <img class="testi-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah">
+        <div>
+          <div class="testi-name">Sarah M.</div>
+          <div class="testi-dest">Everest Base Camp Trek</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">I've done 6 tours with different companies. Nothing compares to Appy Pie. The Amazon trip felt like a National Geographic documentary — but I was living it!</p>
+      <div class="testi-person">
+        <img class="testi-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="James">
+        <div>
+          <div class="testi-name">James K.</div>
+          <div class="testi-dest">Amazon Rainforest Trek</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">The Serengeti migration was jaw-dropping. Small group of 8, private game vehicle, and a guide who could spot a cheetah 2km away. Absolutely magical.</p>
+      <div class="testi-person">
+        <img class="testi-avatar" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya">
+        <div>
+          <div class="testi-name">Priya R.</div>
+          <div class="testi-dest">Serengeti Migration</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">From booking to farewell hug, everything was perfect. The Swiss Alps traverse had me completely offline and completely alive. Already planning my next trip!</p>
+      <div class="testi-person">
+        <img class="testi-avatar" src="https://randomuser.me/api/portraits/men/55.jpg" alt="Tom">
+        <div>
+          <div class="testi-name">Tom B.</div>
+          <div class="testi-dest">Swiss Alps Traverse</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">Paddling through Norwegian fjords with mist in the air — I still pinch myself. The Appy Pie crew made a solo traveler feel part of something much bigger.</p>
+      <div class="testi-person">
+        <img class="testi-avatar" src="https://randomuser.me/api/portraits/women/23.jpg" alt="Lena">
+        <div>
+          <div class="testi-name">Lena V.</div>
+          <div class="testi-dest">Fjords Kayaking Odyssey</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <div class="newsletter-inner">
+    <div class="newsletter-text reveal">
+      <h2 class="section-title" style="font-size:2rem;margin-bottom:0.4rem">Get Early Access to New Tours</h2>
+      <p>Join 8,000+ adventure seekers. No spam, just wild places.</p>
+    </div>
+    <form class="newsletter-form reveal reveal-delay-2" onsubmit="return false;">
+      <input type="email" placeholder="your@email.com">
+      <button class="btn-primary" style="background:var(--amber);color:var(--dark);">Subscribe →</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">Appy<span>Pie</span> Tour</div>
+      <p>Crafting extraordinary outdoor adventures since 2010. We believe every person deserves to experience the wild side of our planet.</p>
+      <div class="footer-socials">
+        <a class="social-btn" href="#">📸</a>
+        <a class="social-btn" href="#">🐦</a>
+        <a class="social-btn" href="#">💼</a>
+        <a class="social-btn" href="#">▶</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Destinations</h5>
+      <ul>
+        <li><a href="#">Himalayas, Nepal</a></li>
+        <li><a href="#">Patagonia, Chile</a></li>
+        <li><a href="#">Serengeti, Tanzania</a></li>
+        <li><a href="#">Amazon, Brazil</a></li>
+        <li><a href="#">Swiss Alps</a></li>
+        <li><a href="#">Sahara, Morocco</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Tour Types</h5>
+      <ul>
+        <li><a href="#">Trekking & Hiking</a></li>
+        <li><a href="#">Wildlife Safaris</a></li>
+        <li><a href="#">Water Adventures</a></li>
+        <li><a href="#">Desert Expeditions</a></li>
+        <li><a href="#">Cultural Immersion</a></li>
+        <li><a href="#">Private Groups</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Guides Team</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Press & Media</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Appy Pie Tour. All rights reserved.</p>
+    <p>Made with 🌿 for explorers everywhere &nbsp;|&nbsp; <a href="#" style="color:var(--gold);text-decoration:none;">Privacy</a> · <a href="#" style="color:var(--gold);text-decoration:none;">Terms</a></p>
+  </div>
+</footer>
 
 <script>
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      item.classList.add('active');
-      document.getElementById('screen-' + item.dataset.screen).classList.add('active');
-    });
+  // Nav scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
   });
-  document.querySelectorAll('.booking-tab').forEach(tab => {
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Testimonial drag scroll
+  const track = document.getElementById('testiTrack');
+  let isDragging = false, startX, scrollLeft;
+  track.addEventListener('mousedown', e => { isDragging = true; startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; track.style.cursor = 'grabbing'; });
+  track.addEventListener('mousemove', e => { if (!isDragging) return; e.preventDefault(); const x = e.pageX - track.offsetLeft; track.scrollLeft = scrollLeft - (x - startX) * 1.5; });
+  track.addEventListener('mouseup', () => { isDragging = false; track.style.cursor = 'grab'; });
+  track.addEventListener('mouseleave', () => { isDragging = false; track.style.cursor = 'grab'; });
+
+  // Filter tabs
+  document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.booking-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
     });
   });
-  document.querySelectorAll('.cat').forEach(cat => {
-    cat.addEventListener('click', () => {
-      document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
-      cat.classList.add('active');
+
+  // Wishlist heart toggle
+  document.querySelectorAll('.tour-fav').forEach(fav => {
+    fav.addEventListener('click', () => {
+      fav.textContent = fav.textContent === '♡' ? '❤️' : '♡';
     });
-  });
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-    });
-  });
-  document.querySelector('.feat-fav').addEventListener('click', function() {
-    const icon = this.querySelector('i');
-    icon.classList.toggle('ti-heart');
-    icon.classList.toggle('ti-heart-filled');
-    this.style.background = icon.classList.contains('ti-heart-filled') ? 'rgba(232,168,58,0.3)' : 'rgba(255,255,255,0.2)';
   });
 </script>
+</body>
+</html>
