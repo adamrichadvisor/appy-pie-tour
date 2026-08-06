@@ -1,0 +1,1424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0F1A">
+<meta name="description" content="Vantage — AI-powered B2B lead generation & cold email outreach platform. Product presentation & PRD.">
+<title>Vantage — AI Lead Generation & Outreach Platform · Product Presentation & PRD</title>
+</head>
+<body>
+<style>
+/* ============================================================
+   VANTAGE — Design tokens
+   ============================================================ */
+:root{
+  --bg:#F5F7FA; --bg-2:#EDF1F6; --surface:#FFFFFF; --surface-2:#F8FAFC;
+  --line:#E2E8F0; --line-2:#CBD5E1;
+  --ink:#0E1726; --ink-2:#243244; --muted:#5A6675; --faint:#8A97A8;
+  --accent:#0E9E9C; --accent-ink:#0B7C7A; --accent-wash:#E1F5F4;
+  --ai:#6366F1; --ai-wash:#ECEDFE;
+  --gold:#C98A1E; --gold-wash:#FBF1DC;
+  --good:#15803D; --good-wash:#E4F3E9;
+  --warn:#B45816; --warn-wash:#FBEDDF;
+  --bad:#C0322B; --bad-wash:#FBE7E5;
+  --shadow:0 1px 2px rgba(16,23,38,.04),0 8px 24px -12px rgba(16,23,38,.14);
+  --shadow-lg:0 2px 4px rgba(16,23,38,.05),0 24px 60px -24px rgba(16,23,38,.24);
+  --radius:16px; --radius-sm:10px; --radius-lg:24px;
+  --maxw:1180px;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Inter,system-ui,sans-serif;
+  --mono:"SF Mono","JetBrains Mono","Cascadia Code",ui-monospace,"Menlo","Consolas",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#080B12; --bg-2:#0C111B; --surface:#0F1622; --surface-2:#131C2A;
+    --line:#1E293B; --line-2:#2A3A50;
+    --ink:#EAF0F7; --ink-2:#C4D0DE; --muted:#8B99AB; --faint:#5E6E82;
+    --accent:#2DD4BF; --accent-ink:#5EEAD4; --accent-wash:#0C2E2C;
+    --ai:#8A8CF6; --ai-wash:#1A1B39;
+    --gold:#E0B24E; --gold-wash:#2E2510;
+    --good:#4ADE80; --good-wash:#0E2A18;
+    --warn:#F0A868; --warn-wash:#2E1D0E;
+    --bad:#F87171; --bad-wash:#2E1413;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -14px rgba(0,0,0,.6);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.5),0 28px 70px -28px rgba(0,0,0,.75);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F5F7FA; --bg-2:#EDF1F6; --surface:#FFFFFF; --surface-2:#F8FAFC;
+  --line:#E2E8F0; --line-2:#CBD5E1;
+  --ink:#0E1726; --ink-2:#243244; --muted:#5A6675; --faint:#8A97A8;
+  --accent:#0E9E9C; --accent-ink:#0B7C7A; --accent-wash:#E1F5F4;
+  --ai:#6366F1; --ai-wash:#ECEDFE; --gold:#C98A1E; --gold-wash:#FBF1DC;
+  --good:#15803D; --good-wash:#E4F3E9; --warn:#B45816; --warn-wash:#FBEDDF;
+  --bad:#C0322B; --bad-wash:#FBE7E5;
+  --shadow:0 1px 2px rgba(16,23,38,.04),0 8px 24px -12px rgba(16,23,38,.14);
+  --shadow-lg:0 2px 4px rgba(16,23,38,.05),0 24px 60px -24px rgba(16,23,38,.24);
+}
+:root[data-theme="dark"]{
+  --bg:#080B12; --bg-2:#0C111B; --surface:#0F1622; --surface-2:#131C2A;
+  --line:#1E293B; --line-2:#2A3A50;
+  --ink:#EAF0F7; --ink-2:#C4D0DE; --muted:#8B99AB; --faint:#5E6E82;
+  --accent:#2DD4BF; --accent-ink:#5EEAD4; --accent-wash:#0C2E2C;
+  --ai:#8A8CF6; --ai-wash:#1A1B39; --gold:#E0B24E; --gold-wash:#2E2510;
+  --good:#4ADE80; --good-wash:#0E2A18; --warn:#F0A868; --warn-wash:#2E1D0E;
+  --bad:#F87171; --bad-wash:#2E1413;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -14px rgba(0,0,0,.6);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.5),0 28px 70px -28px rgba(0,0,0,.75);
+}
+
+/* ============================================================ Base */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:78px;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.6;
+  font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent-wash);color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+h1,h2,h3,h4{line-height:1.12;text-wrap:balance;letter-spacing:-.02em;font-weight:680;color:var(--ink)}
+h2{font-size:clamp(1.7rem,3.6vw,2.6rem)}
+h3{font-size:clamp(1.2rem,2vw,1.5rem);letter-spacing:-.015em}
+p{color:var(--ink-2)}
+.mono{font-family:var(--mono);font-feature-settings:"tnum" 1}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent-ink);font-weight:600;display:inline-flex;align-items:center;gap:.5em}
+.eyebrow::before{content:"";width:22px;height:1.5px;background:var(--accent);display:inline-block;border-radius:2px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+section{padding:clamp(56px,8vw,110px) 0;position:relative}
+.lede{font-size:clamp(1.02rem,1.5vw,1.2rem);color:var(--muted);max-width:62ch;line-height:1.65}
+.tabnum{font-variant-numeric:tabular-nums}
+
+/* ============================================================ Nav */
+.nav{position:sticky;top:0;z-index:80;background:color-mix(in srgb,var(--bg) 82%,transparent);
+  backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid var(--line)}
+.nav-in{max-width:1300px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:720;letter-spacing:-.02em;font-size:1.06rem}
+.brand .mark{width:28px;height:28px;flex:none}
+.nav-links{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{font-size:.85rem;color:var(--muted);padding:7px 12px;border-radius:8px;white-space:nowrap;font-weight:500;transition:.15s}
+.nav-links a:hover{color:var(--ink);background:var(--surface-2)}
+.nav-cta{background:var(--ink);color:var(--bg);padding:8px 15px;border-radius:9px;font-weight:600;font-size:.85rem;white-space:nowrap}
+.theme-btn{background:var(--surface);border:1px solid var(--line);width:36px;height:36px;border-radius:9px;
+  display:grid;place-items:center;cursor:pointer;color:var(--ink);flex:none}
+.theme-btn:hover{border-color:var(--line-2)}
+.theme-btn svg{width:17px;height:17px}
+@media(max-width:860px){.nav-links{display:none}}
+
+/* ============================================================ Buttons / chips */
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:.92rem;padding:12px 20px;
+  border-radius:11px;cursor:pointer;border:1px solid transparent;transition:.16s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 18px -8px var(--accent)}
+:root[data-theme="dark"] .btn-primary{color:#04211F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn-primary{color:#04211F}}
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line-2)}
+.btn-ghost:hover{background:var(--surface-2)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:600;padding:4px 10px;
+  border-radius:100px;font-family:var(--mono);letter-spacing:.01em}
+.chip-verified{background:var(--good-wash);color:var(--good)}
+.chip-risky{background:var(--warn-wash);color:var(--warn)}
+.chip-invalid{background:var(--bad-wash);color:var(--bad)}
+.chip-ai{background:var(--ai-wash);color:var(--ai)}
+.dot{width:7px;height:7px;border-radius:100px;background:currentColor;flex:none}
+
+/* ============================================================ Hero */
+.hero{padding-top:clamp(48px,7vw,88px);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;
+  background:
+   radial-gradient(60% 55% at 82% 8%,color-mix(in srgb,var(--accent) 20%,transparent),transparent 70%),
+   radial-gradient(48% 45% at 8% 20%,color-mix(in srgb,var(--ai) 16%,transparent),transparent 70%)}
+.hero-grid{position:absolute;inset:0;z-index:-1;opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:radial-gradient(70% 55% at 50% 30%,#000,transparent 78%)}
+.hero-head{max-width:820px}
+.hero h1{font-size:clamp(2.3rem,6vw,4.1rem);font-weight:720;letter-spacing:-.035em;margin:20px 0 0}
+.hero h1 em{font-style:normal;color:var(--accent-ink);position:relative;white-space:nowrap}
+.hero .lede{margin:22px 0 0;font-size:clamp(1.05rem,1.7vw,1.28rem);max-width:64ch}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.hero-meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:30px;padding-top:26px;border-top:1px solid var(--line)}
+.hero-meta div{display:flex;flex-direction:column}
+.hero-meta b{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hero-meta span{font-size:.78rem;color:var(--muted);font-family:var(--mono);letter-spacing:.03em}
+
+/* pipeline motif */
+.pipe{margin-top:52px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);padding:26px 22px;overflow:hidden}
+.pipe-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.pipe-top .t{font-family:var(--mono);font-size:.74rem;color:var(--muted);letter-spacing:.04em}
+.pipe-row{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+.pipe-node{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:0 6px}
+.pipe-node .ic{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--accent-ink);position:relative;z-index:2}
+.pipe-node .ic svg{width:24px;height:24px}
+.pipe-node b{font-size:.86rem;font-weight:640}
+.pipe-node span{font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+.pipe-line{position:absolute;top:26px;left:10%;right:10%;height:2px;background:var(--line-2);z-index:1;border-radius:2px;overflow:hidden}
+.pipe-line::after{content:"";position:absolute;top:0;left:-30%;width:30%;height:100%;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:flow 3.4s linear infinite}
+@keyframes flow{to{left:100%}}
+.pipe-node.on .ic{border-color:var(--accent);color:#fff;background:var(--accent);box-shadow:0 8px 20px -8px var(--accent)}
+.flow-stage{display:flex;align-items:center;flex:none}
+.flow-stage .box{font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--ink-2);background:var(--surface-2);
+  border:1px solid var(--line);border-radius:8px;padding:8px 12px;white-space:nowrap}
+.flow-stage.last .box{background:var(--accent);color:#fff;border-color:var(--accent)}
+:root[data-theme="dark"] .flow-stage.last .box{color:#04211F}
+.flow-stage .arr{color:var(--line-2);margin:0 4px;flex:none}
+.flow-stage:last-child .arr{display:none}
+:root[data-theme="dark"] .pipe-node.on .ic{color:#04211F}
+@media(max-width:720px){.pipe-row{grid-template-columns:repeat(5,1fr)}.pipe-node .ic{width:42px;height:42px}.pipe-node b{font-size:.72rem}.pipe-node span{display:none}.pipe-line{top:21px}}
+
+/* logos strip */
+.logos{margin-top:46px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.logos .cap{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.logos-row{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;align-items:center;opacity:.72}
+.logos-row span{font-weight:700;font-size:1.02rem;color:var(--muted);letter-spacing:-.02em}
+
+/* ============================================================ generic grids/cards */
+.grid{display:grid;gap:18px}
+.g-2{grid-template-columns:repeat(2,1fr)}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g-3,.g-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.g-2,.g-3,.g-4{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.card h3{font-size:1.08rem;margin:14px 0 7px}
+.card p{font-size:.92rem;color:var(--muted)}
+.ic-badge{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--accent-wash);color:var(--accent-ink)}
+.ic-badge svg{width:21px;height:21px}
+.ic-badge.ai{background:var(--ai-wash);color:var(--ai)}
+.ic-badge.gold{background:var(--gold-wash);color:var(--gold)}
+
+.section-head{max-width:720px;margin-bottom:44px}
+.section-head h2{margin:14px 0 14px}
+.center{text-align:center;margin-left:auto;margin-right:auto}
+.center .eyebrow{justify-content:center}
+
+/* ============================================================ Workflow */
+.flow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.flow{grid-template-columns:1fr}}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;
+  display:flex;gap:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.step .num{font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--accent-ink);
+  background:var(--accent-wash);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
+.step h3{font-size:1.02rem;margin-bottom:5px}
+.step p{font-size:.88rem;color:var(--muted)}
+.step ul{margin:9px 0 0;padding-left:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.step ul li{font-family:var(--mono);font-size:.7rem;color:var(--ink-2);background:var(--surface-2);
+  border:1px solid var(--line);padding:3px 8px;border-radius:7px}
+
+/* ============================================================ Mockups */
+.win{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);overflow:hidden}
+.win-bar{display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.win-bar .dots{display:flex;gap:6px}
+.win-bar .dots i{width:11px;height:11px;border-radius:100px;background:var(--line-2);display:block}
+.win-bar .url{margin-left:8px;font-family:var(--mono);font-size:.74rem;color:var(--faint);background:var(--bg);
+  border:1px solid var(--line);padding:4px 12px;border-radius:7px;flex:1;max-width:340px}
+.win-body{padding:0}
+/* app chrome inside mockups */
+.app{display:grid;grid-template-columns:180px 1fr;min-height:420px}
+.app-side{background:var(--surface-2);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:3px}
+.app-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.92rem;padding:4px 8px 14px}
+.app-logo .mark{width:22px;height:22px}
+.app-nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;font-size:.82rem;color:var(--muted);font-weight:500}
+.app-nav svg{width:16px;height:16px;flex:none}
+.app-nav.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);font-weight:600}
+.app-nav.on svg{color:var(--accent-ink)}
+.app-main{padding:20px;overflow:hidden;background:var(--bg)}
+.app-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.app-h h4{font-size:1.12rem;letter-spacing:-.02em}
+.app-h .sub{font-size:.78rem;color:var(--muted);font-family:var(--mono)}
+@media(max-width:640px){.app{grid-template-columns:1fr}.app-side{display:none}}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:720px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi .l{font-size:.7rem;color:var(--muted);font-family:var(--mono);letter-spacing:.03em;display:flex;align-items:center;gap:6px}
+.kpi .v{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:.72rem;font-weight:600;margin-top:2px;display:inline-flex;align-items:center;gap:3px}
+.up{color:var(--good)} .down{color:var(--bad)}
+
+/* data table */
+.tbl{width:100%;border-collapse:collapse;font-size:.82rem;background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.tbl th{text-align:left;font-family:var(--mono);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--faint);font-weight:600;padding:11px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr:hover td{background:var(--surface-2)}
+.tbl .nm{font-weight:600;color:var(--ink)}
+.tbl .sm{font-size:.72rem;color:var(--muted)}
+.avatar{width:28px;height:28px;border-radius:100px;background:var(--accent-wash);color:var(--accent-ink);
+  display:inline-grid;place-items:center;font-size:.72rem;font-weight:700;flex:none;font-family:var(--mono)}
+.tbl-scroll{overflow-x:auto;border-radius:12px}
+
+/* mini charts */
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.chart-card .ct{font-size:.82rem;font-weight:640;margin-bottom:2px}
+.chart-card .cs{font-size:.72rem;color:var(--muted);font-family:var(--mono);margin-bottom:14px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:120px}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bars .b i{width:100%;background:var(--accent);border-radius:4px 4px 2px 2px;display:block;min-height:3px;transition:height .6s}
+.bars .b.mut i{background:var(--accent-wash)}
+.bars .b span{font-size:.62rem;color:var(--faint);font-family:var(--mono)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.legend span{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted)}
+.legend i{width:9px;height:9px;border-radius:3px;display:block}
+
+/* progress / meters */
+.meter{height:8px;border-radius:100px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;border-radius:100px;background:var(--accent)}
+.mrow{display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:6px}
+.mrow b{font-weight:600}
+.mrow span{color:var(--muted);font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* form-ish */
+.field{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.field .lab{font-family:var(--mono);font-size:.66rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+
+/* screen gallery */
+.screens{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.screens{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.screens{grid-template-columns:1fr}}
+.screen-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:.18s}
+.screen-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--line-2)}
+.screen-view{height:172px;background:var(--surface-2);border-bottom:1px solid var(--line);position:relative;overflow:hidden;padding:12px}
+.screen-cap{padding:12px 15px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.screen-cap b{font-size:.9rem}
+.screen-cap .n{font-family:var(--mono);font-size:.68rem;color:var(--faint)}
+/* wireframe primitives */
+.wf{background:var(--surface);border:1px solid var(--line);border-radius:7px}
+.wf-bar{height:8px;border-radius:100px;background:var(--line-2)}
+.wf-bar.a{background:var(--accent);opacity:.75}
+.wf-bar.s{opacity:.5}
+.stack{display:flex;flex-direction:column;gap:7px;height:100%}
+.rowg{display:flex;gap:7px}
+.wf-tile{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;height:26px}
+.wf-tile.tall{height:44px}
+.wf-tile.acc{background:var(--accent-wash);border-color:transparent}
+.wf-tile.ai{background:var(--ai-wash);border-color:transparent}
+.wf-side{width:38px;background:var(--surface);border:1px solid var(--line);border-radius:6px;flex:none;display:flex;flex-direction:column;gap:5px;padding:6px}
+.wf-side i{height:5px;border-radius:100px;background:var(--line-2);display:block}
+.wf-side i.on{background:var(--accent);opacity:.8}
+.wf-chart{flex:1;display:flex;align-items:flex-end;gap:4px}
+.wf-chart i{flex:1;background:var(--accent-wash);border-radius:3px 3px 0 0;display:block}
+.wf-chart i.acc{background:var(--accent)}
+.wf-dot{width:22px;height:22px;border-radius:100px;background:var(--accent-wash);flex:none}
+.wf-line{height:1px;background:var(--line);margin:1px 0}
+.wf-btn{height:16px;width:52px;border-radius:5px;background:var(--accent);opacity:.85}
+.wf-pane{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px;flex:1}
+.wf-donut{width:52px;height:52px;border-radius:100px;flex:none;
+  background:conic-gradient(var(--accent) 0 62%,var(--gold) 62% 80%,var(--bad) 80% 100%);
+  -webkit-mask:radial-gradient(circle 12px at center,transparent 98%,#000);mask:radial-gradient(circle 12px at center,transparent 98%,#000)}
+
+/* ============================================================ Architecture */
+.arch{display:grid;gap:14px}
+.arch-layer{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.arch-layer .lh{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.arch-layer .lh .tag{font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--accent-ink);background:var(--accent-wash);padding:3px 9px;border-radius:6px;font-weight:600}
+.arch-layer .lh b{font-size:.98rem}
+.nodes{display:flex;gap:10px;flex-wrap:wrap}
+.node{flex:1;min-width:130px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.node b{font-size:.86rem;display:block}
+.node span{font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+.arch-flow{display:grid;place-items:center;color:var(--faint)}
+.arch-flow svg{width:20px;height:20px}
+
+/* API endpoints */
+.api{font-family:var(--mono);font-size:.8rem;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.api-row{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid var(--line)}
+.api-row:last-child{border-bottom:0}
+.api-row:hover{background:var(--surface-2)}
+.verb{font-weight:700;font-size:.68rem;padding:3px 8px;border-radius:6px;width:56px;text-align:center;flex:none;letter-spacing:.03em}
+.get{background:var(--accent-wash);color:var(--accent-ink)}
+.post{background:var(--good-wash);color:var(--good)}
+.put{background:var(--gold-wash);color:var(--gold)}
+.del{background:var(--bad-wash);color:var(--bad)}
+.api-row .path{color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.api-row .desc{color:var(--muted);font-family:var(--sans);font-size:.76rem;white-space:nowrap}
+@media(max-width:640px){.api-row .desc{display:none}}
+
+/* ER / schema */
+.er{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.entity{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.entity .eh{background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:.78rem;font-weight:600;padding:9px 13px;letter-spacing:.02em;display:flex;align-items:center;gap:7px}
+.entity .eh svg{width:14px;height:14px}
+.entity .row{display:flex;justify-content:space-between;padding:7px 13px;font-family:var(--mono);font-size:.73rem;border-bottom:1px solid var(--line)}
+.entity .row:last-child{border-bottom:0}
+.entity .row .k{color:var(--ink-2)}
+.entity .row .ty{color:var(--faint)}
+.entity .row.pk .k{color:var(--accent-ink);font-weight:600}
+.entity .row.fk .k{color:var(--ai)}
+
+/* callouts */
+.callout{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:12px;padding:18px 20px;display:flex;gap:14px}
+.callout .ic-badge{flex:none}
+.callout h3{font-size:.98rem;margin-bottom:4px}
+.callout p{font-size:.88rem;color:var(--muted)}
+
+/* feature list check */
+.checks{list-style:none;display:grid;gap:10px}
+.checks li{display:flex;gap:11px;align-items:flex-start;font-size:.92rem;color:var(--ink-2)}
+.checks li svg{width:19px;height:19px;flex:none;color:var(--accent-ink);margin-top:2px}
+.checks li b{color:var(--ink)}
+
+/* pill grid */
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);
+  padding:6px 12px;border-radius:100px;display:inline-flex;align-items:center;gap:7px}
+.pill svg{width:13px;height:13px;color:var(--accent-ink)}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.road{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.road{grid-template-columns:1fr}}
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);position:relative}
+.phase .ph{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+.phase h3{font-size:1rem;margin:6px 0 4px}
+.phase .q{font-size:.74rem;color:var(--faint);font-family:var(--mono);margin-bottom:12px}
+.phase ul{list-style:none;display:grid;gap:8px}
+.phase ul li{font-size:.82rem;color:var(--ink-2);display:flex;gap:8px;align-items:flex-start}
+.phase ul li::before{content:"";width:6px;height:6px;border-radius:100px;background:var(--accent);margin-top:7px;flex:none}
+
+/* spec table */
+.spec{width:100%;border-collapse:collapse;font-size:.87rem}
+.spec th,.spec td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.spec th{font-family:var(--mono);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);font-weight:600;background:var(--surface-2)}
+.spec td:first-child{font-weight:600;color:var(--ink);width:26%}
+.spec tr:hover td{background:var(--surface-2)}
+.spec .mono{font-size:.8rem}
+.spec-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+
+/* footer */
+.foot{background:var(--surface);border-top:1px solid var(--line);padding:44px 0}
+.foot-in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+.foot .brand{font-size:1rem}
+.foot p{font-size:.82rem;color:var(--muted);max-width:52ch}
+.foot .disc{font-size:.72rem;color:var(--faint);margin-top:8px;font-family:var(--mono)}
+
+/* utility */
+.mt-s{margin-top:10px}.mt{margin-top:20px}.mt-l{margin-top:36px}
+.two{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
+@media(max-width:820px){.two{grid-template-columns:1fr;gap:26px}}
+.soft{background:linear-gradient(180deg,var(--bg-2),transparent)}
+.divider{height:1px;background:var(--line);max-width:var(--maxw);margin:0 auto}
+.tag-count{font-family:var(--mono);font-size:.72rem;color:var(--faint);border:1px solid var(--line);border-radius:100px;padding:3px 10px}
+</style>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="var(--accent)"/>
+        <path d="M8 20.5 13.2 11 16 16l2.8-5 5.2 9.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="16" cy="16" r="2.2" fill="#fff"/>
+      </svg>
+      Vantage
+    </a>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#features">Features</a>
+      <a href="#screens">UI Screens</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#data">Data Model</a>
+      <a href="#ai">AI</a>
+      <a href="#analytics">Analytics</a>
+      <a href="#compliance">Compliance</a>
+      <a href="#prd">PRD</a>
+    </div>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <a class="nav-cta" href="app.html">Launch the tool ↗</a>
+  </div>
+</nav>
+
+<span id="top"></span>
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-head">
+      <span class="eyebrow">Product Presentation &amp; PRD · v1.0</span>
+      <h1>Find, verify, and convert B2B leads on <em>autopilot</em>.</h1>
+      <p class="lede">Vantage is an AI-native lead generation and cold-email platform. Discover decision-makers, verify every address, generate personalized outreach, and send at scale — with deliverability and compliance built into the core. One workflow, from prospect to reply.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="app.html">Launch the working tool
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-ghost" href="#workflow">Explore the workflow</a>
+      </div>
+      <div class="hero-meta">
+        <div><b class="tabnum">275M+</b><span>B2B contacts</span></div>
+        <div><b class="tabnum">98.2%</b><span>verify accuracy</span></div>
+        <div><b class="tabnum">8</b><span>step workflow</span></div>
+        <div><b class="tabnum">15</b><span>product screens</span></div>
+      </div>
+    </div>
+
+    <!-- pipeline motif -->
+    <div class="pipe" role="img" aria-label="Five-stage pipeline: Find, Verify, Personalize, Send, Track">
+      <div class="pipe-top">
+        <span class="t">// live pipeline</span>
+        <span class="chip chip-ai"><span class="dot"></span>AI orchestrated</span>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-line" aria-hidden="true"></div>
+        <div class="pipe-node on">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+          <b>Find</b><span>discover</span>
+        </div>
+        <div class="pipe-node">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <b>Verify</b><span>validate</span>
+        </div>
+        <div class="pipe-node">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20a8 8 0 1 0-8-8"/><path d="m8 12 3 3 5-6"/></svg></div>
+          <b>Personalize</b><span>AI write</span>
+        </div>
+        <div class="pipe-node">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></div>
+          <b>Send</b><span>warm-up</span>
+        </div>
+        <div class="pipe-node">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></div>
+          <b>Track</b><span>analytics</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="logos">
+      <span class="cap">Category benchmarks &amp; inspiration</span>
+      <div class="logos-row">
+        <span>Apollo.io</span><span>Clay</span><span>ZoomInfo</span><span>Lusha</span><span>RocketReach</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= OVERVIEW ================= -->
+<section id="overview" class="soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Product overview</span>
+      <h2>The whole outbound motion, in one place.</h2>
+      <p class="lede">Teams stitch together a data vendor, a verifier, an AI writer, a sending tool, and a spreadsheet. Vantage collapses that stack into a single automated workflow — so a rep goes from a search query to a running, compliant campaign in minutes, not days.</p>
+    </div>
+    <div class="grid g-3">
+      <div class="card">
+        <div class="ic-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+        <h3>Discover</h3>
+        <p>Search 275M+ contacts across 13 filters. AI enriches each company — services, decision-makers, tech stack, and public contact details.</p>
+      </div>
+      <div class="card">
+        <div class="ic-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3>Verify</h3>
+        <p>Every address runs through MX, SMTP, catch-all, disposable, and role-based checks. Results resolve to Verified, Risky, or Invalid before a single email is sent.</p>
+      </div>
+      <div class="card">
+        <div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3"/><circle cx="12" cy="12" r="3.2"/></svg></div>
+        <h3>Personalize</h3>
+        <p>The AI writer drafts subject lines, body, CTA, and signature — tuned to industry, role, pain points, and country. Nine template styles, all editable.</p>
+      </div>
+      <div class="card">
+        <div class="ic-badge gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></div>
+        <h3>Send &amp; warm</h3>
+        <p>Connect Gmail, Microsoft 365, or SMTP/IMAP. Randomized intervals, daily caps, domain warm-up, and bounce handling protect your sender reputation.</p>
+      </div>
+      <div class="card">
+        <div class="ic-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></div>
+        <h3>Measure</h3>
+        <p>Live campaign progress plus opens, clicks, replies, and bounces. Export any view to CSV or Excel; slice by country, industry, and status.</p>
+      </div>
+      <div class="card">
+        <div class="ic-badge" style="background:var(--good-wash);color:var(--good)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Stay compliant</h3>
+        <p>One-click unsubscribe, suppression lists, sending-rate limits, and CAN-SPAM / GDPR guardrails are enforced by the platform, not left to the user.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= WORKFLOW ================= -->
+<section id="workflow">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The 8-step workflow</span>
+      <h2>From a search query to a reply — automated end to end.</h2>
+      <p class="lede">Each step hands clean, structured data to the next. Nothing leaves a stage until it's ready: leads aren't emailed until verified, emails aren't sent until warmed, and bounces stop the queue automatically.</p>
+    </div>
+
+    <div class="flow">
+      <article class="step">
+        <div class="num">01</div>
+        <div>
+          <h3>AI Lead Finder</h3>
+          <p>Search prospects across 13 filters, then let AI discover the surrounding company graph — capabilities, decision-makers, website, and socials.</p>
+          <ul><li>Name</li><li>Title</li><li>Industry</li><li>Company size</li><li>Technologies</li><li>Revenue</li><li>Country / City / State</li></ul>
+        </div>
+      </article>
+      <article class="step">
+        <div class="num">02</div>
+        <div>
+          <h3>Email Verification</h3>
+          <p>MX + SMTP validation with catch-all, disposable, and role-based detection. Invalids are removed; results resolve to three clear states.</p>
+          <ul><li>MX records</li><li>SMTP</li><li>Catch-all</li><li>Disposable</li><li>Role-based</li></ul>
+        </div>
+      </article>
+      <article class="step">
+        <div class="num">03</div>
+        <div>
+          <h3>Export Leads</h3>
+          <p>Download verified leads to CSV or XLSX with a full field set — from LinkedIn and website to revenue, verification status, and notes.</p>
+          <ul><li>CSV</li><li>Excel (XLSX)</li><li>13+ fields</li><li>Saved views</li></ul>
+        </div>
+      </article>
+      <article class="step">
+        <div class="num">04</div>
+        <div>
+          <h3>AI Template Generator</h3>
+          <p>Generate outreach tuned to audience and pain points, in nine styles. Each output ships with subject options, body, CTA, and signature.</p>
+          <ul><li>Cold outreach</li><li>Sales pitch</li><li>Follow-up</li><li>Demo</li><li>Partnership</li><li>+4 more</li></ul>
+        </div>
+      </article>
+      <article class="step">
+        <div class="num">05</div>
+        <div>
+          <h3>Campaign Setup</h3>
+          <p>Pick a saved, AI, or custom template. Set subject, sender name, and reply-to. Preview the exact rendered email before anything sends.</p>
+          <ul><li>Template source</li><li>Sender identity</li><li>Reply-to</li><li>Live preview</li></ul>
+        </div>
+      </article>
+      <article class="step">
+        <div class="num">06</div>
+        <div>
+          <h3>Mailbox Integration</h3>
+          <p>Connect multiple sending accounts via OAuth or SMTP/IMAP. Track daily limits, health score, and SPF/DKIM/DMARC authentication status.</p>
+          <ul><li>Gmail</li><li>Microsoft 365</li><li>Outlook</li><li>SMTP / IMAP</li><li>SPF · DKIM · DMARC</li></ul>
+        </div>
+      </article>
+      <article class="step">
+        <div class="num">07</div>
+        <div>
+          <h3>Smart Sending</h3>
+          <p>Verified-only queue with randomized 30–90s delays, daily caps, warm-up, retry logic, duplicate prevention, and bounce-triggered stops.</p>
+          <ul><li>Random intervals</li><li>Daily limits</li><li>Warm-up</li><li>Bounce stop</li><li>Pause / resume</li></ul>
+        </div>
+      </article>
+      <article class="step">
+        <div class="num">08</div>
+        <div>
+          <h3>Reports &amp; Analytics</h3>
+          <p>Downloadable CSV/Excel reports plus dashboard charts for sending, open, reply, bounce, verification, and geo/industry distribution.</p>
+          <ul><li>Open · Reply · Bounce</li><li>Delivery</li><li>Distribution</li><li>Export</li></ul>
+        </div>
+      </article>
+    </div>
+
+    <!-- linear flow diagram -->
+    <div class="pipe" style="margin-top:30px">
+      <div class="pipe-top"><span class="t">// end-to-end data flow</span><span class="tag-count">14 stages</span></div>
+      <div class="tbl-scroll">
+        <div style="display:flex;align-items:center;gap:0;min-width:920px;padding:8px 0">
+          <!-- generated stages -->
+          <div class="flow-stage" data-l="Login"></div>
+          <div class="flow-stage" data-l="Lead Search"></div>
+          <div class="flow-stage" data-l="AI Research"></div>
+          <div class="flow-stage" data-l="Collection"></div>
+          <div class="flow-stage" data-l="Verify"></div>
+          <div class="flow-stage" data-l="Verified Leads"></div>
+          <div class="flow-stage" data-l="Export"></div>
+          <div class="flow-stage" data-l="AI Templates"></div>
+          <div class="flow-stage" data-l="Subject"></div>
+          <div class="flow-stage" data-l="Connect Inbox"></div>
+          <div class="flow-stage" data-l="Campaign"></div>
+          <div class="flow-stage" data-l="Smart Send"></div>
+          <div class="flow-stage" data-l="Tracking"></div>
+          <div class="flow-stage last" data-l="Reports"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= FEATURES ================= -->
+<section id="features" class="soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Feature deep-dive</span>
+      <h2>Built for the two things that break outbound: bad data and bad sending.</h2>
+      <p class="lede">Vantage treats data quality and deliverability as first-class systems. Below, the two flagship surfaces — the AI Lead Finder and the Email Verification engine — shown as they appear in-product.</p>
+    </div>
+
+    <!-- FLAGSHIP 1: Lead Finder -->
+    <div class="two mt-l">
+      <div>
+        <span class="chip chip-ai"><span class="dot"></span>AI Lead Finder</span>
+        <h3 class="mt-s">Search 13 filters. Get an enriched company graph.</h3>
+        <p class="mt-s" style="color:var(--muted)">Start with any combination of person and company attributes. Vantage resolves matching prospects and, for each, an AI research pass assembles the surrounding context you'd otherwise gather by hand.</p>
+        <ul class="checks mt">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>People filters</b> — name, email, phone, LinkedIn URL, job title, seniority.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Company filters</b> — name, industry, size, revenue, employee count, tech stack.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Geo filters</b> — country, city, and state, combinable with any of the above.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>AI discovery</b> — capabilities, decision-makers, public contacts, website, socials.</span></li>
+        </ul>
+      </div>
+
+      <!-- Lead Finder mockup -->
+      <div class="win">
+        <div class="win-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url mono">app.vantage.io/leads/finder</span></div>
+        <div class="win-body">
+          <div class="app-main" style="background:var(--surface);padding:16px">
+            <div class="app-h"><h4>Lead Finder</h4><span class="chip chip-verified"><span class="dot"></span>1,284 matches</span></div>
+            <div class="rowg" style="flex-wrap:wrap;gap:8px;margin-bottom:14px">
+              <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Job Title: VP Sales</span>
+              <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Industry: SaaS</span>
+              <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Size: 50–200</span>
+              <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Country: US</span>
+            </div>
+            <div class="tbl-scroll">
+              <table class="tbl" style="min-width:460px">
+                <thead><tr><th>Prospect</th><th>Company</th><th>Title</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="rowg" style="align-items:center"><span class="avatar">SR</span><div><div class="nm">Sara Reyes</div><div class="sm mono">s.reyes@northloop.io</div></div></div></td><td>Northloop<div class="sm">SaaS · 120</div></td><td>VP Sales</td><td><span class="chip chip-verified"><span class="dot"></span>Verified</span></td></tr>
+                  <tr><td><div class="rowg" style="align-items:center"><span class="avatar">MO</span><div><div class="nm">Marcus Okafor</div><div class="sm mono">marcus@brightlane.co</div></div></div></td><td>Brightlane<div class="sm">SaaS · 78</div></td><td>Head of Sales</td><td><span class="chip chip-verified"><span class="dot"></span>Verified</span></td></tr>
+                  <tr><td><div class="rowg" style="align-items:center"><span class="avatar">JT</span><div><div class="nm">Jia Tan</div><div class="sm mono">info@vellum.app</div></div></div></td><td>Vellum<div class="sm">SaaS · 145</div></td><td>VP Revenue</td><td><span class="chip chip-risky"><span class="dot"></span>Risky</span></td></tr>
+                  <tr><td><div class="rowg" style="align-items:center"><span class="avatar">DP</span><div><div class="nm">Diego Park</div><div class="sm mono">d.park@axil.io</div></div></div></td><td>Axil<div class="sm">SaaS · 60</div></td><td>VP Sales</td><td><span class="chip chip-verified"><span class="dot"></span>Verified</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLAGSHIP 2: Verification -->
+    <div class="two mt-l" style="margin-top:56px">
+      <!-- Verification mockup (left on desktop) -->
+      <div class="win" style="order:2">
+        <div class="win-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url mono">app.vantage.io/verify</span></div>
+        <div class="win-body">
+          <div class="app-main" style="background:var(--surface);padding:16px">
+            <div class="app-h"><h4>Email Verification</h4><span class="sub">4,120 checked · unlimited plan</span></div>
+            <div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+              <div class="kpi"><div class="l"><span class="dot" style="color:var(--good)"></span>Verified</div><div class="v" style="color:var(--good)">3,318</div><div class="d up">80.5%</div></div>
+              <div class="kpi"><div class="l"><span class="dot" style="color:var(--warn)"></span>Risky</div><div class="v" style="color:var(--warn)">512</div><div class="d">12.4%</div></div>
+              <div class="kpi"><div class="l"><span class="dot" style="color:var(--bad)"></span>Invalid</div><div class="v" style="color:var(--bad)">290</div><div class="d down">7.1%</div></div>
+            </div>
+            <div class="chart-card">
+              <div class="ct">Checks run per address</div>
+              <div class="cs mono">MX · SMTP · catch-all · disposable · role-based</div>
+              <div style="display:grid;gap:10px">
+                <div><div class="mrow"><b>MX record valid</b><span>99.1%</span></div><div class="meter"><i style="width:99%;background:var(--good)"></i></div></div>
+                <div><div class="mrow"><b>SMTP reachable</b><span>92.4%</span></div><div class="meter"><i style="width:92%;background:var(--good)"></i></div></div>
+                <div><div class="mrow"><b>Not catch-all</b><span>84.0%</span></div><div class="meter"><i style="width:84%;background:var(--accent)"></i></div></div>
+                <div><div class="mrow"><b>Not disposable</b><span>96.8%</span></div><div class="meter"><i style="width:97%;background:var(--accent)"></i></div></div>
+                <div><div class="mrow"><b>Not role-based</b><span>78.2%</span></div><div class="meter"><i style="width:78%;background:var(--gold)"></i></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="order:1">
+        <span class="chip chip-verified"><span class="dot"></span>Email Verification</span>
+        <h3 class="mt-s">Five checks. Three verdicts. Zero wasted sends.</h3>
+        <p class="mt-s" style="color:var(--muted)">Every address is validated before it can enter a campaign. The engine runs a layered check and resolves each contact to a single, actionable state — so your sender reputation is never spent on addresses that were never going to land.</p>
+        <ul class="checks mt">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>MX &amp; SMTP</b> validate the domain accepts mail and the mailbox exists.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Catch-all &amp; disposable</b> detection flags domains that accept anything or self-destruct.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Role-based</b> detection separates <span class="mono">info@</span> / <span class="mono">sales@</span> from real humans.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Verified · Risky · Invalid</b> — unlimited verification on business plans.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Export + Templates callouts -->
+    <div class="grid g-2 mt-l" style="margin-top:56px">
+      <div class="card">
+        <div class="app-h" style="margin-bottom:14px"><h3 style="font-size:1.05rem">Export leads</h3><span class="chip chip-verified">CSV · XLSX</span></div>
+        <p style="color:var(--muted);font-size:.9rem">Download any view with the full field set. Verification status travels with the record so downstream tools inherit clean data.</p>
+        <div class="pills mt">
+          <span class="pill">Name</span><span class="pill">Company</span><span class="pill">Position</span><span class="pill">Email</span><span class="pill">Phone</span><span class="pill">LinkedIn</span><span class="pill">Website</span><span class="pill">Country</span><span class="pill">Industry</span><span class="pill">Status</span><span class="pill">Company Size</span><span class="pill">Revenue</span><span class="pill">Notes</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="app-h" style="margin-bottom:14px"><h3 style="font-size:1.05rem">AI template styles</h3><span class="chip chip-ai">9 styles</span></div>
+        <p style="color:var(--muted);font-size:.9rem">Generate on industry, role, audience, country, services, and pain points. Each returns subject options, body, CTA, and signature — fully editable.</p>
+        <div class="pills mt">
+          <span class="pill">Cold Outreach</span><span class="pill">Sales Pitch</span><span class="pill">Follow-up</span><span class="pill">Demo Request</span><span class="pill">Partnership</span><span class="pill">Recruitment</span><span class="pill">Event Invite</span><span class="pill">Product Launch</span><span class="pill">Reminder</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= SCREENS ================= -->
+<section id="screens">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">UI screens · 15 designs</span>
+      <h2>Every screen, one design language.</h2>
+      <p class="lede">Premium, minimal, enterprise. Dark and light modes, responsive layouts, glassmorphism accents, and modern cards, tables, and charts — consistent from login to reports.</p>
+    </div>
+
+    <div class="screens">
+      <!-- 1 Login -->
+      <div class="screen-card"><div class="screen-view"><div class="stack" style="align-items:center;justify-content:center"><div class="wf-dot" style="border-radius:8px"></div><div class="wf-pane" style="flex:none;width:78%;display:flex;flex-direction:column;gap:8px;padding:12px"><div class="wf-bar s"></div><div class="wf-tile" style="height:20px"></div><div class="wf-tile" style="height:20px"></div><div class="wf-btn" style="width:100%;height:20px;margin-top:2px"></div><div class="wf-bar s" style="width:60%;margin:2px auto 0"></div></div></div></div><div class="screen-cap"><b>Login</b><span class="n mono">01 · SSO + OAuth</span></div></div>
+      <!-- 2 Dashboard -->
+      <div class="screen-card"><div class="screen-view"><div class="rowg" style="height:100%"><div class="wf-side"><i class="on"></i><i></i><i></i><i></i><i></i></div><div class="stack" style="flex:1"><div class="rowg"><div class="wf-tile tall acc"></div><div class="wf-tile tall"></div><div class="wf-tile tall"></div></div><div class="wf-pane wf-chart" style="flex:none;height:52px"><i style="height:40%"></i><i style="height:65%"></i><i class="acc" style="height:90%"></i><i style="height:55%"></i><i style="height:75%"></i></div><div class="rowg"><div class="wf-tile"></div><div class="wf-tile"></div></div></div></div></div><div class="screen-cap"><b>Dashboard</b><span class="n mono">02 · overview</span></div></div>
+      <!-- 3 Lead Finder -->
+      <div class="screen-card"><div class="screen-view"><div class="rowg" style="height:100%"><div class="wf-side"><i></i><i class="on"></i><i></i><i></i></div><div class="stack" style="flex:1"><div class="rowg"><div class="wf-tile" style="height:18px"></div><div class="wf-tile" style="height:18px"></div><div class="wf-btn" style="height:18px"></div></div><div class="wf-pane stack" style="flex:1;gap:6px"><div class="wf-line"></div><div class="rowg" style="align-items:center"><span class="wf-dot" style="width:14px;height:14px"></span><div class="wf-bar" style="flex:1"></div><div class="wf-tile acc" style="width:34px;height:12px;flex:none"></div></div><div class="rowg" style="align-items:center"><span class="wf-dot" style="width:14px;height:14px"></span><div class="wf-bar" style="flex:1"></div><div class="wf-tile acc" style="width:34px;height:12px;flex:none"></div></div><div class="rowg" style="align-items:center"><span class="wf-dot" style="width:14px;height:14px"></span><div class="wf-bar" style="flex:1"></div><div class="wf-tile" style="width:34px;height:12px;flex:none;background:var(--gold-wash)"></div></div></div></div></div></div><div class="screen-cap"><b>Lead Finder</b><span class="n mono">03 · search</span></div></div>
+      <!-- 4 Lead Details -->
+      <div class="screen-card"><div class="screen-view"><div class="stack"><div class="rowg" style="align-items:center"><span class="wf-dot"></span><div class="stack" style="flex:1;gap:5px"><div class="wf-bar" style="width:55%"></div><div class="wf-bar s" style="width:35%"></div></div><div class="wf-tile acc" style="width:44px;flex:none;height:16px"></div></div><div class="wf-line"></div><div class="rowg"><div class="wf-pane stack" style="gap:6px"><div class="wf-bar s" style="width:40%"></div><div class="wf-bar"></div><div class="wf-bar" style="width:80%"></div></div><div class="wf-pane stack" style="gap:6px"><div class="wf-bar s" style="width:50%"></div><div class="wf-bar"></div><div class="wf-bar" style="width:70%"></div></div></div></div></div><div class="screen-cap"><b>Lead Details</b><span class="n mono">04 · profile</span></div></div>
+      <!-- 5 Email Verification -->
+      <div class="screen-card"><div class="screen-view"><div class="stack"><div class="rowg"><div class="wf-tile tall" style="background:var(--good-wash);border-color:transparent"></div><div class="wf-tile tall" style="background:var(--gold-wash);border-color:transparent"></div><div class="wf-tile tall" style="background:var(--bad-wash);border-color:transparent"></div></div><div class="wf-pane stack" style="flex:1;gap:8px;justify-content:center"><div class="stack" style="gap:4px"><div class="wf-bar s" style="width:30%"></div><div class="meter"><i style="width:80%;background:var(--good)"></i></div></div><div class="stack" style="gap:4px"><div class="wf-bar s" style="width:24%"></div><div class="meter"><i style="width:92%;background:var(--good)"></i></div></div><div class="stack" style="gap:4px"><div class="wf-bar s" style="width:34%"></div><div class="meter"><i style="width:60%;background:var(--gold)"></i></div></div></div></div></div><div class="screen-cap"><b>Email Verification</b><span class="n mono">05 · validate</span></div></div>
+      <!-- 6 Export Leads -->
+      <div class="screen-card"><div class="screen-view"><div class="stack"><div class="rowg"><div class="wf-tile acc" style="height:22px"></div><div class="wf-tile" style="height:22px"></div></div><div class="wf-pane stack" style="flex:1;gap:5px"><div class="rowg"><div class="wf-bar" style="width:20%"></div><div class="wf-bar s" style="flex:1"></div></div><div class="wf-line"></div><div class="rowg"><div class="wf-bar" style="width:20%"></div><div class="wf-bar s" style="flex:1"></div></div><div class="wf-line"></div><div class="rowg"><div class="wf-bar" style="width:20%"></div><div class="wf-bar s" style="flex:1"></div></div><div class="wf-line"></div><div class="wf-btn" style="width:70px;height:16px;margin-top:auto;margin-left:auto"></div></div></div></div><div class="screen-cap"><b>Export Leads</b><span class="n mono">06 · CSV / XLSX</span></div></div>
+      <!-- 7 AI Template Generator -->
+      <div class="screen-card"><div class="screen-view"><div class="rowg" style="height:100%"><div class="stack" style="width:40%"><div class="wf-tile ai" style="height:16px"></div><div class="wf-tile" style="height:16px"></div><div class="wf-tile" style="height:16px"></div><div class="wf-btn" style="width:100%;height:16px;background:var(--ai);opacity:.85"></div></div><div class="wf-pane stack" style="flex:1;gap:6px"><div class="wf-bar a" style="width:70%"></div><div class="wf-line"></div><div class="wf-bar s"></div><div class="wf-bar s" style="width:90%"></div><div class="wf-bar s" style="width:80%"></div><div class="wf-bar s" style="width:60%"></div></div></div></div><div class="screen-cap"><b>AI Template Generator</b><span class="n mono">07 · compose</span></div></div>
+      <!-- 8 Campaign Builder -->
+      <div class="screen-card"><div class="screen-view"><div class="stack"><div class="rowg"><div class="wf-tile acc" style="height:14px"></div><div class="wf-tile" style="height:14px"></div><div class="wf-tile" style="height:14px"></div><div class="wf-tile" style="height:14px"></div></div><div class="rowg" style="flex:1"><div class="wf-pane stack" style="gap:6px"><div class="wf-bar s" style="width:40%"></div><div class="wf-tile" style="height:14px"></div><div class="wf-bar s" style="width:50%"></div><div class="wf-tile" style="height:14px"></div></div><div class="wf-pane stack" style="gap:6px"><div class="wf-bar s" style="width:45%"></div><div class="wf-bar"></div><div class="wf-bar" style="width:85%"></div><div class="wf-bar" style="width:70%"></div></div></div></div></div><div class="screen-cap"><b>Campaign Builder</b><span class="n mono">08 · setup</span></div></div>
+      <!-- 9 Email Preview -->
+      <div class="screen-card"><div class="screen-view"><div class="wf-pane stack" style="height:100%;gap:7px;padding:12px"><div class="rowg" style="align-items:center"><span class="wf-dot" style="width:16px;height:16px"></span><div class="wf-bar s" style="width:40%"></div></div><div class="wf-line"></div><div class="wf-bar" style="width:75%"></div><div class="wf-bar s"></div><div class="wf-bar s" style="width:95%"></div><div class="wf-bar s" style="width:88%"></div><div class="wf-bar s" style="width:50%"></div><div class="wf-btn" style="margin-top:4px"></div></div></div><div class="screen-cap"><b>Email Preview</b><span class="n mono">09 · render</span></div></div>
+      <!-- 10 Connected Mailboxes -->
+      <div class="screen-card"><div class="screen-view"><div class="stack" style="gap:8px">
+        <div class="wf-pane rowg" style="flex:none;align-items:center;padding:8px"><span class="wf-dot" style="width:16px;height:16px;background:var(--good-wash)"></span><div class="stack" style="flex:1;gap:4px"><div class="wf-bar" style="width:50%"></div><div class="wf-bar s" style="width:30%"></div></div><div class="meter" style="width:40px"><i style="width:90%;background:var(--good)"></i></div></div>
+        <div class="wf-pane rowg" style="flex:none;align-items:center;padding:8px"><span class="wf-dot" style="width:16px;height:16px;background:var(--good-wash)"></span><div class="stack" style="flex:1;gap:4px"><div class="wf-bar" style="width:45%"></div><div class="wf-bar s" style="width:30%"></div></div><div class="meter" style="width:40px"><i style="width:70%;background:var(--gold)"></i></div></div>
+        <div class="wf-pane rowg" style="flex:none;align-items:center;padding:8px"><span class="wf-dot" style="width:16px;height:16px;background:var(--bad-wash)"></span><div class="stack" style="flex:1;gap:4px"><div class="wf-bar" style="width:48%"></div><div class="wf-bar s" style="width:30%"></div></div><div class="meter" style="width:40px"><i style="width:35%;background:var(--bad)"></i></div></div>
+      </div></div><div class="screen-cap"><b>Connected Mailboxes</b><span class="n mono">10 · health</span></div></div>
+      <!-- 11 Campaign Monitor -->
+      <div class="screen-card"><div class="screen-view"><div class="stack"><div class="rowg" style="align-items:center"><div class="wf-bar" style="width:35%"></div><span class="chip chip-verified" style="font-size:.55rem;padding:2px 7px;margin-left:auto"><span class="dot"></span>Sending</span></div><div class="meter" style="height:12px"><i style="width:64%"></i></div><div class="wf-pane wf-chart" style="flex:1;padding:8px"><i style="height:30%"></i><i style="height:50%"></i><i class="acc" style="height:80%"></i><i style="height:60%"></i><i style="height:72%"></i><i class="acc" style="height:95%"></i><i style="height:55%"></i></div></div></div><div class="screen-cap"><b>Campaign Monitor</b><span class="n mono">11 · live</span></div></div>
+      <!-- 12 Analytics Dashboard -->
+      <div class="screen-card"><div class="screen-view"><div class="rowg" style="height:100%"><div class="stack" style="flex:1"><div class="wf-pane stack" style="flex:1;gap:6px;justify-content:center"><div class="wf-bar s" style="width:40%"></div><div class="wf-chart" style="height:36px"><i style="height:50%"></i><i class="acc" style="height:80%"></i><i style="height:65%"></i><i class="acc" style="height:95%"></i><i style="height:70%"></i></div></div><div class="rowg"><div class="wf-tile"></div><div class="wf-tile acc"></div></div></div><div class="wf-pane stack" style="flex:none;width:40%;align-items:center;justify-content:center;gap:8px"><div class="wf-donut"></div><div class="wf-bar s" style="width:60%"></div></div></div></div><div class="screen-cap"><b>Analytics Dashboard</b><span class="n mono">12 · charts</span></div></div>
+      <!-- 13 Reports -->
+      <div class="screen-card"><div class="screen-view"><div class="stack"><div class="rowg"><div class="wf-bar" style="width:30%"></div><div class="wf-btn" style="margin-left:auto;width:44px;height:14px"></div><div class="wf-btn" style="width:44px;height:14px;background:var(--good)"></div></div><div class="wf-pane stack" style="flex:1;gap:0"><div class="rowg" style="padding:2px 0"><div class="wf-bar s" style="width:25%"></div><div class="wf-bar s" style="width:20%;margin-left:auto"></div></div><div class="wf-line"></div><div class="rowg" style="padding:2px 0"><div class="wf-bar" style="width:30%"></div><div class="wf-bar" style="width:18%;margin-left:auto"></div></div><div class="wf-line"></div><div class="rowg" style="padding:2px 0"><div class="wf-bar" style="width:28%"></div><div class="wf-bar" style="width:22%;margin-left:auto"></div></div><div class="wf-line"></div><div class="rowg" style="padding:2px 0"><div class="wf-bar" style="width:33%"></div><div class="wf-bar" style="width:16%;margin-left:auto"></div></div></div></div></div><div class="screen-cap"><b>Reports</b><span class="n mono">13 · export</span></div></div>
+      <!-- 14 Settings -->
+      <div class="screen-card"><div class="screen-view"><div class="rowg" style="height:100%"><div class="wf-side" style="width:44px"><i class="on"></i><i></i><i></i><i></i><i></i></div><div class="wf-pane stack" style="flex:1;gap:9px;justify-content:center"><div class="rowg" style="align-items:center"><div class="wf-bar s" style="width:40%"></div><div class="wf-tile acc" style="width:30px;height:16px;border-radius:100px;margin-left:auto;flex:none"></div></div><div class="wf-line"></div><div class="rowg" style="align-items:center"><div class="wf-bar s" style="width:50%"></div><div class="wf-tile" style="width:30px;height:16px;border-radius:100px;margin-left:auto;flex:none"></div></div><div class="wf-line"></div><div class="rowg" style="align-items:center"><div class="wf-bar s" style="width:35%"></div><div class="wf-tile acc" style="width:30px;height:16px;border-radius:100px;margin-left:auto;flex:none"></div></div></div></div></div><div class="screen-cap"><b>Settings</b><span class="n mono">14 · config</span></div></div>
+      <!-- 15 User Profile -->
+      <div class="screen-card"><div class="screen-view"><div class="stack" style="align-items:center"><div class="wf-dot" style="width:40px;height:40px"></div><div class="wf-bar" style="width:40%"></div><div class="wf-bar s" style="width:28%"></div><div class="wf-line" style="width:100%"></div><div class="rowg" style="width:100%"><div class="wf-tile"></div><div class="wf-tile"></div><div class="wf-tile"></div></div><div class="rowg" style="width:100%"><div class="wf-pane" style="height:22px"></div><div class="wf-pane" style="height:22px"></div></div></div></div><div class="screen-cap"><b>User Profile</b><span class="n mono">15 · account</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= ANALYTICS / DASHBOARD ================= -->
+<section id="analytics" class="soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Dashboard &amp; analytics</span>
+      <h2>The command center for every campaign.</h2>
+      <p class="lede">A live, glanceable dashboard: pipeline health up top, trends in the middle, recent activity below. Every chart is exportable, every metric is drill-downable.</p>
+    </div>
+
+    <div class="win">
+      <div class="win-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url mono">app.vantage.io/dashboard</span></div>
+      <div class="win-body">
+        <div class="app">
+          <!-- sidebar -->
+          <aside class="app-side">
+            <div class="app-logo">
+              <svg class="mark" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 20.5 13.2 11 16 16l2.8-5 5.2 9.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.2" fill="#fff"/></svg>
+              Vantage
+            </div>
+            <div class="app-nav on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</div>
+            <div class="app-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Lead Finder</div>
+            <div class="app-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Verification</div>
+            <div class="app-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/></svg>Campaigns</div>
+            <div class="app-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Mailboxes</div>
+            <div class="app-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Analytics</div>
+            <div style="margin-top:auto"></div>
+            <div class="app-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5 8"/></svg>Settings</div>
+          </aside>
+
+          <!-- main -->
+          <div class="app-main">
+            <div class="app-h">
+              <div><h4>Good morning, Adam</h4><span class="sub">Workspace: Appy Pie · 3 active campaigns</span></div>
+              <span class="chip chip-ai"><span class="dot"></span>Credits: 6,240 / 10,000</span>
+            </div>
+
+            <!-- KPI row -->
+            <div class="kpis">
+              <div class="kpi"><div class="l">Total Leads</div><div class="v tabnum">48,210</div><div class="d up">▲ 4.2%</div></div>
+              <div class="kpi"><div class="l">Verified Leads</div><div class="v tabnum">39,884</div><div class="d up">▲ 82.7%</div></div>
+              <div class="kpi"><div class="l">Active Campaigns</div><div class="v tabnum">3</div><div class="d">2 sending · 1 paused</div></div>
+              <div class="kpi"><div class="l">Connected Mailboxes</div><div class="v tabnum">6</div><div class="d up">5 healthy</div></div>
+            </div>
+            <div class="kpis">
+              <div class="kpi"><div class="l">Emails Sent Today</div><div class="v tabnum">1,842</div><div class="d">cap 2,400</div></div>
+              <div class="kpi"><div class="l">Replies</div><div class="v tabnum">137</div><div class="d up">▲ 7.4% rate</div></div>
+              <div class="kpi"><div class="l">Open Rate</div><div class="v tabnum">58.3%</div><div class="d up">▲ 3.1%</div></div>
+              <div class="kpi"><div class="l">Bounce Rate</div><div class="v tabnum">1.9%</div><div class="d up">▼ 0.4%</div></div>
+            </div>
+
+            <!-- charts row -->
+            <div class="grid g-2" style="gap:12px;margin-top:4px">
+              <!-- daily sending bar chart -->
+              <div class="chart-card">
+                <div class="ct">Daily sending — last 14 days</div>
+                <div class="cs mono">sent vs. delivered</div>
+                <div class="bars" id="sendBars" role="img" aria-label="Daily sending volume over 14 days, trending upward">
+                  <div class="b mut"><i style="height:34%"></i></div><div class="b mut"><i style="height:42%"></i></div>
+                  <div class="b mut"><i style="height:38%"></i></div><div class="b mut"><i style="height:55%"></i></div>
+                  <div class="b mut"><i style="height:48%"></i></div><div class="b mut"><i style="height:62%"></i></div>
+                  <div class="b mut"><i style="height:58%"></i></div><div class="b mut"><i style="height:70%"></i></div>
+                  <div class="b mut"><i style="height:66%"></i></div><div class="b mut"><i style="height:78%"></i></div>
+                  <div class="b mut"><i style="height:72%"></i></div><div class="b"><i style="height:88%"></i></div>
+                  <div class="b"><i style="height:82%"></i></div><div class="b"><i style="height:96%"></i></div>
+                </div>
+                <div class="legend"><span><i style="background:var(--accent)"></i>This week</span><span><i style="background:var(--accent-wash)"></i>Prior</span></div>
+              </div>
+              <!-- verification donut -->
+              <div class="chart-card">
+                <div class="ct">Verification outcomes</div>
+                <div class="cs mono">39,884 verified of 48,210</div>
+                <div class="rowg" style="align-items:center;gap:18px;margin-top:6px">
+                  <div style="width:118px;height:118px;border-radius:100px;flex:none;
+                    background:conic-gradient(var(--good) 0 82.7%,var(--gold) 82.7% 92.4%,var(--bad) 92.4% 100%);
+                    -webkit-mask:radial-gradient(circle 30px at center,transparent 98%,#000);mask:radial-gradient(circle 30px at center,transparent 98%,#000)" role="img" aria-label="82.7 percent verified, 9.7 percent risky, 7.6 percent invalid"></div>
+                  <div class="stack" style="gap:10px;flex:1">
+                    <div class="mrow" style="margin:0"><b><span class="dot" style="color:var(--good)"></span> Verified</b><span>82.7%</span></div>
+                    <div class="mrow" style="margin:0"><b><span class="dot" style="color:var(--gold)"></span> Risky</b><span>9.7%</span></div>
+                    <div class="mrow" style="margin:0"><b><span class="dot" style="color:var(--bad)"></span> Invalid</b><span>7.6%</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- recent campaigns table -->
+            <div style="margin-top:14px">
+              <div class="app-h" style="margin-bottom:10px"><h4 style="font-size:.98rem">Recent campaigns</h4><span class="sub">view all →</span></div>
+              <div class="tbl-scroll">
+                <table class="tbl" style="min-width:560px">
+                  <thead><tr><th>Campaign</th><th>Status</th><th>Sent</th><th>Open</th><th>Reply</th><th>Bounce</th></tr></thead>
+                  <tbody>
+                    <tr><td class="nm">Q3 SaaS VPs — Cold</td><td><span class="chip chip-verified"><span class="dot"></span>Sending</span></td><td class="tabnum">4,210</td><td class="tabnum">61%</td><td class="tabnum">8.1%</td><td class="tabnum">1.6%</td></tr>
+                    <tr><td class="nm">Agency partnerships</td><td><span class="chip chip-verified"><span class="dot"></span>Sending</span></td><td class="tabnum">1,980</td><td class="tabnum">55%</td><td class="tabnum">6.4%</td><td class="tabnum">2.1%</td></tr>
+                    <tr><td class="nm">Demo re-engage</td><td><span class="chip chip-risky"><span class="dot"></span>Paused</span></td><td class="tabnum">3,540</td><td class="tabnum">49%</td><td class="tabnum">5.0%</td><td class="tabnum">2.4%</td></tr>
+                    <tr><td class="nm">Event invite — DevCon</td><td><span class="chip chip-invalid"><span class="dot"></span>Draft</span></td><td class="tabnum">—</td><td class="tabnum">—</td><td class="tabnum">—</td><td class="tabnum">—</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- distribution charts -->
+    <div class="grid g-3 mt-l">
+      <div class="chart-card">
+        <div class="ct">Reply rate by industry</div>
+        <div class="cs mono">last 30 days</div>
+        <div class="stack" style="gap:11px;margin-top:4px">
+          <div><div class="mrow"><b>SaaS</b><span>8.4%</span></div><div class="meter"><i style="width:84%"></i></div></div>
+          <div><div class="mrow"><b>Fintech</b><span>6.9%</span></div><div class="meter"><i style="width:69%"></i></div></div>
+          <div><div class="mrow"><b>Healthcare</b><span>5.2%</span></div><div class="meter"><i style="width:52%"></i></div></div>
+          <div><div class="mrow"><b>Agencies</b><span>7.1%</span></div><div class="meter"><i style="width:71%"></i></div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="ct">Country distribution</div>
+        <div class="cs mono">verified leads</div>
+        <div class="stack" style="gap:11px;margin-top:4px">
+          <div><div class="mrow"><b>United States</b><span>41%</span></div><div class="meter"><i style="width:41%;background:var(--ai)"></i></div></div>
+          <div><div class="mrow"><b>United Kingdom</b><span>18%</span></div><div class="meter"><i style="width:18%;background:var(--ai)"></i></div></div>
+          <div><div class="mrow"><b>India</b><span>15%</span></div><div class="meter"><i style="width:15%;background:var(--ai)"></i></div></div>
+          <div><div class="mrow"><b>Canada</b><span>11%</span></div><div class="meter"><i style="width:11%;background:var(--ai)"></i></div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="ct">Funnel — this quarter</div>
+        <div class="cs mono">leads → replies</div>
+        <div class="stack" style="gap:8px;margin-top:4px">
+          <div><div class="mrow"><b>Verified</b><span>39,884</span></div><div class="meter" style="height:14px"><i style="width:100%;background:var(--good)"></i></div></div>
+          <div><div class="mrow"><b>Sent</b><span>28,110</span></div><div class="meter" style="height:14px"><i style="width:70%"></i></div></div>
+          <div><div class="mrow"><b>Opened</b><span>16,390</span></div><div class="meter" style="height:14px"><i style="width:41%;background:var(--gold)"></i></div></div>
+          <div><div class="mrow"><b>Replied</b><span>2,081</span></div><div class="meter" style="height:14px"><i style="width:12%;background:var(--ai)"></i></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= ARCHITECTURE ================= -->
+<section id="architecture">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Technical architecture</span>
+      <h2>A queue-driven system built for scale and deliverability.</h2>
+      <p class="lede">Next.js on the edge, a NestJS API, PostgreSQL for state, and Redis-backed workers for everything asynchronous — discovery, verification, AI generation, and the paced sending engine. External providers sit behind adapter services so any one can be swapped.</p>
+    </div>
+
+    <div class="arch">
+      <div class="arch-layer">
+        <div class="lh"><span class="tag">Client</span><b>Presentation</b></div>
+        <div class="nodes">
+          <div class="node"><b>Next.js 14 App</b><span>React · SSR/ISR</span></div>
+          <div class="node"><b>Design system</b><span>dark / light · a11y</span></div>
+          <div class="node"><b>Charts</b><span>interactive · exportable</span></div>
+          <div class="node"><b>OAuth flows</b><span>Google · Microsoft</span></div>
+        </div>
+      </div>
+      <div class="arch-flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+      <div class="arch-layer">
+        <div class="lh"><span class="tag">Edge</span><b>API Gateway &amp; Auth</b></div>
+        <div class="nodes">
+          <div class="node"><b>REST API</b><span>NestJS · OpenAPI</span></div>
+          <div class="node"><b>Auth</b><span>OAuth 2.0 · JWT · RBAC</span></div>
+          <div class="node"><b>Rate limiting</b><span>per-workspace quotas</span></div>
+          <div class="node"><b>Webhooks</b><span>opens · bounces · replies</span></div>
+        </div>
+      </div>
+      <div class="arch-flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+      <div class="arch-layer">
+        <div class="lh"><span class="tag">Services</span><b>Domain microservices</b></div>
+        <div class="nodes">
+          <div class="node"><b>Lead Discovery</b><span>search · enrichment</span></div>
+          <div class="node"><b>Verification</b><span>MX · SMTP · heuristics</span></div>
+          <div class="node"><b>AI Service</b><span>LLM · personalization</span></div>
+          <div class="node"><b>Campaign Engine</b><span>scheduling · warm-up</span></div>
+          <div class="node"><b>Sending Service</b><span>SMTP · Gmail · Graph API</span></div>
+          <div class="node"><b>Reporting</b><span>aggregation · export</span></div>
+        </div>
+      </div>
+      <div class="arch-flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+      <div class="arch-layer">
+        <div class="lh"><span class="tag">Async</span><b>Queue &amp; workers</b></div>
+        <div class="nodes">
+          <div class="node"><b>Redis / BullMQ</b><span>job queues</span></div>
+          <div class="node"><b>Send workers</b><span>30–90s paced</span></div>
+          <div class="node"><b>Verify workers</b><span>batch parallel</span></div>
+          <div class="node"><b>Enrich workers</b><span>AI research</span></div>
+          <div class="node"><b>Scheduler</b><span>cron · warm-up ramp</span></div>
+        </div>
+      </div>
+      <div class="arch-flow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+      <div class="arch-layer">
+        <div class="lh"><span class="tag">Data &amp; External</span><b>Persistence &amp; integrations</b></div>
+        <div class="nodes">
+          <div class="node"><b>PostgreSQL</b><span>leads · campaigns · events</span></div>
+          <div class="node"><b>Object storage</b><span>exports · reports</span></div>
+          <div class="node"><b>LLM provider</b><span>Claude · generation</span></div>
+          <div class="node"><b>Data providers</b><span>contact graph</span></div>
+          <div class="node"><b>CRM sync</b><span>HubSpot · Salesforce</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API surface -->
+    <div class="two mt-l" style="margin-top:52px;align-items:start">
+      <div>
+        <span class="eyebrow">REST API surface</span>
+        <h3 class="mt-s" style="margin-top:14px">A clean, versioned API — everything the UI does, you can automate.</h3>
+        <p class="mt-s" style="color:var(--muted)">Resource-oriented endpoints under <span class="mono">/v1</span>, OAuth-scoped tokens, cursor pagination, and idempotency keys on writes. Webhooks push delivery events back to your systems in real time.</p>
+        <ul class="checks mt">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Idempotent sends</b> prevent duplicate email on retry.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Signed webhooks</b> for opens, clicks, replies, bounces, unsubscribes.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Scoped tokens</b> — per-workspace, least-privilege RBAC.</span></li>
+        </ul>
+      </div>
+      <div class="api" aria-label="Example API endpoints">
+        <div class="api-row"><span class="verb post">POST</span><span class="path">/v1/leads/search</span><span class="desc">run a filtered search</span></div>
+        <div class="api-row"><span class="verb get">GET</span><span class="path">/v1/leads/:id</span><span class="desc">enriched lead detail</span></div>
+        <div class="api-row"><span class="verb post">POST</span><span class="path">/v1/verify/batch</span><span class="desc">verify a list</span></div>
+        <div class="api-row"><span class="verb post">POST</span><span class="path">/v1/exports</span><span class="desc">CSV / XLSX job</span></div>
+        <div class="api-row"><span class="verb post">POST</span><span class="path">/v1/templates/generate</span><span class="desc">AI draft</span></div>
+        <div class="api-row"><span class="verb post">POST</span><span class="path">/v1/campaigns</span><span class="desc">create campaign</span></div>
+        <div class="api-row"><span class="verb put">PUT</span><span class="path">/v1/campaigns/:id/state</span><span class="desc">pause / resume</span></div>
+        <div class="api-row"><span class="verb post">POST</span><span class="path">/v1/mailboxes/connect</span><span class="desc">OAuth / SMTP</span></div>
+        <div class="api-row"><span class="verb get">GET</span><span class="path">/v1/reports/:campaignId</span><span class="desc">analytics rollup</span></div>
+        <div class="api-row"><span class="verb post">POST</span><span class="path">/v1/webhooks</span><span class="desc">subscribe to events</span></div>
+      </div>
+    </div>
+
+    <div class="callout mt-l" style="margin-top:44px">
+      <div class="ic-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
+      <div>
+        <h3>Request lifecycle — a send</h3>
+        <p><span class="mono">Campaign start → scheduler enqueues verified-only contacts → send worker claims a job → checks daily cap &amp; mailbox health → waits a randomized 30–90s → sends via provider → records event → webhook fires → analytics rollup updates.</span> Bounces flip the contact to suppressed and halt further sends to that address.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= DATA MODEL ================= -->
+<section id="data" class="soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Data model &amp; flow</span>
+      <h2>A relational core that keeps clean data clean.</h2>
+      <p class="lede">Workspaces own everything. Leads carry their verification state; campaigns reference templates and mailboxes; every send emits immutable events that power both analytics and suppression. Foreign keys are shown in <span style="color:var(--ai)">indigo</span>, primary keys in <span style="color:var(--accent-ink)">teal</span>.</p>
+    </div>
+
+    <div class="er">
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h18"/></svg>workspaces</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">uuid</span></div>
+        <div class="row"><span class="k">name</span><span class="ty">text</span></div>
+        <div class="row"><span class="k">plan</span><span class="ty">enum</span></div>
+        <div class="row"><span class="k">credits</span><span class="ty">int</span></div>
+        <div class="row"><span class="k">created_at</span><span class="ty">timestamptz</span></div>
+      </div>
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>users</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">uuid</span></div>
+        <div class="row fk"><span class="k">workspace_id</span><span class="ty">fk</span></div>
+        <div class="row"><span class="k">email</span><span class="ty">citext</span></div>
+        <div class="row"><span class="k">role</span><span class="ty">enum</span></div>
+      </div>
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>leads</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">uuid</span></div>
+        <div class="row fk"><span class="k">workspace_id</span><span class="ty">fk</span></div>
+        <div class="row"><span class="k">full_name</span><span class="ty">text</span></div>
+        <div class="row"><span class="k">email</span><span class="ty">citext</span></div>
+        <div class="row"><span class="k">company</span><span class="ty">text</span></div>
+        <div class="row"><span class="k">title</span><span class="ty">text</span></div>
+        <div class="row"><span class="k">verify_status</span><span class="ty">enum</span></div>
+        <div class="row"><span class="k">enrichment</span><span class="ty">jsonb</span></div>
+      </div>
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>verifications</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">uuid</span></div>
+        <div class="row fk"><span class="k">lead_id</span><span class="ty">fk</span></div>
+        <div class="row"><span class="k">mx / smtp</span><span class="ty">bool</span></div>
+        <div class="row"><span class="k">catch_all</span><span class="ty">bool</span></div>
+        <div class="row"><span class="k">disposable</span><span class="ty">bool</span></div>
+        <div class="row"><span class="k">result</span><span class="ty">enum</span></div>
+      </div>
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v14H4z"/><path d="m4 7 8 5 8-5"/></svg>templates</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">uuid</span></div>
+        <div class="row fk"><span class="k">workspace_id</span><span class="ty">fk</span></div>
+        <div class="row"><span class="k">style</span><span class="ty">enum</span></div>
+        <div class="row"><span class="k">subject[]</span><span class="ty">text[]</span></div>
+        <div class="row"><span class="k">body</span><span class="ty">text</span></div>
+        <div class="row"><span class="k">source</span><span class="ty">enum</span></div>
+      </div>
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/></svg>campaigns</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">uuid</span></div>
+        <div class="row fk"><span class="k">workspace_id</span><span class="ty">fk</span></div>
+        <div class="row fk"><span class="k">template_id</span><span class="ty">fk</span></div>
+        <div class="row fk"><span class="k">mailbox_id</span><span class="ty">fk</span></div>
+        <div class="row"><span class="k">status</span><span class="ty">enum</span></div>
+        <div class="row"><span class="k">daily_cap</span><span class="ty">int</span></div>
+        <div class="row"><span class="k">delay_range</span><span class="ty">int4range</span></div>
+      </div>
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>mailboxes</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">uuid</span></div>
+        <div class="row fk"><span class="k">workspace_id</span><span class="ty">fk</span></div>
+        <div class="row"><span class="k">provider</span><span class="ty">enum</span></div>
+        <div class="row"><span class="k">health_score</span><span class="ty">int</span></div>
+        <div class="row"><span class="k">spf/dkim/dmarc</span><span class="ty">bool</span></div>
+        <div class="row"><span class="k">daily_limit</span><span class="ty">int</span></div>
+      </div>
+      <div class="entity">
+        <div class="eh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>send_events</div>
+        <div class="row pk"><span class="k">id</span><span class="ty">bigint</span></div>
+        <div class="row fk"><span class="k">campaign_id</span><span class="ty">fk</span></div>
+        <div class="row fk"><span class="k">lead_id</span><span class="ty">fk</span></div>
+        <div class="row"><span class="k">type</span><span class="ty">enum</span></div>
+        <div class="row"><span class="k">occurred_at</span><span class="ty">timestamptz</span></div>
+      </div>
+    </div>
+
+    <!-- DB flow -->
+    <div class="callout mt-l" style="margin-top:40px;border-left-color:var(--ai)">
+      <div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.6 3.6 3 8 3s8-1.4 8-3V6"/><path d="M4 12c0 1.6 3.6 3 8 3s8-1.4 8-3"/></svg></div>
+      <div>
+        <h3>Write path &amp; suppression</h3>
+        <p><span class="mono">leads.verify_status</span> gates campaign membership — only <span class="chip chip-verified" style="font-size:.62rem;padding:1px 6px"><span class="dot"></span>Verified</span> rows are enqueued. Each send appends an immutable row to <span class="mono">send_events</span> (sent · delivered · opened · clicked · replied · bounced · failed · unsubscribed). A <span class="mono">bounced</span> or <span class="mono">unsubscribed</span> event writes to the workspace suppression list, which every future enqueue checks first. Reporting reads are served from a materialized rollup, refreshed on event ingest.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= AI ================= -->
+<section id="ai">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">AI capabilities</span>
+      <h2>Ten places where AI removes the busywork.</h2>
+      <p class="lede">AI runs across the whole workflow — not as a bolt-on writer, but woven into discovery, data hygiene, targeting, and personalization.</p>
+    </div>
+    <div class="grid g-4">
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><h3>Lead Discovery</h3><p>Finds matching prospects and surfaces look-alikes beyond exact-match filters.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M6 21V9l6-4 6 4v12"/><path d="M10 21v-6h4v6"/></svg></div><h3>Company Research</h3><p>Summarizes services, capabilities, and decision-makers per account.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></div><h3>Email Verification</h3><p>Scores ambiguous, catch-all cases beyond deterministic SMTP checks.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg></div><h3>Personalization</h3><p>Adapts each message to the recipient's role, company, and pain points.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg></div><h3>Subject Line Generator</h3><p>Proposes and ranks subject variants tuned for open rate.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M4 4h16v10H8l-4 4V4Z"/></svg></div><h3>Email Writer</h3><p>Drafts full body copy with CTA and signature in nine styles.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 5v4h-4"/></svg></div><h3>Follow-up Generator</h3><p>Writes context-aware sequences based on prior-step outcomes.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.4 7.4H22l-6 4.4 2.3 7.2L12 16.6 5.7 21l2.3-7.2-6-4.4h7.6z"/></svg></div><h3>Lead Scoring</h3><p>Ranks prospects by fit and likelihood to reply, so reps work the best first.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/><path d="M11 7h6a2 2 0 0 1 2 2v4"/></svg></div><h3>Duplicate Detection</h3><p>Fuzzy-matches people and companies across imports to keep lists clean.</p></div>
+      <div class="card"><div class="ic-badge ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/></svg></div><h3>Smart Filtering</h3><p>Turns a plain-language brief into a structured, saved search.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= COMPLIANCE ================= -->
+<section id="compliance" class="soft">
+  <div class="wrap">
+    <div class="two" style="align-items:start">
+      <div>
+        <span class="eyebrow">Responsible sending</span>
+        <h2 style="margin:14px 0">Compliance is a feature, not a footnote.</h2>
+        <p class="lede">Legitimate outreach depends on trust — of recipients, mailbox providers, and regulators. Vantage builds the guardrails into the product so teams stay on the right side of the law and the spam filter.</p>
+        <div class="pills mt-l">
+          <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>CAN-SPAM</span>
+          <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>GDPR</span>
+          <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>CASL</span>
+          <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>SPF · DKIM · DMARC</span>
+        </div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="callout"><div class="ic-badge" style="background:var(--good-wash);color:var(--good)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div><div><h3>One-click unsubscribe</h3><p>Every email carries a working opt-out and physical-address footer. Opt-outs write to the suppression list instantly and irreversibly.</p></div></div>
+        <div class="callout"><div class="ic-badge" style="background:var(--good-wash);color:var(--good)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div><div><h3>Suppression &amp; consent</h3><p>Global suppression lists, bounce-triggered stops, and consent tracking prevent contacting anyone who shouldn't be contacted.</p></div></div>
+        <div class="callout"><div class="ic-badge gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><div><h3>Rate &amp; volume limits</h3><p>Configurable per-mailbox daily caps, randomized delays, and warm-up ramps keep sending within provider limits.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= ROADMAP ================= -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Implementation roadmap</span>
+      <h2>Four phases from foundation to intelligence.</h2>
+      <p class="lede">A pragmatic build order — ship the data-and-verify core first, layer sending and AI, then deepen analytics and integrations.</p>
+    </div>
+    <div class="road">
+      <div class="phase">
+        <div class="ph">Phase 1</div><h3>Foundation</h3><div class="q">Weeks 1–6</div>
+        <ul><li>Auth, workspaces, RBAC</li><li>Lead Finder + search</li><li>Verification engine</li><li>CSV / XLSX export</li><li>Core dashboard</li></ul>
+      </div>
+      <div class="phase">
+        <div class="ph">Phase 2</div><h3>Outreach</h3><div class="q">Weeks 7–12</div>
+        <ul><li>AI template generator</li><li>Campaign builder + preview</li><li>Mailbox OAuth / SMTP</li><li>Smart sending engine</li><li>Warm-up &amp; bounce handling</li></ul>
+      </div>
+      <div class="phase">
+        <div class="ph">Phase 3</div><h3>Intelligence</h3><div class="q">Weeks 13–18</div>
+        <ul><li>Lead scoring</li><li>Duplicate detection</li><li>Follow-up sequences</li><li>Analytics + reports</li><li>Webhooks &amp; public API</li></ul>
+      </div>
+      <div class="phase">
+        <div class="ph">Phase 4</div><h3>Scale</h3><div class="q">Weeks 19–24</div>
+        <ul><li>CRM sync (HubSpot / SFDC)</li><li>Team collaboration</li><li>A/B testing</li><li>Deliverability insights</li><li>Enterprise SSO &amp; audit</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= PRD ================= -->
+<section id="prd" class="soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Product Requirements Document</span>
+      <h2>PRD appendix.</h2>
+      <p class="lede">The written specification behind the presentation — summary, personas, functional and non-functional requirements, success metrics, and stack.</p>
+    </div>
+
+    <h3 style="margin-bottom:16px">1 · Summary</h3>
+    <div class="spec-wrap" style="margin-bottom:36px">
+      <table class="spec">
+        <tr><td>Product</td><td>Vantage — AI-powered B2B lead generation &amp; cold email outreach platform.</td></tr>
+        <tr><td>Problem</td><td>Outbound teams stitch together a data vendor, verifier, AI writer, sending tool, and spreadsheet. The result is slow, error-prone, and risky for deliverability and compliance.</td></tr>
+        <tr><td>Solution</td><td>A single automated workflow: discover → verify → export → generate → configure → connect → send → measure, with compliance and deliverability enforced by the platform.</td></tr>
+        <tr><td>Primary users</td><td>Founders, SDR/BDR reps, RevOps, growth marketers, and outbound agencies.</td></tr>
+        <tr><td>Non-goals (v1)</td><td>Inbound marketing automation, full CRM replacement, transactional email, SMS/LinkedIn channels.</td></tr>
+      </table>
+    </div>
+
+    <h3 style="margin-bottom:16px">2 · Personas</h3>
+    <div class="spec-wrap" style="margin-bottom:36px">
+      <table class="spec">
+        <thead><tr><th>Persona</th><th>Goal</th><th>Key screens</th></tr></thead>
+        <tbody>
+          <tr><td>SDR / rep</td><td>Book meetings — find leads, send, and reply fast.</td><td class="mono">Lead Finder · Campaign Builder · Monitor</td></tr>
+          <tr><td>RevOps</td><td>Clean data, deliverability, and reporting hygiene.</td><td class="mono">Verification · Mailboxes · Analytics</td></tr>
+          <tr><td>Founder / agency</td><td>Run many campaigns across clients at low overhead.</td><td class="mono">Dashboard · Reports · Settings</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-bottom:16px">3 · Functional requirements</h3>
+    <div class="spec-wrap" style="margin-bottom:36px">
+      <table class="spec">
+        <thead><tr><th>ID</th><th>Requirement</th><th>Acceptance</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">FR-1</td><td>Search prospects across 13 filters with AI enrichment.</td><td>Query returns paginated matches; each lead has company, contacts, socials.</td></tr>
+          <tr><td class="mono">FR-2</td><td>Verify emails via MX, SMTP, catch-all, disposable, role-based.</td><td>Each address resolves to Verified / Risky / Invalid; invalids excluded from sends.</td></tr>
+          <tr><td class="mono">FR-3</td><td>Export leads to CSV and XLSX with the full field set.</td><td>File downloads with 13 columns incl. verification status.</td></tr>
+          <tr><td class="mono">FR-4</td><td>Generate AI templates in 9 styles with subject/body/CTA/signature.</td><td>Output editable and savable; regenerate on demand.</td></tr>
+          <tr><td class="mono">FR-5</td><td>Build a campaign — template, subject, sender, reply-to, preview.</td><td>Preview renders the exact email before send.</td></tr>
+          <tr><td class="mono">FR-6</td><td>Connect multiple mailboxes via OAuth or SMTP/IMAP.</td><td>Shows limit, health score, SPF/DKIM/DMARC status.</td></tr>
+          <tr><td class="mono">FR-7</td><td>Send only to verified leads with paced, capped delivery.</td><td>30–90s randomized delay; daily cap; warm-up; bounce stop; pause/resume.</td></tr>
+          <tr><td class="mono">FR-8</td><td>Report on the funnel and export analytics.</td><td>Dashboards for send/open/reply/bounce + geo/industry; CSV/Excel export.</td></tr>
+          <tr><td class="mono">FR-9</td><td>Enforce compliance on every send.</td><td>Unsubscribe link, footer, suppression list, consent tracking present.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g-2" style="align-items:start;margin-bottom:36px">
+      <div>
+        <h3 style="margin-bottom:16px">4 · Non-functional</h3>
+        <div class="spec-wrap">
+          <table class="spec">
+            <tr><td>Performance</td><td>Search &lt; 1.5s p95; verify 10k/batch.</td></tr>
+            <tr><td>Scale</td><td>Millions of leads / workspace; horizontal workers.</td></tr>
+            <tr><td>Reliability</td><td>99.9% API uptime; at-least-once send with idempotency.</td></tr>
+            <tr><td>Security</td><td>OAuth 2.0, encryption at rest/in transit, RBAC, audit log.</td></tr>
+            <tr><td>Privacy</td><td>Data-deletion &amp; export on request (GDPR).</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:16px">5 · Success metrics</h3>
+        <div class="spec-wrap">
+          <table class="spec">
+            <tr><td>Activation</td><td>First verified export within 24h of signup.</td></tr>
+            <tr><td>Data quality</td><td>&ge; 97% verification accuracy; &lt; 2% bounce.</td></tr>
+            <tr><td>Engagement</td><td>Median reply rate &ge; 5% across campaigns.</td></tr>
+            <tr><td>Retention</td><td>&ge; 40% of teams run a campaign weekly.</td></tr>
+            <tr><td>Deliverability</td><td>&ge; 95% inbox placement on warmed domains.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:16px">6 · Technology stack</h3>
+    <div class="spec-wrap">
+      <table class="spec">
+        <thead><tr><th>Layer</th><th>Choice</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Frontend</td><td class="mono">React / Next.js 14</td><td>SSR/ISR, design system, dark &amp; light.</td></tr>
+          <tr><td>Backend</td><td class="mono">Node.js / NestJS</td><td>REST API, OpenAPI, RBAC.</td></tr>
+          <tr><td>Database</td><td class="mono">PostgreSQL</td><td>Relational core, jsonb enrichment.</td></tr>
+          <tr><td>Queue</td><td class="mono">Redis / BullMQ</td><td>Send, verify, enrich, schedule.</td></tr>
+          <tr><td>Workers</td><td class="mono">Background workers</td><td>Paced sending, batch verification.</td></tr>
+          <tr><td>Email</td><td class="mono">Gmail · Graph · SMTP</td><td>Provider adapters, warm-up.</td></tr>
+          <tr><td>AI</td><td class="mono">LLM service (Claude)</td><td>Discovery, writing, scoring.</td></tr>
+          <tr><td>Auth</td><td class="mono">OAuth 2.0 · JWT</td><td>Google &amp; Microsoft sign-in.</td></tr>
+          <tr><td>Integration</td><td class="mono">REST API · Webhooks</td><td>CRM sync, event push.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA + FOOTER ================= -->
+<section style="padding-bottom:0">
+  <div class="wrap">
+    <div class="pipe" style="text-align:center;padding:48px 24px;background:
+      radial-gradient(80% 120% at 50% 0%,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface))">
+      <span class="eyebrow center">Prospect to reply, on autopilot</span>
+      <h2 style="margin:14px 0 12px">Vantage turns outbound into one clean workflow.</h2>
+      <p class="lede center" style="margin-bottom:26px">Discover, verify, personalize, send, and measure — with compliance and deliverability built in.</p>
+      <div class="hero-actions" style="justify-content:center;margin-top:0">
+        <a class="btn btn-primary" href="#workflow">Review the workflow</a>
+        <a class="btn btn-ghost" href="#prd">Read the PRD</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <div class="brand" style="margin-bottom:8px">
+        <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 20.5 13.2 11 16 16l2.8-5 5.2 9.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.2" fill="#fff"/></svg>
+        Vantage
+      </div>
+      <p>AI-powered lead generation &amp; cold email outreach. Product presentation &amp; PRD — a concept design.</p>
+      <p class="disc">// Conceptual product. Users are responsible for lawful, consent-based outreach under applicable regulations (CAN-SPAM, GDPR, CASL).</p>
+    </div>
+    <div style="text-align:right">
+      <p class="disc" style="margin-bottom:6px">Presentation &amp; PRD · v1.0</p>
+      <p class="disc">Inspired by Apollo.io · Clay · ZoomInfo</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---- Theme toggle (persists; respects system default) ----
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var KEY='vantage-theme';
+  try{var saved=localStorage.getItem(KEY); if(saved){root.setAttribute('data-theme',saved);}}catch(e){}
+  function current(){
+    var attr=root.getAttribute('data-theme');
+    if(attr) return attr;
+    return window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  }
+  if(btn){btn.addEventListener('click',function(){
+    var next=current()==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem(KEY,next);}catch(e){}
+  });}
+
+  // ---- Build the end-to-end flow diagram stages ----
+  document.querySelectorAll('.flow-stage').forEach(function(el){
+    var box=document.createElement('div'); box.className='box'; box.textContent=el.dataset.l;
+    var arr=document.createElement('span'); arr.className='arr';
+    arr.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    el.appendChild(box); el.appendChild(arr);
+  });
+
+  // ---- Animate the hero pipeline: advance the active node ----
+  var nodes=document.querySelectorAll('.pipe-node');
+  if(nodes.length && !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    var i=0;
+    setInterval(function(){
+      nodes.forEach(function(n){n.classList.remove('on');});
+      nodes[i].classList.add('on');
+      i=(i+1)%nodes.length;
+    },1400);
+  }
+
+  // ---- Scroll-spy for nav ----
+  var links=Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var map={}; links.forEach(function(a){var id=a.getAttribute('href').slice(1); map[id]=a;});
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        links.forEach(function(a){a.style.color=''; a.style.background='';});
+        var a=map[en.target.id];
+        if(a){a.style.color='var(--ink)'; a.style.background='var(--surface-2)';}
+      }
+    });
+  },{rootMargin:'-45% 0px -50% 0px'});
+  document.querySelectorAll('section[id]').forEach(function(s){obs.observe(s);});
+})();
+</script>
+</body>
+</html>

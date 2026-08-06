@@ -1,0 +1,43 @@
+name: Deploy Vantage to GitHub Pages
+
+# Publishes the vantage/ folder as a static site so the working tool is
+# reachable at:  https://<owner>.github.io/<repo>/app.html
+# and the presentation at the site root.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "vantage/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload site (vantage/)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: vantage
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
