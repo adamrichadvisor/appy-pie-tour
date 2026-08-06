@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Category — AJ SHOP</title>
+<link rel="icon" href="assets/img/logo.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main class="wrap">
+  <nav class="crumb"><a href="index.html">Home</a><span>›</span><span id="crumbCat">Category</span></nav>
+
+  <div class="subfilter" id="subfilter"></div>
+
+  <div class="catalog">
+    <aside class="filters">
+      <h4>Sub-category</h4>
+      <div id="groupFilters"></div>
+      <h4>Price</h4>
+      <label class="filter-opt"><input type="radio" name="price" value="all" checked> All prices</label>
+      <label class="filter-opt"><input type="radio" name="price" value="0-999"> Under ₹999</label>
+      <label class="filter-opt"><input type="radio" name="price" value="999-2999"> ₹999 – ₹2,999</label>
+      <label class="filter-opt"><input type="radio" name="price" value="2999-9999"> ₹2,999 – ₹9,999</label>
+      <label class="filter-opt"><input type="radio" name="price" value="9999-999999"> ₹9,999 &amp; above</label>
+      <h4>Rating</h4>
+      <label class="filter-opt"><input type="radio" name="rating" value="0" checked> All ratings</label>
+      <label class="filter-opt"><input type="radio" name="rating" value="4.5"> 4.5★ &amp; above</label>
+      <label class="filter-opt"><input type="radio" name="rating" value="4.0"> 4.0★ &amp; above</label>
+      <h4>Offers</h4>
+      <label class="filter-opt"><input type="checkbox" id="onlyDeals"> On sale only</label>
+    </aside>
+
+    <section>
+      <div class="catalog-head">
+        <div><h1 id="catTitle">Category</h1><span class="count" id="catCount"></span></div>
+        <select class="sortsel" id="sort">
+          <option value="pop">Sort: Popularity</option>
+          <option value="low">Price: Low to High</option>
+          <option value="high">Price: High to Low</option>
+          <option value="disc">Biggest Discount</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+      <div class="prod-grid" id="grid"></div>
+    </section>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/art.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const catId = params.get('cat') || 'mobiles';
+  const cat = AJ_CATEGORIES.find(c => c.id === catId) || AJ_CATEGORIES[0];
+  AJ.mount(cat.id);
+
+  document.title = cat.name + ' — AJ SHOP';
+  document.getElementById('catTitle').textContent = cat.name;
+  document.getElementById('crumbCat').textContent = cat.name;
+
+  let activeGroup = params.get('group') || 'all';
+
+  // Sub-category filters (Boys/Girls, Gents/Ladies) only when the category has groups
+  const gf = document.getElementById('groupFilters');
+  const sf = document.getElementById('subfilter');
+  if (cat.groups) {
+    const opts = ['all', ...cat.groups];
+    gf.innerHTML = opts.map(g =>
+      `<label class="filter-opt"><input type="radio" name="group" value="${g}" ${g===activeGroup?'checked':''}> ${g==='all'?'All':g}</label>`).join('');
+    sf.innerHTML = opts.map(g =>
+      `<button class="pill ${g===activeGroup?'active':''}" data-group="${g}">${g==='all'?'All '+cat.name:g} </button>`).join('');
+    sf.querySelectorAll('.pill').forEach(b => b.onclick = () => { activeGroup = b.dataset.group; syncGroupRadios(); render(); });
+    gf.querySelectorAll('input').forEach(r => r.onchange = () => { activeGroup = r.value; syncPills(); render(); });
+  } else {
+    gf.innerHTML = '<p style="font-size:13px;color:var(--muted)">No sub-categories</p>';
+    sf.style.display = 'none';
+  }
+  function syncPills(){ sf.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.group===activeGroup)); }
+  function syncGroupRadios(){ gf.querySelectorAll('input').forEach(r=>r.checked=r.value===activeGroup); }
+
+  function render() {
+    let list = AJ_PRODUCTS.filter(p => p.cat === cat.id);
+    if (activeGroup !== 'all') list = list.filter(p => p.group === activeGroup);
+
+    const price = document.querySelector('input[name=price]:checked').value;
+    if (price !== 'all') { const [lo,hi]=price.split('-').map(Number); list = list.filter(p=>p.price>=lo && p.price<=hi); }
+
+    const rating = parseFloat(document.querySelector('input[name=rating]:checked').value);
+    if (rating) list = list.filter(p => p.rating >= rating);
+
+    if (document.getElementById('onlyDeals').checked) list = list.filter(p => p.badge === 'sale');
+
+    const sort = document.getElementById('sort').value;
+    if (sort==='low') list.sort((a,b)=>a.price-b.price);
+    else if (sort==='high') list.sort((a,b)=>b.price-a.price);
+    else if (sort==='disc') list.sort((a,b)=>(1-b.price/b.mrp)-(1-a.price/a.mrp));
+    else if (sort==='rating') list.sort((a,b)=>b.rating-a.rating);
+    else list.sort((a,b)=>(b.rating*b.reviews)-(a.rating*a.reviews));
+
+    document.getElementById('catCount').textContent = list.length + ' products';
+    AJ.renderGrid(document.getElementById('grid'), list);
+  }
+  document.querySelectorAll('input[name=price],input[name=rating],#onlyDeals,#sort').forEach(el => el.addEventListener('change', render));
+  render();
+</script>
+</body>
+</html>

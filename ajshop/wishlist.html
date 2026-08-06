@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wishlist — AJ SHOP</title>
+<link rel="icon" href="assets/img/logo.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main class="wrap">
+  <nav class="crumb"><a href="index.html">Home</a><span>›</span><span>Wishlist</span></nav>
+  <h1 style="margin:16px 0 4px">Your Wishlist</h1>
+  <p class="count" id="count" style="margin-bottom:18px"></p>
+  <div class="prod-grid" id="grid"></div>
+</main>
+<div id="site-footer"></div>
+
+<script src="assets/js/art.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  AJ.mount();
+  function render() {
+    let wish = [];
+    try { wish = JSON.parse(localStorage.getItem('aj_wish')) || []; } catch {}
+    const list = wish.map(id => AJ.findProduct(id)).filter(Boolean);
+    document.getElementById('count').textContent = list.length + ' saved item' + (list.length===1?'':'s');
+    const grid = document.getElementById('grid');
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+        <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <h3>Your wishlist is empty</h3><p>Tap the heart on any product to save it here.</p>
+        <a class="btn btn-primary" href="index.html" style="margin-top:16px">Explore Products</a></div>`;
+      return;
+    }
+    AJ.renderGrid(grid, list);
+  }
+  render();
+  // re-render when a wishlist toggle happens on this page
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-act="wish"]')) setTimeout(render, 30); });
+</script>
+</body>
+</html>

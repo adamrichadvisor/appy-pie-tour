@@ -1,0 +1,15 @@
+{
+  "name": "aj-shop-ccavenue-server",
+  "version": "1.0.0",
+  "description": "AJ SHOP storefront + CCAvenue payment gateway integration (card / net banking / UPI)",
+  "main": "ccavenue-server.js",
+  "scripts": {
+    "start": "node ccavenue-server.js",
+    "dev": "node ccavenue-server.js"
+  },
+  "engines": { "node": ">=16" },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "license": "MIT"
+}
