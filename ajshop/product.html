@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product — AJ SHOP</title>
+<link rel="icon" href="assets/img/logo.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main class="wrap">
+  <nav class="crumb" id="crumb"></nav>
+  <div class="pdp" id="pdp"></div>
+
+  <section class="section">
+    <div class="section-head"><div><h2>You may also like</h2></div></div>
+    <div class="prod-grid" id="related"></div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/art.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  AJ.mount();
+  const id = new URLSearchParams(location.search).get('id');
+  const p = AJ.findProduct(id);
+  const root = document.getElementById('pdp');
+
+  if (!p) {
+    root.innerHTML = `<div class="empty" style="grid-column:1/-1"><h3>Product not found</h3><p><a href="index.html" style="color:var(--brand)">Back to home</a></p></div>`;
+  } else {
+    document.title = p.name + ' — AJ SHOP';
+    const off = Math.round((1 - p.price/p.mrp)*100);
+    const stars = '★★★★★'.slice(0, Math.round(p.rating)) + '☆☆☆☆☆'.slice(0, 5-Math.round(p.rating));
+    document.getElementById('crumb').innerHTML =
+      `<a href="index.html">Home</a><span>›</span><a href="category.html?cat=${p.cat}">${AJ.catName(p.cat)}</a><span>›</span><span>${p.name}</span>`;
+
+    const sizeBlock = p.sizes ? `
+      <div class="pdp-opts">
+        <label>${p.cat==='mobiles'?'Storage':p.cat==='footwear'?'Size (UK)':'Size'}</label>
+        <div class="chip-row" id="sizes">${p.sizes.map((s,i)=>`<button class="chip ${i===0?'active':''}" data-size="${s}">${s}</button>`).join('')}</div>
+      </div>` : '';
+
+    root.innerHTML = `
+      <div class="pdp-gallery">${AJ.media(p)}</div>
+      <div class="pdp-info">
+        <div class="card-cat">${AJ.catName(p.cat)}${p.group?' · '+p.group:''}</div>
+        <h1>${p.name}</h1>
+        <div class="rating"><span class="stars">${stars}</span> ${p.rating} · ${p.reviews} ratings</div>
+        <div class="pdp-price"><span class="price">${AJ.money(p.price)}</span><span class="mrp">${AJ.money(p.mrp)}</span><span class="off">${off}% off</span></div>
+        <div class="deliver-strip" id="deliverStrip"></div>
+        <p class="pdp-desc">${p.desc}</p>
+        ${sizeBlock}
+        <div class="pdp-opts">
+          <label>Quantity</label>
+          <div class="qty"><button id="dec">−</button><span id="q">1</span><button id="inc">+</button></div>
+        </div>
+        <div class="pdp-actions">
+          <button class="btn btn-primary" id="addBtn" style="flex:1">Add to Cart</button>
+          <button class="btn btn-dark" id="buyBtn" style="flex:1">Buy Now</button>
+        </div>
+        <div class="pdp-meta">
+          <div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> ${p.price>=999?'Eligible for FREE delivery':'Delivery ₹79 · FREE over ₹999'}</div>
+          <div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 7-day easy returns &amp; replacement</div>
+          <div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Secure CCAvenue payment · Card, UPI &amp; Net Banking</div>
+          <div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Cash on Delivery available on eligible orders</div>
+        </div>
+      </div>`;
+
+    let qty = 1, size = p.sizes ? p.sizes[0] : '';
+    const qEl = document.getElementById('q');
+    document.getElementById('inc').onclick = () => { qty++; qEl.textContent = qty; };
+    document.getElementById('dec').onclick = () => { if (qty>1){ qty--; qEl.textContent = qty; } };
+    if (p.sizes) document.querySelectorAll('#sizes .chip').forEach(c => c.onclick = () => {
+      document.querySelectorAll('#sizes .chip').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active'); size = c.dataset.size;
+    });
+    document.getElementById('addBtn').onclick = () => AJ.addToCart(p.id, { qty, variant: size });
+    document.getElementById('buyBtn').onclick = () => AJ.requireLocation(() => { AJ.addToCart(p.id, { qty, variant: size }); location.href='cart.html'; });
+
+    // delivery strip reflects the chosen location
+    function renderDeliver() {
+      const loc = AJ.getLocation();
+      const el = document.getElementById('deliverStrip');
+      el.innerHTML = loc
+        ? `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Deliver to <b>${loc.city} — ${loc.pin}</b> · in 3–6 days <button data-act="open-location">Change</button>`
+        : `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Select a delivery location to check availability <button data-act="open-location">Select</button>`;
+    }
+    renderDeliver();
+    document.addEventListener('click', (e) => { if (e.target.closest('[data-act="save-location"],[data-act="open-location"]')) setTimeout(renderDeliver, 60); });
+
+    const related = AJ_PRODUCTS.filter(x => x.cat===p.cat && x.id!==p.id).slice(0,4);
+    AJ.renderGrid(document.getElementById('related'), related.length?related:AJ_PRODUCTS.slice(0,4));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AJ SHOP — Online Shopping for Fashion, Electronics, Home &amp; More</title>
+<meta name="description" content="AJ SHOP — shop kids & adult garments, mobiles, electronics, beauty, stationery, computer accessories, handicrafts, home decor and footwear. Secure CCAvenue payments.">
+<link rel="icon" href="assets/img/logo.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<main class="wrap">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="hero-eyebrow">✨ India's everyday marketplace</span>
+        <h1>Everything you love, <span>one AJ SHOP.</span></h1>
+        <p>From kids' wear to the latest mobiles, beauty to handicrafts — quality picks at fair prices, delivered to your door with secure CCAvenue payments.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="category.html?cat=mobiles">Shop Mobiles</a>
+          <a class="btn btn-ghost" href="#categories">Browse Categories</a>
+        </div>
+      </div>
+      <div class="hero-art" id="heroArt"></div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="section" id="categories">
+    <div class="section-head"><div><h2>Shop by Category</h2><p>Ten curated departments, something for everyone.</p></div></div>
+    <div class="cat-grid" id="catGrid"></div>
+  </section>
+
+  <!-- DEALS -->
+  <section class="section">
+    <div class="section-head"><div><h2>Today's Best Deals</h2><p>Handpicked offers, refreshed daily.</p></div><a href="search.html?q=">View all →</a></div>
+    <div class="prod-grid" id="deals"></div>
+  </section>
+
+  <!-- TRENDING -->
+  <section class="section">
+    <div class="section-head"><div><h2>Trending Now</h2><p>What shoppers are loving this week.</p></div></div>
+    <div class="prod-grid" id="trending"></div>
+  </section>
+
+  <!-- TRUST -->
+  <section class="trust">
+    <div class="trust-item"><div class="ti-ico">🚚</div><div><strong>Free Shipping</strong><small>On orders over ₹999</small></div></div>
+    <div class="trust-item"><div class="ti-ico">🔒</div><div><strong>Secure Payments</strong><small>Card · UPI · Net Banking</small></div></div>
+    <div class="trust-item"><div class="ti-ico">↩️</div><div><strong>7-Day Returns</strong><small>Easy &amp; hassle-free</small></div></div>
+    <div class="trust-item"><div class="ti-ico">🎧</div><div><strong>24×7 Support</strong><small>We're here to help</small></div></div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="assets/js/art.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  AJ.mount('home');
+
+  // hero illustration (original composite)
+  document.getElementById('heroArt').innerHTML = AJArt.productSVG('smartphone', '#111827');
+
+  // categories
+  document.getElementById('catGrid').innerHTML = AJ_CATEGORIES.map(c => `
+    <a class="cat-tile" href="category.html?cat=${c.id}">
+      <div class="cat-ico">${c.emoji}</div>
+      <h3>${c.name}</h3><small>${c.tagline}</small>
+    </a>`).join('');
+
+  // deals = biggest discounts
+  const byDiscount = [...AJ_PRODUCTS].sort((a,b)=>(1-a.price/a.mrp)<(1-b.price/b.mrp)?1:-1);
+  AJ.renderGrid(document.getElementById('deals'), byDiscount.slice(0,8));
+
+  // trending = highest rated * reviews
+  const trending = [...AJ_PRODUCTS].sort((a,b)=>(b.rating*b.reviews)-(a.rating*a.reviews));
+  AJ.renderGrid(document.getElementById('trending'), trending.slice(0,8));
+</script>
+</body>
+</html>
