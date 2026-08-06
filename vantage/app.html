@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0F1A">
+<meta name="description" content="Vantage — working AI lead generation & cold email outreach tool. Runs entirely in your browser.">
+<title>Vantage · AI Lead Generation &amp; Outreach — Working Tool</title>
+<style>
+:root{
+  --bg:#F5F7FA;--bg-2:#EDF1F6;--surface:#FFFFFF;--surface-2:#F8FAFC;
+  --line:#E2E8F0;--line-2:#CBD5E1;--ink:#0E1726;--ink-2:#243244;--muted:#5A6675;--faint:#8A97A8;
+  --accent:#0E9E9C;--accent-ink:#0B7C7A;--accent-wash:#E1F5F4;
+  --ai:#6366F1;--ai-wash:#ECEDFE;--gold:#C98A1E;--gold-wash:#FBF1DC;
+  --good:#15803D;--good-wash:#E4F3E9;--warn:#B45816;--warn-wash:#FBEDDF;--bad:#C0322B;--bad-wash:#FBE7E5;
+  --shadow:0 1px 2px rgba(16,23,38,.04),0 8px 24px -12px rgba(16,23,38,.14);
+  --radius:14px;--radius-sm:9px;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
+  --mono:"SF Mono","JetBrains Mono","Cascadia Code",ui-monospace,Menlo,Consolas,monospace;
+}
+:root[data-theme="dark"]{
+  --bg:#080B12;--bg-2:#0C111B;--surface:#0F1622;--surface-2:#131C2A;
+  --line:#1E293B;--line-2:#2A3A50;--ink:#EAF0F7;--ink-2:#C4D0DE;--muted:#8B99AB;--faint:#5E6E82;
+  --accent:#2DD4BF;--accent-ink:#5EEAD4;--accent-wash:#0C2E2C;
+  --ai:#8A8CF6;--ai-wash:#1A1B39;--gold:#E0B24E;--gold-wash:#2E2510;
+  --good:#4ADE80;--good-wash:#0E2A18;--warn:#F0A868;--warn-wash:#2E1D0E;--bad:#F87171;--bad-wash:#2E1413;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -14px rgba(0,0,0,.6);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#080B12;--bg-2:#0C111B;--surface:#0F1622;--surface-2:#131C2A;
+  --line:#1E293B;--line-2:#2A3A50;--ink:#EAF0F7;--ink-2:#C4D0DE;--muted:#8B99AB;--faint:#5E6E82;
+  --accent:#2DD4BF;--accent-ink:#5EEAD4;--accent-wash:#0C2E2C;
+  --ai:#8A8CF6;--ai-wash:#1A1B39;--gold:#E0B24E;--gold-wash:#2E2510;
+  --good:#4ADE80;--good-wash:#0E2A18;--warn:#F0A868;--warn-wash:#2E1D0E;--bad:#F87171;--bad-wash:#2E1413;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -14px rgba(0,0,0,.6);
+}}
+*{margin:0;padding:0;box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--mono)}
+a{color:var(--accent-ink)}
+h1,h2,h3,h4{letter-spacing:-.02em;line-height:1.2}
+
+/* layout */
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:720;font-size:1.08rem;padding:6px 8px 16px}
+.brand .mark{width:28px;height:28px;flex:none}
+.brand small{display:block;font-size:.62rem;color:var(--faint);font-family:var(--mono);letter-spacing:.05em;font-weight:500;margin-top:1px}
+.navsec{font-size:.62rem;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:14px 10px 5px}
+.nav{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:.88rem;color:var(--muted);font-weight:500;cursor:pointer;border:none;background:none;font-family:inherit;width:100%;text-align:left;transition:.12s}
+.nav svg{width:17px;height:17px;flex:none}
+.nav:hover{background:var(--surface-2);color:var(--ink)}
+.nav.on{background:var(--accent-wash);color:var(--accent-ink);font-weight:600}
+.nav .badge{margin-left:auto;font-size:.68rem;font-family:var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:1px 7px;color:var(--muted)}
+.nav.on .badge{background:var(--surface);border-color:transparent}
+.side-foot{margin-top:auto;padding:12px 8px 2px;display:flex;gap:8px;align-items:center}
+.theme-btn{background:var(--surface);border:1px solid var(--line);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.theme-btn svg{width:16px;height:16px}
+.key-dot{font-size:.7rem;font-family:var(--mono);display:flex;align-items:center;gap:6px;color:var(--muted)}
+.key-dot i{width:8px;height:8px;border-radius:100px;background:var(--bad);display:block}
+.key-dot.ok i{background:var(--good)}
+
+.main{padding:26px 30px 60px;max-width:1200px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:16px;flex-wrap:wrap}
+.topbar h1{font-size:1.5rem}
+.topbar .sub{font-size:.82rem;color:var(--muted);font-family:var(--mono);margin-top:3px}
+@media(max-width:820px){.shell{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;overflow-x:auto}.navsec{display:none}.side-foot{margin:0}.brand{width:100%}}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:.86rem;padding:9px 15px;border-radius:9px;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:.14s}
+.btn svg{width:15px;height:15px}
+.btn-primary{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn-primary{color:#04211F}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line-2)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-ai{background:var(--ai);color:#fff}
+.btn-ai:hover{filter:brightness(1.06)}
+.btn-sm{padding:6px 11px;font-size:.78rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+input,select,textarea{font-family:inherit;font-size:.88rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:9px;padding:9px 11px;width:100%}
+input:focus,select,textarea:focus{outline:none;border-color:var(--accent)}
+textarea{resize:vertical;line-height:1.5}
+label{font-size:.72rem;font-weight:600;color:var(--muted);font-family:var(--mono);letter-spacing:.02em;display:block;margin-bottom:5px}
+.field{margin-bottom:13px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:18px}
+.card h3{font-size:1.02rem;margin-bottom:3px}
+.card .desc{font-size:.82rem;color:var(--muted);margin-bottom:16px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.card-head h3{margin:0}
+
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:100px;font-family:var(--mono)}
+.chip i{width:6px;height:6px;border-radius:100px;background:currentColor;display:block}
+.c-verified{background:var(--good-wash);color:var(--good)}
+.c-risky{background:var(--warn-wash);color:var(--warn)}
+.c-invalid{background:var(--bad-wash);color:var(--bad)}
+.c-unchecked{background:var(--surface-2);color:var(--faint)}
+.c-ai{background:var(--ai-wash);color:var(--ai)}
+.c-info{background:var(--accent-wash);color:var(--accent-ink)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px;box-shadow:var(--shadow)}
+.kpi .l{font-size:.68rem;font-family:var(--mono);letter-spacing:.03em;color:var(--muted);display:flex;align-items:center;gap:6px}
+.kpi .v{font-size:1.6rem;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:.72rem;color:var(--faint);margin-top:1px}
+
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
+.tbl th{text-align:left;font-family:var(--mono);font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:10px 13px;background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover td{background:var(--surface-2)}
+.tbl .nm{font-weight:600;color:var(--ink)}
+.tbl .em{font-family:var(--mono);font-size:.76rem;color:var(--muted)}
+.tbl .x{color:var(--faint);cursor:pointer;border:none;background:none;font-size:1rem;line-height:1}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:.88rem}
+.empty svg{width:34px;height:34px;color:var(--line-2);margin-bottom:10px}
+
+.meter{height:8px;border-radius:100px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;background:var(--accent);transition:width .5s}
+.mrow{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:5px}
+.mrow span{color:var(--muted);font-variant-numeric:tabular-nums;font-family:var(--mono)}
+
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:6px}
+.bars .b{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px;align-items:center}
+.bars .b i{width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;transition:height .5s}
+.bars .b span{font-size:.58rem;font-family:var(--mono);color:var(--faint)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.75rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}.legend i{width:9px;height:9px;border-radius:3px;display:block}
+
+.banner{border-radius:11px;padding:13px 16px;font-size:.83rem;display:flex;gap:11px;align-items:flex-start;margin-bottom:18px;border:1px solid}
+.banner svg{width:18px;height:18px;flex:none;margin-top:1px}
+.banner.warn{background:var(--gold-wash);border-color:transparent;color:var(--gold)}
+.banner.info{background:var(--accent-wash);border-color:transparent;color:var(--accent-ink)}
+.banner.bad{background:var(--bad-wash);border-color:transparent;color:var(--bad)}
+.banner b{font-weight:700}
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{font-family:var(--mono);font-size:.74rem;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);padding:5px 11px;border-radius:100px;cursor:pointer}
+.pill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+:root[data-theme="dark"] .pill.on{color:#04211F}
+
+.log{background:#0b1220;color:#c9d6e3;border-radius:11px;padding:13px;font-family:var(--mono);font-size:.74rem;height:220px;overflow-y:auto;line-height:1.6}
+.log .t{color:#5e7290}.log .ok{color:#4ade80}.log .warn{color:#f0a868}.log .bad{color:#f87171}.log .ai{color:#a5a8f8}
+:root[data-theme="light"] .log{background:#0e1726}
+
+.preview{background:var(--surface);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.preview .ph{padding:11px 15px;border-bottom:1px solid var(--line);background:var(--surface-2);font-size:.8rem}
+.preview .ph .row{display:flex;gap:8px}.preview .ph b{color:var(--muted);font-family:var(--mono);font-size:.7rem;width:70px;flex:none}
+.preview .pb{padding:18px;font-size:.9rem;white-space:pre-wrap;line-height:1.6;color:var(--ink-2)}
+.preview .psig{border-top:1px solid var(--line);padding:14px 18px;font-size:.82rem;color:var(--muted);white-space:pre-wrap}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+.small{font-size:.78rem;color:var(--muted)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:10px;font-size:.85rem;font-weight:500;box-shadow:var(--shadow);z-index:200;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.donut{width:120px;height:120px;border-radius:100px;flex:none;-webkit-mask:radial-gradient(circle 32px at center,transparent 98%,#000);mask:radial-gradient(circle 32px at center,transparent 98%,#000)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 20.5 13.2 11 16 16l2.8-5 5.2 9.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.2" fill="#fff"/></svg>
+      <div>Vantage<small>WORKING TOOL</small></div>
+    </div>
+    <div class="navsec">Workflow</div>
+    <button class="nav" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
+    <button class="nav" data-view="leads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Lead Finder<span class="badge" id="b-leads">0</span></button>
+    <button class="nav" data-view="verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Verification<span class="badge" id="b-ver">0</span></button>
+    <button class="nav" data-view="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M8 11l4 4 4-4M4 21h16"/></svg>Export</button>
+    <button class="nav" data-view="templates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M4 4h16v10H8l-4 4V4Z"/></svg>AI Templates<span class="badge" id="b-tpl">0</span></button>
+    <button class="nav" data-view="campaigns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Campaigns<span class="badge" id="b-cmp">0</span></button>
+    <button class="nav" data-view="mailboxes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Mailboxes<span class="badge" id="b-mbx">0</span></button>
+    <button class="nav" data-view="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>Smart Send</button>
+    <button class="nav" data-view="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Reports</button>
+    <div class="navsec">Setup</div>
+    <button class="nav" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5 8"/></svg>Settings</button>
+    <div class="side-foot">
+      <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <div class="key-dot" id="keyDot"><i></i><span>API key</span></div>
+    </div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   Vantage — client-side AI lead-gen & outreach tool.
+   All data lives in this browser (localStorage). AI calls go
+   directly to the Anthropic API with the user's own key.
+   ============================================================ */
+const KEY="vantage.tool.v1";
+const DEFAULTS={
+  settings:{apiKey:"",model:"claude-opus-5",senderName:"",senderEmail:"",replyTo:"",
+    dailyCap:200,delayMin:30,delayMax:90,demoSpeed:true,
+    footer:"You are receiving this because we believe our solution is relevant to your team.\nVantage Demo Inc · 123 Market St, San Francisco, CA 94105\nReply STOP or click unsubscribe to opt out.",
+    unsubText:"Unsubscribe"},
+  leads:[],templates:[],mailboxes:[],campaigns:[],events:[],suppression:[]
+};
+let S=load();
+function load(){try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);return Object.assign({},DEFAULTS,p,{settings:Object.assign({},DEFAULTS.settings,p.settings||{})});}}catch(e){}return JSON.parse(JSON.stringify(DEFAULTS));}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast("Storage full — export your data.");}refreshBadges();}
+function uid(){return Math.random().toString(36).slice(2,10);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600);}
+
+/* ---------- theme ---------- */
+(function(){const root=document.documentElement;try{const s=localStorage.getItem("vantage.theme");if(s)root.setAttribute("data-theme",s);}catch(e){}
+document.getElementById("themeBtn").addEventListener("click",()=>{const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");const n=cur==="dark"?"light":"dark";root.setAttribute("data-theme",n);try{localStorage.setItem("vantage.theme",n);}catch(e){}});})();
+
+/* ---------- verification data ---------- */
+const FREEMAIL=new Set(["gmail.com","yahoo.com","hotmail.com","outlook.com","aol.com","icloud.com","live.com","msn.com","protonmail.com","gmx.com","mail.com","yandex.com","zoho.com"]);
+const DISPOSABLE=new Set(["mailinator.com","10minutemail.com","guerrillamail.com","tempmail.com","trashmail.com","yopmail.com","throwawaymail.com","getnada.com","temp-mail.org","sharklasers.com","dispostable.com","fakeinbox.com"]);
+const ROLE=new Set(["info","support","sales","admin","contact","hello","help","team","office","billing","careers","jobs","marketing","noreply","no-reply","webmaster","postmaster","enquiries","enquiry"]);
+const EMAIL_RE=/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+
+async function checkMX(domain){
+  try{
+    const r=await fetch("https://dns.google/resolve?name="+encodeURIComponent(domain)+"&type=MX",{headers:{accept:"application/dns-json"}});
+    if(!r.ok)return null;
+    const j=await r.json();
+    if(j.Status!==0)return false;
+    return Array.isArray(j.Answer)&&j.Answer.some(a=>a.type===15);
+  }catch(e){return null;}
+}
+async function verifyEmail(email){
+  const out={syntax:false,freemail:false,role:false,disposable:false,mx:null};
+  email=(email||"").trim().toLowerCase();
+  out.syntax=EMAIL_RE.test(email);
+  if(!out.syntax)return finalize(out);
+  const[local,domain]=email.split("@");
+  out.freemail=FREEMAIL.has(domain);
+  out.disposable=DISPOSABLE.has(domain);
+  out.role=ROLE.has(local);
+  out.mx=await checkMX(domain);
+  return finalize(out);
+  function finalize(o){
+    let status;
+    if(!o.syntax||o.disposable||o.mx===false)status="invalid";
+    else if(o.role||o.freemail||o.mx===null)status="risky";
+    else status="verified";
+    o.status=status;o.at=Date.now();return o;
+  }
+}
+
+/* ---------- Anthropic API (browser-direct) ---------- */
+async function callClaude(system,user,maxTokens){
+  const s=S.settings;
+  if(!s.apiKey)throw new Error("Add your Claude API key in Settings first.");
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"content-type":"application/json","x-api-key":s.apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:s.model||"claude-opus-5",max_tokens:maxTokens||4000,system:system,messages:[{role:"user",content:user}]})
+  });
+  if(!res.ok){
+    let msg="API error "+res.status;
+    try{const e=await res.json();if(e.error&&e.error.message)msg=e.error.message;}catch(_){}
+    throw new Error(msg);
+  }
+  const data=await res.json();
+  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+}
+function extractJSON(text){
+  if(!text)throw new Error("Empty response");
+  let t=text.trim().replace(/^```(?:json)?/i,"").replace(/```$/,"").trim();
+  const i=t.indexOf("{"),j=t.lastIndexOf("}");
+  if(i>=0&&j>i)t=t.slice(i,j+1);
+  return JSON.parse(t);
+}
+
+/* ---------- merge fields ---------- */
+function firstName(n){return (n||"there").trim().split(/\s+/)[0]||"there";}
+function mergeText(t,lead){
+  const s=S.settings;const map={
+    first_name:firstName(lead&&lead.name),name:(lead&&lead.name)||"there",
+    company:(lead&&lead.company)||"your company",position:(lead&&lead.position)||"your role",
+    industry:(lead&&lead.industry)||"your industry",country:(lead&&lead.country)||"",
+    website:(lead&&lead.website)||"",sender_name:s.senderName||"Your Name"
+  };
+  return String(t||"").replace(/\{\{\s*(\w+)\s*\}\}/g,(m,k)=>map[k]!=null?map[k]:m);
+}
+
+/* ---------- CSV / export ---------- */
+const FIELDS=[["name","Name"],["company","Company"],["position","Position"],["email","Email"],["phone","Phone"],["linkedin","LinkedIn"],["website","Website"],["country","Country"],["industry","Industry"],["status","Verification Status"],["size","Company Size"],["revenue","Revenue"],["notes","Notes"]];
+function parseCSV(text){
+  const rows=[];let row=[],cur="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+    else{if(c==='"')q=true;else if(c===","){row.push(cur);cur="";}
+      else if(c==="\n"||c==="\r"){if(c==="\r"&&text[i+1]==="\n")i++;row.push(cur);rows.push(row);row=[];cur="";}
+      else cur+=c;}}
+  if(cur.length||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(r=>r.length&&r.some(v=>v.trim()!==""));
+}
+function importCSV(text){
+  const rows=parseCSV(text);if(!rows.length)return 0;
+  const head=rows[0].map(h=>h.trim().toLowerCase());
+  const map={};
+  const aliases={name:["name","full name","fullname","contact","first name"],email:["email","email address","e-mail"],phone:["phone","phone number","mobile","tel"],linkedin:["linkedin","linkedin url","linkedin profile"],company:["company","company name","organization","organisation"],position:["position","title","job title","role"],industry:["industry","sector"],website:["website","url","domain","company website"],country:["country"],size:["company size","size","employees","employee count"],revenue:["revenue","annual revenue"],notes:["notes","note"]};
+  Object.keys(aliases).forEach(f=>{const idx=head.findIndex(h=>aliases[f].includes(h));if(idx>=0)map[f]=idx;});
+  let n=0;
+  for(let i=1;i<rows.length;i++){const r=rows[i];const lead={id:uid(),source:"import",verify:null};
+    Object.keys(map).forEach(f=>{lead[f]=(r[map[f]]||"").trim();});
+    if(!lead.email&&!lead.name)continue;
+    S.leads.push(lead);n++;}
+  return n;
+}
+function download(name,mime,content){
+  const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);
+}
+function leadsToCSV(leads){
+  const lines=[FIELDS.map(f=>f[1]).join(",")];
+  leads.forEach(l=>{lines.push(FIELDS.map(f=>{let v=f[0]==="status"?(l.verify?l.verify.status:""):(l[f[0]]||"");v=String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(","));});
+  return lines.join("\n");
+}
+function leadsToXLS(leads){
+  const rows=leads.map(l=>"<tr>"+FIELDS.map(f=>{const v=f[0]==="status"?(l.verify?l.verify.status:""):(l[f[0]]||"");return "<td>"+esc(v)+"</td>";}).join("")+"</tr>").join("");
+  return '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1"><tr>'+FIELDS.map(f=>"<th>"+esc(f[1])+"</th>").join("")+"</tr>"+rows+"</table></body></html>";
+}
+
+/* ---------- badges + routing ---------- */
+function refreshBadges(){
+  document.getElementById("b-leads").textContent=S.leads.length;
+  document.getElementById("b-ver").textContent=S.leads.filter(l=>l.verify&&l.verify.status==="verified").length;
+  document.getElementById("b-tpl").textContent=S.templates.length;
+  document.getElementById("b-cmp").textContent=S.campaigns.length;
+  document.getElementById("b-mbx").textContent=S.mailboxes.length;
+  const ok=!!S.settings.apiKey;const kd=document.getElementById("keyDot");kd.classList.toggle("ok",ok);kd.querySelector("span").textContent=ok?"key set":"no key";
+}
+let CURRENT="dashboard";
+function go(view){CURRENT=view;location.hash=view;
+  document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("on",n.dataset.view===view));
+  window.scrollTo(0,0);render();}
+document.querySelectorAll(".nav").forEach(n=>n.addEventListener("click",()=>go(n.dataset.view)));
+window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v&&v!==CURRENT&&VIEWS[v])go(v);});
+
+/* ---------- shared render helpers ---------- */
+function viewTop(title,sub,actions){return '<div class="topbar"><div><h1>'+esc(title)+'</h1><div class="sub">'+esc(sub)+'</div></div><div class="btn-row">'+(actions||"")+'</div></div>';}
+function statusChip(st){const m={verified:"c-verified",risky:"c-risky",invalid:"c-invalid"};const cls=m[st]||"c-unchecked";return '<span class="chip '+cls+'"><i></i>'+(st?st[0].toUpperCase()+st.slice(1):"Unchecked")+'</span>';}
+function verifiedLeads(){return S.leads.filter(l=>l.verify&&l.verify.status==="verified");}
+function evCount(t,c){return S.events.filter(e=>e.type===t&&(!c||e.campaignId===c)).length;}
+function rate(n,d){return d?Math.round(n/d*1000)/10:0;}
+function todayKey(ts){const d=new Date(ts);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+
+/* ============================================================ VIEWS ============================================================ */
+const VIEWS={};
+
+/* ---------- Dashboard ---------- */
+VIEWS.dashboard=function(m){
+  const sent=evCount("sent"),opened=evCount("opened"),replied=evCount("replied"),bounced=evCount("bounced");
+  const active=S.campaigns.filter(c=>c.status==="sending"||c.status==="paused").length;
+  const today=todayKey(Date.now());const sentToday=S.events.filter(e=>e.type==="sent"&&todayKey(e.ts)===today).length;
+  const setup=[["API key",!!S.settings.apiKey,"settings"],["Add leads",S.leads.length>0,"leads"],["Verify emails",verifiedLeads().length>0,"verify"],["Create a template",S.templates.length>0,"templates"],["Build a campaign",S.campaigns.length>0,"campaigns"]];
+  let html=viewTop("Dashboard","the whole outbound motion, in one place",'<button class="btn btn-primary" data-go="leads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add leads</button>');
+  html+='<div class="kpis">'+
+    kpi("Total Leads",S.leads.length,"across all sources")+
+    kpi("Verified Leads",verifiedLeads().length,rate(verifiedLeads().length,S.leads.length)+"% of total")+
+    kpi("Active Campaigns",active,S.campaigns.length+" total")+
+    kpi("Connected Mailboxes",S.mailboxes.length,S.mailboxes.filter(x=>x.status==="healthy").length+" healthy")+'</div>';
+  html+='<div class="kpis">'+
+    kpi("Emails Sent Today",sentToday,"cap "+S.settings.dailyCap)+
+    kpi("Replies",replied,rate(replied,sent)+"% reply rate")+
+    kpi("Open Rate",rate(opened,sent)+"%","of "+sent+" sent")+
+    kpi("Bounce Rate",rate(bounced,sent)+"%",bounced+" bounced")+'</div>';
+  // setup checklist
+  const done=setup.filter(s=>s[1]).length;
+  html+='<div class="card"><div class="card-head"><h3>Getting started</h3><span class="chip c-info"><i></i>'+done+' / '+setup.length+'</span></div>';
+  html+=setup.map(s=>'<div class="mrow" style="align-items:center;margin-bottom:9px"><span style="display:flex;gap:9px;align-items:center;color:var(--ink)">'+
+    (s[1]?'<span class="chip c-verified" style="padding:2px 6px"><i></i></span>':'<span class="chip c-unchecked" style="padding:2px 6px"><i></i></span>')+esc(s[0])+'</span>'+
+    (s[1]?'<span class="small">done</span>':'<button class="btn btn-ghost btn-sm" data-go="'+s[2]+'">Do it →</button>')+'</div>').join("");
+  html+='</div>';
+  // recent campaigns
+  html+='<div class="card"><div class="card-head"><h3>Recent campaigns</h3><button class="btn btn-ghost btn-sm" data-go="campaigns">View all</button></div>';
+  if(!S.campaigns.length)html+='<div class="empty">No campaigns yet. Build one after verifying leads and creating a template.</div>';
+  else{html+='<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Campaign</th><th>Status</th><th>Sent</th><th>Open</th><th>Reply</th><th>Bounce</th></tr></thead><tbody>';
+    S.campaigns.slice().reverse().slice(0,6).forEach(c=>{const s=evCount("sent",c.id);
+      html+='<tr><td class="nm">'+esc(c.name)+'</td><td>'+campStatusChip(c.status)+'</td><td>'+s+'</td><td>'+rate(evCount("opened",c.id),s)+'%</td><td>'+rate(evCount("replied",c.id),s)+'%</td><td>'+rate(evCount("bounced",c.id),s)+'%</td></tr>';});
+    html+='</tbody></table></div>';}
+  html+='</div>';
+  m.innerHTML=html;
+};
+function kpi(l,v,d){return '<div class="kpi"><div class="l">'+esc(l)+'</div><div class="v">'+esc(v)+'</div><div class="d">'+esc(d)+'</div></div>';}
+function campStatusChip(s){const m={sending:"c-verified",paused:"c-risky",draft:"c-unchecked",done:"c-info"};return '<span class="chip '+(m[s]||"c-unchecked")+'"><i></i>'+(s?s[0].toUpperCase()+s.slice(1):"Draft")+'</span>';}
+
+/* ---------- Lead Finder ---------- */
+let leadFilter="all",leadSearch="";
+VIEWS.leads=function(m){
+  let html=viewTop("Lead Finder","import, add, and organize B2B prospects across 13 fields",
+    '<button class="btn btn-ghost" id="lImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 7l4-4 4 4M4 21h16"/></svg>Import CSV</button>'+
+    '<button class="btn btn-ai" id="lGen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg>AI sample leads</button>'+
+    '<button class="btn btn-primary" id="lAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add lead</button>');
+  html+='<input type="file" id="lFile" accept=".csv,text/csv" class="hidden">';
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>Real B2B contact databases (Apollo/ZoomInfo-style) are licensed data this in-browser tool can\'t provide. Import your own CSV, add leads manually, or generate clearly-labelled <b>synthetic sample leads</b> to try the full workflow end to end.</div></div>';
+  // add form (hidden)
+  html+='<div class="card hidden" id="lAddCard"><h3>Add a lead</h3><div class="desc">Only Name or Email is required.</div><div class="form-grid">'+
+    ff("l_name","Full Name")+ff("l_email","Email")+ff("l_phone","Phone")+ff("l_linkedin","LinkedIn URL")+ff("l_company","Company")+ff("l_position","Job Title")+ff("l_industry","Industry")+ff("l_size","Company Size")+ff("l_revenue","Revenue")+ff("l_country","Country")+ff("l_website","Website")+ff("l_notes","Notes")+
+    '</div><div class="btn-row" style="margin-top:6px"><button class="btn btn-primary" id="lSave">Save lead</button><button class="btn btn-ghost" id="lCancel">Cancel</button></div></div>';
+  // AI form (hidden)
+  html+='<div class="card hidden" id="lGenCard"><h3>Generate synthetic sample leads</h3><div class="desc">AI-generated fictional prospects for testing — clearly marked, using example domains. Not real contacts.</div><div class="form-grid">'+
+    ff("g_count","How many (1–20)","10")+ff("g_industry","Industry","SaaS")+ff("g_role","Target role","VP of Sales")+ff("g_country","Country","United States")+
+    '</div><div class="btn-row" style="margin-top:6px"><button class="btn btn-ai" id="lGenRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>Generate</button><button class="btn btn-ghost" id="lGenCancel">Cancel</button></div></div>';
+  // toolbar
+  html+='<div class="card"><div class="card-head" style="margin-bottom:14px"><div style="flex:1;min-width:200px"><input id="lSearch" placeholder="Search name, company, email…" value="'+esc(leadSearch)+'"></div>'+
+    '<div class="pills">'+["all","verified","risky","invalid","unchecked"].map(f=>'<button class="pill'+(leadFilter===f?" on":"")+'" data-f="'+f+'">'+f[0].toUpperCase()+f.slice(1)+'</button>').join("")+'</div></div>';
+  html+=leadTable();
+  html+='</div>';
+  m.innerHTML=html;
+  // binds
+  document.getElementById("lImport").onclick=()=>document.getElementById("lFile").click();
+  document.getElementById("lFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const n=importCSV(r.result);save();toast(n+" leads imported");render();};r.readAsText(f);};
+  document.getElementById("lAdd").onclick=()=>toggle("lAddCard");
+  document.getElementById("lCancel").onclick=()=>toggle("lAddCard");
+  document.getElementById("lGen").onclick=()=>toggle("lGenCard");
+  document.getElementById("lGenCancel").onclick=()=>toggle("lGenCard");
+  document.getElementById("lSave").onclick=()=>{const g=id=>document.getElementById(id).value.trim();
+    const lead={id:uid(),source:"manual",verify:null,name:g("l_name"),email:g("l_email"),phone:g("l_phone"),linkedin:g("l_linkedin"),company:g("l_company"),position:g("l_position"),industry:g("l_industry"),size:g("l_size"),revenue:g("l_revenue"),country:g("l_country"),website:g("l_website"),notes:g("l_notes")};
+    if(!lead.name&&!lead.email){toast("Enter a name or email");return;}S.leads.push(lead);save();toast("Lead added");render();};
+  document.getElementById("lGenRun").onclick=genLeads;
+  document.getElementById("lSearch").oninput=e=>{leadSearch=e.target.value;document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();};
+  m.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{leadFilter=b.dataset.f;render();});
+  bindLeadRows();
+  m.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+  function toggle(id){document.getElementById(id).classList.toggle("hidden");}
+};
+function ff(id,label,val){return '<div class="field"><label>'+esc(label)+'</label><input id="'+id+'" value="'+esc(val||"")+'"></div>';}
+function filteredLeads(){return S.leads.filter(l=>{
+  const st=l.verify?l.verify.status:"unchecked";
+  if(leadFilter!=="all"&&st!==leadFilter)return false;
+  if(leadSearch){const q=leadSearch.toLowerCase();return[l.name,l.company,l.email,l.position].some(v=>(v||"").toLowerCase().includes(q));}
+  return true;});}
+function leadTable(){return '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Prospect</th><th>Company</th><th>Title</th><th>Industry</th><th>Country</th><th>Status</th><th></th></tr></thead><tbody id="leadTbody">'+leadRows()+'</tbody></table></div>';}
+function leadRows(){const rows=filteredLeads();
+  if(!rows.length)return '<tr><td colspan="7"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><div>No leads'+(S.leads.length?" match this filter":" yet")+'. Import a CSV or add one above.</div></div></td></tr>';
+  return rows.map(l=>'<tr><td><div class="nm">'+esc(l.name||"—")+'</div><div class="em">'+esc(l.email||"")+'</div></td><td>'+esc(l.company||"—")+'</td><td>'+esc(l.position||"—")+'</td><td>'+esc(l.industry||"—")+'</td><td>'+esc(l.country||"—")+'</td><td>'+statusChip(l.verify&&l.verify.status)+'</td><td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" data-v="'+l.id+'">Verify</button> <button class="x" data-del="'+l.id+'" title="Delete">✕</button></td></tr>').join("");}
+function bindLeadRows(){
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.leads=S.leads.filter(l=>l.id!==b.dataset.del);save();document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();});
+  document.querySelectorAll("[data-v]").forEach(b=>b.onclick=async()=>{const l=S.leads.find(x=>x.id===b.dataset.v);if(!l||!l.email){toast("No email to verify");return;}b.disabled=true;b.textContent="…";l.verify=await verifyEmail(l.email);save();document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();toast("Verified: "+l.verify.status);});
+}
+async function genLeads(){
+  const btn=document.getElementById("lGenRun");const g=id=>document.getElementById(id).value.trim();
+  let count=Math.max(1,Math.min(20,parseInt(g("g_count"))||10));
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Generating…';
+  try{
+    const sys="You generate fictional, clearly-synthetic B2B sample prospect data for testing an outreach tool. Never invent real people or real email addresses. Use obviously fictional example domains like @acme-demo.com, @northloop-demo.io.";
+    const prompt="Generate "+count+" fictional B2B sample prospects. Industry: "+(g("g_industry")||"SaaS")+". Target role: "+(g("g_role")||"VP of Sales")+". Country: "+(g("g_country")||"United States")+".\nReturn ONLY a JSON object: {\"leads\":[{\"name\",\"email\",\"phone\",\"company\",\"position\",\"industry\",\"size\",\"revenue\",\"country\",\"website\",\"linkedin\"}]}. Emails must use fictional -demo domains.";
+    const txt=await callClaude(sys,prompt,4000);
+    const data=extractJSON(txt);const arr=(data.leads||data.prospects||[]);
+    let n=0;arr.forEach(x=>{if(!x)return;S.leads.push({id:uid(),source:"ai-sample",verify:null,name:x.name||"",email:(x.email||"").toLowerCase(),phone:x.phone||"",company:x.company||"",position:x.position||x.title||"",industry:x.industry||"",size:x.size||x.company_size||"",revenue:x.revenue||"",country:x.country||"",website:x.website||"",linkedin:x.linkedin||"",notes:"AI sample (synthetic)"});n++;});
+    save();toast(n+" sample leads generated");render();
+  }catch(e){toast("Error: "+e.message);btn.disabled=false;btn.innerHTML="Generate";}
+}
+
+/* ---------- Verification ---------- */
+VIEWS.verify=function(m){
+  const withEmail=S.leads.filter(l=>l.email);
+  const v=S.leads.filter(l=>l.verify&&l.verify.status==="verified").length;
+  const r=S.leads.filter(l=>l.verify&&l.verify.status==="risky").length;
+  const iv=S.leads.filter(l=>l.verify&&l.verify.status==="invalid").length;
+  const checked=v+r+iv;const tot=checked||1;
+  const pv=Math.round(v/tot*100),pr=Math.round(r/tot*100);
+  let html=viewTop("Email Verification","MX + syntax + disposable + role + free-mail checks",
+    '<button class="btn btn-primary" id="vAll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Verify all ('+S.leads.filter(l=>l.email&&!l.verify).length+')</button>');
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>MX records are checked live</b> via DNS-over-HTTPS, plus syntax, disposable-domain, role-based, and free-mail detection — all in your browser. Full <b>SMTP mailbox</b> and <b>catch-all</b> checks require a server and are marked as the backend extension.</div></div>';
+  html+='<div class="two"><div class="card"><h3>Outcomes</h3><div class="desc">'+checked+' of '+withEmail.length+' emails checked</div>'+
+    '<div style="display:flex;gap:20px;align-items:center"><div class="donut" style="background:conic-gradient(var(--good) 0 '+pv+'%,var(--gold) '+pv+'% '+(pv+pr)+'%,var(--bad) '+(pv+pr)+'% 100%)"></div>'+
+    '<div style="flex:1;display:flex;flex-direction:column;gap:11px">'+
+    mrowc("Verified",v,"var(--good)")+mrowc("Risky",r,"var(--gold)")+mrowc("Invalid",iv,"var(--bad)")+'</div></div></div>';
+  // check pass rates
+  const checkedLeads=S.leads.filter(l=>l.verify);
+  const pass=(fn)=>checkedLeads.length?Math.round(checkedLeads.filter(fn).length/checkedLeads.length*100):0;
+  html+='<div class="card"><h3>Check pass rates</h3><div class="desc">across '+checkedLeads.length+' checked</div><div style="display:flex;flex-direction:column;gap:12px">'+
+    meter("Valid syntax",pass(l=>l.verify.syntax))+
+    meter("MX record present",pass(l=>l.verify.mx===true))+
+    meter("Not disposable",pass(l=>!l.verify.disposable))+
+    meter("Not role-based",pass(l=>!l.verify.role))+
+    meter("Not free-mail",pass(l=>!l.verify.freemail))+'</div></div></div>';
+  // table
+  html+='<div class="card"><div class="card-head"><h3>Results</h3><div class="pills" id="vProg"></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Email</th><th>Syntax</th><th>MX</th><th>Disposable</th><th>Role</th><th>Free-mail</th><th>Status</th></tr></thead><tbody>';
+  if(!withEmail.length)html+='<tr><td colspan="7"><div class="empty">No leads with an email yet.</div></td></tr>';
+  else withEmail.forEach(l=>{const c=l.verify;const y=b=>b?'<span style="color:var(--good)">✓</span>':'<span style="color:var(--bad)">✕</span>';const mx=c?(c.mx===true?'<span style="color:var(--good)">✓</span>':c.mx===false?'<span style="color:var(--bad)">✕</span>':'<span class="small">?</span>'):'<span class="small">—</span>';
+    html+='<tr><td class="em">'+esc(l.email)+'</td><td>'+(c?y(c.syntax):"—")+'</td><td>'+mx+'</td><td>'+(c?y(!c.disposable):"—")+'</td><td>'+(c?y(!c.role):"—")+'</td><td>'+(c?y(!c.freemail):"—")+'</td><td>'+statusChip(c&&c.status)+'</td></tr>';});
+  html+='</tbody></table></div></div>';
+  m.innerHTML=html;
+  document.getElementById("vAll").onclick=async()=>{
+    const todo=S.leads.filter(l=>l.email&&!l.verify);if(!todo.length){toast("Nothing to verify");return;}
+    const btn=document.getElementById("vAll");btn.disabled=true;const prog=document.getElementById("vProg");
+    for(let i=0;i<todo.length;i++){prog.innerHTML='<span class="chip c-info"><i></i>'+(i+1)+' / '+todo.length+'</span>';todo[i].verify=await verifyEmail(todo[i].email);}
+    save();toast("Verified "+todo.length+" emails");render();
+  };
+};
+function mrowc(l,v,color){return '<div class="mrow"><b style="display:flex;gap:7px;align-items:center;font-weight:600"><i style="width:9px;height:9px;border-radius:100px;background:'+color+';display:block"></i>'+esc(l)+'</b><span>'+v+'</span></div>';}
+function meter(l,pct,color){return '<div><div class="mrow"><b style="font-weight:600">'+esc(l)+'</b><span>'+pct+'%</span></div><div class="meter"><i style="width:'+pct+'%'+(color?';background:'+color:"")+'"></i></div></div>';}
+
+/* ---------- Export ---------- */
+let expScope="verified",expFmt="csv";
+VIEWS.export=function(m){
+  const v=verifiedLeads().length;
+  let html=viewTop("Export Leads","download clean data as CSV or Excel");
+  html+='<div class="card"><h3>Choose data</h3><div class="pills" style="margin-bottom:16px">'+
+    ['verified','all'].map(s=>'<button class="pill'+(expScope===s?" on":"")+'" data-s="'+s+'">'+(s==="verified"?"Verified only ("+v+")":"All leads ("+S.leads.length+")")+'</button>').join("")+'</div>'+
+    '<h3>Format</h3><div class="pills" style="margin:6px 0 18px">'+['csv','xlsx'].map(f=>'<button class="pill'+(expFmt===f?" on":"")+'" data-fmt="'+f+'">'+(f==="csv"?"CSV (.csv)":"Excel (.xls)")+'</button>').join("")+'</div>'+
+    '<button class="btn btn-primary" id="expBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M4 21h16"/></svg>Download</button></div>';
+  html+='<div class="card"><h3>Fields included</h3><div class="desc">every export carries the full field set</div><div class="pills">'+FIELDS.map(f=>'<span class="pill">'+esc(f[1])+'</span>').join("")+'</div></div>';
+  m.innerHTML=html;
+  m.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{expScope=b.dataset.s;render();});
+  m.querySelectorAll("[data-fmt]").forEach(b=>b.onclick=()=>{expFmt=b.dataset.fmt;render();});
+  document.getElementById("expBtn").onclick=()=>{const leads=expScope==="verified"?verifiedLeads():S.leads;if(!leads.length){toast("No leads to export");return;}
+    const stamp=new Date().toISOString().slice(0,10);
+    if(expFmt==="csv")download("vantage-leads-"+stamp+".csv","text/csv;charset=utf-8",leadsToCSV(leads));
+    else download("vantage-leads-"+stamp+".xls","application/vnd.ms-excel",leadsToXLS(leads));
+    toast("Exported "+leads.length+" leads");};
+};
+
+/* ---------- AI Templates ---------- */
+const STYLES=["Cold Outreach","Sales Pitch","Follow-up","Demo Request","Partnership","Recruitment","Event Invitation","Product Launch","Reminder"];
+let draft=null;
+VIEWS.templates=function(m){
+  let html=viewTop("AI Template Generator","personalized outreach in 9 styles — subject, body, CTA, signature");
+  if(!S.settings.apiKey)html+='<div class="banner warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><div>Add your Claude API key in <b>Settings</b> to generate templates.</div></div>';
+  html+='<div class="card"><h3>Generate</h3><div class="form-grid">'+
+    '<div class="field"><label>Style</label><select id="t_style">'+STYLES.map(s=>'<option>'+s+'</option>').join("")+'</select></div>'+
+    ff("t_industry","Industry","SaaS")+ff("t_role","Job role","VP of Sales")+ff("t_audience","Target audience","B2B revenue teams")+ff("t_country","Country","United States")+ff("t_type","Business type","B2B software")+ff("t_services","Your services / offer","AI-powered lead generation")+ff("t_pain","Pain points","manual prospecting, low reply rates")+
+    '<div class="field"><label>Tone</label><select id="t_tone"><option>Professional</option><option>Friendly</option><option>Direct</option><option>Consultative</option></select></div>'+
+    '</div><button class="btn btn-ai" id="tGen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg>Generate template</button></div>';
+  html+='<div id="tDraft"></div>';
+  html+='<div class="card"><div class="card-head"><h3>Saved templates</h3><span class="chip c-info"><i></i>'+S.templates.length+'</span></div>'+savedTemplates()+'</div>';
+  m.innerHTML=html;
+  document.getElementById("tGen").onclick=genTemplate;
+  if(draft)renderDraft();
+  bindSaved();
+};
+function savedTemplates(){if(!S.templates.length)return '<div class="empty">No saved templates yet.</div>';
+  return '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Style</th><th>Subject</th><th></th></tr></thead><tbody>'+
+    S.templates.map(t=>'<tr><td class="nm">'+esc(t.name)+'</td><td><span class="chip c-ai"><i></i>'+esc(t.style)+'</span></td><td class="small">'+esc((t.subjects&&t.subjects[0])||"")+'</td><td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" data-use="'+t.id+'">Use</button> <button class="x" data-tdel="'+t.id+'">✕</button></td></tr>').join("")+'</tbody></table></div>';}
+function bindSaved(){document.querySelectorAll("[data-tdel]").forEach(b=>b.onclick=()=>{S.templates=S.templates.filter(t=>t.id!==b.dataset.tdel);save();render();});
+  document.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{selCampaignTemplate=b.dataset.use;go("campaigns");});}
+async function genTemplate(){
+  const g=id=>document.getElementById(id).value.trim();const btn=document.getElementById("tGen");
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Generating…';
+  try{
+    const style=document.getElementById("t_style").value,tone=document.getElementById("t_tone").value;
+    const sys="You are an expert B2B cold-email copywriter. Write concise, personalized, high-reply-rate outreach that complies with anti-spam norms (clear value, no false claims). Use merge tags {{first_name}}, {{company}}, {{position}}, {{industry}}, {{sender_name}} where natural.";
+    const prompt="Write a "+style+" email. Tone: "+tone+".\nIndustry: "+g("t_industry")+"\nJob role: "+g("t_role")+"\nTarget audience: "+g("t_audience")+"\nCountry: "+g("t_country")+"\nBusiness type: "+g("t_type")+"\nServices/offer: "+g("t_services")+"\nPain points: "+g("t_pain")+"\n\nReturn ONLY JSON: {\"subjects\":[3 short subject line options],\"body\":\"email body with merge tags and line breaks\",\"cta\":\"one-line call to action\",\"signature\":\"{{sender_name}} + role\"}";
+    const txt=await callClaude(sys,prompt,3000);const d=extractJSON(txt);
+    draft={style:style,subjects:d.subjects||[],body:d.body||"",cta:d.cta||"",signature:d.signature||"{{sender_name}}"};
+    renderDraft();toast("Template generated");
+  }catch(e){toast("Error: "+e.message);}
+  btn.disabled=false;btn.innerHTML="Generate template";
+}
+function renderDraft(){
+  const el=document.getElementById("tDraft");if(!el)return;
+  el.innerHTML='<div class="card"><div class="card-head"><h3>Draft <span class="chip c-ai"><i></i>'+esc(draft.style)+'</span></h3><div class="btn-row"><button class="btn btn-primary btn-sm" id="tSave">Save template</button><button class="btn btn-ghost btn-sm" id="tDiscard">Discard</button></div></div>'+
+    '<div class="field"><label>Subject line options (click to pick)</label><div class="pills" id="tSubs">'+draft.subjects.map((s,i)=>'<button class="pill'+(i===0?" on":"")+'" data-si="'+i+'">'+esc(s)+'</button>').join("")+'</div></div>'+
+    '<div class="field"><label>Subject</label><input id="tSubject" value="'+esc(draft.subjects[0]||"")+'"></div>'+
+    '<div class="field"><label>Body</label><textarea id="tBody" rows="9">'+esc(draft.body)+'</textarea></div>'+
+    '<div class="two"><div class="field"><label>Call to action</label><input id="tCta" value="'+esc(draft.cta)+'"></div><div class="field"><label>Signature</label><input id="tSig" value="'+esc(draft.signature)+'"></div></div></div>';
+  el.querySelectorAll("[data-si]").forEach(b=>b.onclick=()=>{el.querySelectorAll("[data-si]").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.getElementById("tSubject").value=draft.subjects[b.dataset.si];});
+  document.getElementById("tDiscard").onclick=()=>{draft=null;render();};
+  document.getElementById("tSave").onclick=()=>{
+    const t={id:uid(),name:draft.style+" — "+(document.getElementById("tSubject").value.slice(0,32)),style:draft.style,
+      subjects:[document.getElementById("tSubject").value].concat(draft.subjects.filter(s=>s!==document.getElementById("tSubject").value)),
+      body:document.getElementById("tBody").value,cta:document.getElementById("tCta").value,signature:document.getElementById("tSig").value};
+    S.templates.push(t);draft=null;save();toast("Template saved");render();};
+}
+
+/* ---------- Mailboxes ---------- */
+VIEWS.mailboxes=function(m){
+  let html=viewTop("Connected Mailboxes","sending identities, limits, health & authentication",
+    '<button class="btn btn-primary" id="mAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Connect mailbox</button>');
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>This registers a sending identity and computes a health score from your SPF/DKIM/DMARC setup. <b>Live OAuth/SMTP delivery</b> needs a backend; the Smart Send step runs in simulation or exports ready-to-send <span class="mono">.eml</span> files.</div></div>';
+  html+='<div class="card hidden" id="mCard"><h3>Connect a sending account</h3><div class="form-grid">'+
+    '<div class="field"><label>Provider</label><select id="m_provider"><option>Gmail</option><option>Google Workspace</option><option>Microsoft Outlook</option><option>Microsoft 365</option><option>SMTP</option><option>IMAP</option></select></div>'+
+    ff("m_fromName","From name")+ff("m_fromEmail","From email")+ff("m_replyTo","Reply-to")+ff("m_limit","Daily limit","50")+
+    '</div><label>Authentication</label><div class="pills" style="margin-bottom:14px">'+["SPF","DKIM","DMARC"].map(a=>'<button class="pill on" data-auth="'+a+'">'+a+' ✓</button>').join("")+'</div>'+
+    '<div class="btn-row"><button class="btn btn-primary" id="mSave">Save mailbox</button><button class="btn btn-ghost" id="mCancel">Cancel</button></div></div>';
+  html+='<div class="card"><div class="card-head"><h3>Mailboxes</h3><span class="chip c-info"><i></i>'+S.mailboxes.length+'</span></div>';
+  if(!S.mailboxes.length)html+='<div class="empty">No mailboxes yet.</div>';
+  else html+='<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Account</th><th>Provider</th><th>Daily limit</th><th>Auth</th><th>Health</th><th>Status</th><th></th></tr></thead><tbody>'+
+    S.mailboxes.map(x=>'<tr><td><div class="nm">'+esc(x.fromName||x.fromEmail)+'</div><div class="em">'+esc(x.fromEmail)+'</div></td><td>'+esc(x.provider)+'</td><td>'+esc(x.dailyLimit)+'/day</td><td class="small">'+[["SPF",x.spf],["DKIM",x.dkim],["DMARC",x.dmarc]].filter(a=>a[1]).map(a=>a[0]).join(" · ")+'</td><td style="min-width:110px"><div class="meter"><i style="width:'+x.health+'%;background:'+(x.health>=70?"var(--good)":x.health>=40?"var(--gold)":"var(--bad)")+'"></i></div><div class="small" style="margin-top:3px">'+x.health+'/100</div></td><td>'+mbxStatus(x.status)+'</td><td><button class="x" data-mdel="'+x.id+'">✕</button></td></tr>').join("")+'</tbody></table></div>';
+  html+='</div>';
+  m.innerHTML=html;
+  let auth={SPF:true,DKIM:true,DMARC:true};
+  document.getElementById("mAdd").onclick=()=>document.getElementById("mCard").classList.toggle("hidden");
+  document.getElementById("mCancel").onclick=()=>document.getElementById("mCard").classList.add("hidden");
+  m.querySelectorAll("[data-auth]").forEach(b=>b.onclick=()=>{const k=b.dataset.auth;auth[k]=!auth[k];b.classList.toggle("on",auth[k]);b.textContent=k+(auth[k]?" ✓":"");});
+  document.getElementById("mSave").onclick=()=>{const g=id=>document.getElementById(id).value.trim();
+    if(!g("m_fromEmail")){toast("Enter a from email");return;}
+    const health=40+(auth.SPF?20:0)+(auth.DKIM?20:0)+(auth.DMARC?20:0);
+    S.mailboxes.push({id:uid(),provider:document.getElementById("m_provider").value,fromName:g("m_fromName"),fromEmail:g("m_fromEmail"),replyTo:g("m_replyTo"),dailyLimit:parseInt(g("m_limit"))||50,spf:auth.SPF,dkim:auth.DKIM,dmarc:auth.DMARC,health:health,status:health>=70?"healthy":health>=40?"warming":"at-risk"});
+    save();toast("Mailbox connected");render();};
+  m.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=()=>{S.mailboxes=S.mailboxes.filter(x=>x.id!==b.dataset.mdel);save();render();});
+};
+function mbxStatus(s){const map={healthy:"c-verified",warming:"c-risky","at-risk":"c-invalid"};return '<span class="chip '+(map[s]||"c-unchecked")+'"><i></i>'+esc(s||"—")+'</span>';}
+
+/* ---------- Campaigns ---------- */
+let selCampaignTemplate=null;
+VIEWS.campaigns=function(m){
+  let html=viewTop("Campaign Builder","assemble template + audience + sender, then preview");
+  const canBuild=S.templates.length&&verifiedLeads().length;
+  if(!S.templates.length)html+=need("Create a template first.","templates","Go to Templates");
+  else if(!verifiedLeads().length)html+=need("Verify some leads first — campaigns only send to verified addresses.","verify","Go to Verification");
+  html+='<div class="card"><h3>New campaign</h3><div class="form-grid">'+
+    ff("c_name","Campaign name","Q3 Outreach")+
+    '<div class="field"><label>Template</label><select id="c_template">'+S.templates.map(t=>'<option value="'+t.id+'"'+(selCampaignTemplate===t.id?" selected":"")+'>'+esc(t.name)+'</option>').join("")+'</select></div>'+
+    '<div class="field"><label>Subject</label><select id="c_subject"></select></div>'+
+    '<div class="field"><label>Mailbox</label><select id="c_mailbox">'+(S.mailboxes.length?S.mailboxes.map(x=>'<option value="'+x.id+'">'+esc(x.fromName||x.fromEmail)+'</option>').join(""):'<option value="">(none — connect one)</option>')+'</select></div>'+
+    ff("c_sender","Sender name",S.settings.senderName)+ff("c_reply","Reply-to",S.settings.replyTo)+
+    '</div><div class="btn-row"><button class="btn btn-primary" id="cCreate"'+(canBuild?"":" disabled")+'>Create campaign</button></div></div>';
+  html+='<div class="card"><div class="card-head"><h3>Live preview</h3><span class="small">merged with a real verified lead</span></div><div id="cPreview"></div></div>';
+  html+='<div class="card"><div class="card-head"><h3>Campaigns</h3><span class="chip c-info"><i></i>'+S.campaigns.length+'</span></div>';
+  if(!S.campaigns.length)html+='<div class="empty">No campaigns yet.</div>';
+  else html+='<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Template</th><th>Recipients</th><th>Status</th><th></th></tr></thead><tbody>'+
+    S.campaigns.slice().reverse().map(c=>{const t=S.templates.find(t=>t.id===c.templateId);return '<tr><td class="nm">'+esc(c.name)+'</td><td class="small">'+esc(t?t.style:"—")+'</td><td>'+campaignRecipients(c).length+'</td><td>'+campStatusChip(c.status)+'</td><td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" data-open="'+c.id+'">Send →</button> <button class="x" data-cdel="'+c.id+'">✕</button></td></tr>';}).join("")+'</tbody></table></div>';
+  html+='</div>';
+  m.innerHTML=html;
+  const tplSel=document.getElementById("c_template");
+  function syncSubjects(){const t=S.templates.find(t=>t.id===tplSel.value);const ss=document.getElementById("c_subject");if(t){ss.innerHTML=t.subjects.map(s=>'<option>'+esc(s)+'</option>').join("");}updatePreview();}
+  function updatePreview(){const t=S.templates.find(t=>t.id===tplSel.value);const el=document.getElementById("cPreview");if(!t){el.innerHTML='<div class="empty">Select a template.</div>';return;}
+    const lead=verifiedLeads()[0]||{name:"Sample Prospect",company:"Northloop",position:"VP Sales",industry:"SaaS",email:"sample@example.com"};
+    const senderName=document.getElementById("c_sender").value||S.settings.senderName||"Your Name";
+    const tmpS=Object.assign({},S.settings,{senderName});const oldName=S.settings.senderName;S.settings.senderName=senderName;
+    const subj=document.getElementById("c_subject").value;
+    el.innerHTML='<div class="preview"><div class="ph"><div class="row"><b>To</b><span>'+esc(lead.name)+' &lt;'+esc(lead.email)+'&gt;</span></div><div class="row"><b>Subject</b><span>'+esc(mergeText(subj,lead))+'</span></div></div><div class="pb">'+esc(mergeText(t.body,lead))+'\n\n'+esc(mergeText(t.cta,lead))+'</div><div class="psig">'+esc(mergeText(t.signature,lead))+'\n\n'+esc(S.settings.footer)+'</div></div>';
+    S.settings.senderName=oldName;}
+  if(tplSel){tplSel.onchange=syncSubjects;document.getElementById("c_subject").onchange=updatePreview;document.getElementById("c_sender").oninput=updatePreview;syncSubjects();}
+  const cc=document.getElementById("cCreate");if(cc)cc.onclick=()=>{const g=id=>document.getElementById(id).value.trim();
+    const c={id:uid(),name:g("c_name")||"Untitled campaign",templateId:tplSel.value,subject:document.getElementById("c_subject").value,mailboxId:document.getElementById("c_mailbox").value,senderName:g("c_sender"),replyTo:g("c_reply"),status:"draft",createdAt:Date.now()};
+    S.campaigns.push(c);selCampaignTemplate=null;save();toast("Campaign created");go("send");};
+  m.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{selSendCampaign=b.dataset.open;go("send");});
+  m.querySelectorAll("[data-cdel]").forEach(b=>b.onclick=()=>{S.campaigns=S.campaigns.filter(c=>c.id!==b.dataset.cdel);save();render();});
+  m.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+};
+function need(msg,view,label){return '<div class="banner warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><div>'+esc(msg)+' <button class="btn btn-ghost btn-sm" data-go="'+view+'" style="margin-left:6px">'+esc(label)+'</button></div></div>';}
+function campaignRecipients(c){return verifiedLeads().filter(l=>l.email&&!S.suppression.includes(l.email.toLowerCase()));}
+
+/* ---------- Smart Send ---------- */
+let selSendCampaign=null;const ENGINE={running:false,paused:false,queue:[],i:0,campaign:null};
+VIEWS.send=function(m){
+  let html=viewTop("Smart Sending","verified-only queue · paced intervals · caps · bounce handling");
+  if(!S.campaigns.length){html+=need("Create a campaign first.","campaigns","Go to Campaigns");m.innerHTML=html;m.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));return;}
+  if(!selSendCampaign)selSendCampaign=S.campaigns[S.campaigns.length-1].id;
+  const c=S.campaigns.find(x=>x.id===selSendCampaign)||S.campaigns[0];selSendCampaign=c.id;
+  const recips=campaignRecipients(c);
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>The full sending engine runs live here — verified-only queue, randomized <span class="mono">'+S.settings.delayMin+'–'+S.settings.delayMax+'s</span> intervals, daily cap, duplicate &amp; suppression checks, and bounce-triggered stops. In <b>Simulate</b> mode it produces realistic delivery events for analytics; <b>Export .eml</b> writes personalized, ready-to-send emails.</div></div>';
+  html+='<div class="card"><div class="card-head"><div style="flex:1;min-width:220px"><label>Campaign</label><select id="sCampaign">'+S.campaigns.map(x=>'<option value="'+x.id+'"'+(x.id===c.id?" selected":"")+'>'+esc(x.name)+'</option>').join("")+'</select></div>'+
+    '<div style="min-width:180px"><label>Mode</label><select id="sMode"><option value="simulate">Simulate delivery</option><option value="eml">Export .eml files</option></select></div></div>';
+  html+='<div class="kpis" style="margin-bottom:16px">'+kpi("Queue (verified)",recips.length,"unique, not suppressed")+kpi("Daily cap",S.settings.dailyCap,"per run")+kpi("Interval",S.settings.delayMin+"–"+S.settings.delayMax+"s",S.settings.demoSpeed?"demo speed on":"real timing")+kpi("Suppressed",S.suppression.length,"bounced/opt-out")+'</div>';
+  html+='<div class="mrow"><b style="font-weight:600" id="sCount">0 / '+recips.length+'</b><span id="sPct">0%</span></div><div class="meter" style="height:12px;margin-bottom:16px"><i id="sBar" style="width:0%"></i></div>';
+  html+='<div class="kpis" style="margin-bottom:16px">'+["Sent","Delivered","Opened","Replied","Bounced"].map(k=>'<div class="kpi"><div class="l">'+k+'</div><div class="v" id="s-'+k.toLowerCase()+'">0</div></div>').join("")+'</div>';
+  html+='<div class="btn-row" style="margin-bottom:16px"><button class="btn btn-primary" id="sStart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4Z"/></svg>Start</button><button class="btn btn-ghost" id="sPause" disabled>Pause</button><button class="btn btn-ghost" id="sStop" disabled>Stop</button><label style="display:flex;align-items:center;gap:8px;margin:0;text-transform:none;font-family:var(--sans);font-weight:500;color:var(--ink)"><input type="checkbox" id="sDemo" '+(S.settings.demoSpeed?"checked":"")+' style="width:auto"> Demo speed</label></div>';
+  html+='<div class="log" id="sLog"><span class="t">// queue ready — '+recips.length+' verified recipients for "'+esc(c.name)+'"</span></div></div>';
+  m.innerHTML=html;
+  document.getElementById("sCampaign").onchange=e=>{selSendCampaign=e.target.value;render();};
+  document.getElementById("sDemo").onchange=e=>{S.settings.demoSpeed=e.target.checked;save();};
+  document.getElementById("sStart").onclick=()=>startSend(c);
+  document.getElementById("sPause").onclick=pauseSend;
+  document.getElementById("sStop").onclick=stopSend;
+  m.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+};
+function logLine(cls,msg){const el=document.getElementById("sLog");if(!el)return;const d=document.createElement("div");d.innerHTML='<span class="'+cls+'">'+msg+'</span>';el.appendChild(d);el.scrollTop=el.scrollHeight;}
+function startSend(c){
+  if(ENGINE.running)return;
+  const recips=campaignRecipients(c);
+  if(!recips.length){toast("No verified recipients");return;}
+  const mode=document.getElementById("sMode").value;
+  const cap=S.settings.dailyCap;
+  ENGINE.running=true;ENGINE.paused=false;ENGINE.queue=recips.slice(0,cap);ENGINE.i=0;ENGINE.campaign=c;ENGINE.mode=mode;ENGINE.emls=[];
+  c.status="sending";save();
+  document.getElementById("sStart").disabled=true;document.getElementById("sPause").disabled=false;document.getElementById("sStop").disabled=false;
+  logLine("ai","▶ campaign started — "+ENGINE.queue.length+" recipients, mode: "+mode);
+  if(recips.length>cap)logLine("warn","⚠ daily cap "+cap+" — "+(recips.length-cap)+" recipients held for next run");
+  step();
+}
+function pauseSend(){ENGINE.paused=!ENGINE.paused;document.getElementById("sPause").textContent=ENGINE.paused?"Resume":"Pause";logLine("warn",ENGINE.paused?"⏸ paused":"▶ resumed");if(!ENGINE.paused)step();}
+function stopSend(){if(ENGINE.campaign)ENGINE.campaign.status="paused";ENGINE.running=false;ENGINE.paused=false;save();finishSend("■ stopped");}
+function step(){
+  if(!ENGINE.running||ENGINE.paused)return;
+  if(ENGINE.i>=ENGINE.queue.length){completeSend();return;}
+  const lead=ENGINE.queue[ENGINE.i++];const c=ENGINE.campaign;const tpl=S.templates.find(t=>t.id===c.templateId);
+  const now=Date.now();
+  const push=(type)=>S.events.push({id:uid(),campaignId:c.id,leadId:lead.id,type:type,ts:Date.now()});
+  push("sent");
+  if(ENGINE.mode==="eml"&&tpl){const oldN=S.settings.senderName;S.settings.senderName=c.senderName||S.settings.senderName;
+    const eml="From: "+(c.senderName||S.settings.senderName)+" <"+((S.mailboxes.find(x=>x.id===c.mailboxId)||{}).fromEmail||S.settings.senderEmail||"you@example.com")+">\nTo: "+(lead.name||"")+" <"+lead.email+">\nSubject: "+mergeText(c.subject,lead)+"\n\n"+mergeText(tpl.body,lead)+"\n\n"+mergeText(tpl.cta,lead)+"\n\n"+mergeText(tpl.signature,lead)+"\n\n"+S.settings.footer+"\n";
+    S.settings.senderName=oldN;ENGINE.emls.push({name:(lead.email||"lead").replace(/[^a-z0-9]/gi,"_")+".eml",body:eml});}
+  // simulated outcomes
+  const roll=Math.random();
+  let out="";
+  if(roll<0.02){push("bounced");if(lead.email&&!S.suppression.includes(lead.email.toLowerCase()))S.suppression.push(lead.email.toLowerCase());out='<span class="bad">✕ bounced → suppressed</span>';}
+  else{push("delivered");let chain="delivered";
+    if(Math.random()<0.55){push("opened");chain="opened";
+      if(Math.random()<0.27){push("clicked");chain="clicked";}
+      if(Math.random()<0.14){push("replied");chain="replied";out='<span class="ok">✓ replied</span>';}
+    }
+    if(!out)out='<span class="ok">✓ '+chain+'</span>';}
+  logLine("t","→ "+ (lead.email||lead.name) + "  " + out);
+  updateSendUI();
+  save();
+  const base=(S.settings.delayMin+Math.random()*(S.settings.delayMax-S.settings.delayMin))*1000;
+  const delay=S.settings.demoSpeed?Math.max(120,base/60):base;
+  ENGINE._t=setTimeout(step,delay);
+}
+function updateSendUI(){
+  const c=ENGINE.campaign;if(!c)return;
+  const total=ENGINE.queue.length;const done=ENGINE.i;
+  const cnt=document.getElementById("sCount");if(cnt)cnt.textContent=done+" / "+total;
+  const pct=Math.round(done/total*100);const bar=document.getElementById("sBar");if(bar)bar.style.width=pct+"%";
+  const p=document.getElementById("sPct");if(p)p.textContent=pct+"%";
+  [["sent","sent"],["delivered","delivered"],["opened","opened"],["replied","replied"],["bounced","bounced"]].forEach(k=>{const el=document.getElementById("s-"+k[0]);if(el)el.textContent=evCount(k[1],c.id);});
+}
+function completeSend(){ENGINE.running=false;if(ENGINE.campaign)ENGINE.campaign.status="done";save();
+  if(ENGINE.mode==="eml"&&ENGINE.emls.length){logLine("ai","⇩ bundling "+ENGINE.emls.length+" .eml files");ENGINE.emls.forEach(f=>download(f.name,"message/rfc822",f.body));}
+  finishSend("✔ campaign complete");}
+function finishSend(msg){clearTimeout(ENGINE._t);const s=document.getElementById("sStart"),p=document.getElementById("sPause"),st=document.getElementById("sStop");if(s)s.disabled=false;if(p){p.disabled=true;p.textContent="Pause";}if(st)st.disabled=true;logLine("ai",msg);updateSendUI();}
+
+/* ---------- Reports ---------- */
+VIEWS.reports=function(m){
+  const sent=evCount("sent"),delivered=evCount("delivered"),opened=evCount("opened"),clicked=evCount("clicked"),replied=evCount("replied"),bounced=evCount("bounced");
+  let html=viewTop("Reports & Analytics","downloadable metrics + distribution charts",
+    '<button class="btn btn-ghost" id="rCsv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M4 21h16"/></svg>Export report</button>');
+  html+='<div class="kpis">'+kpi("Leads Found",S.leads.length,"")+kpi("Verified",verifiedLeads().length,"")+kpi("Emails Sent",sent,"")+kpi("Delivered",delivered,rate(delivered,sent)+"%")+'</div>';
+  html+='<div class="kpis">'+kpi("Opened",opened,rate(opened,sent)+"%")+kpi("Clicked",clicked,rate(clicked,sent)+"%")+kpi("Replied",replied,rate(replied,sent)+"%")+kpi("Bounced",bounced,rate(bounced,sent)+"%")+'</div>';
+  // daily sending bars (14 days)
+  const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+  const counts=days.map(d=>S.events.filter(e=>e.type==="sent"&&todayKey(e.ts)===todayKey(d.getTime())).length);
+  const mx=Math.max(1,...counts);
+  html+='<div class="two"><div class="card"><h3>Daily sending — 14 days</h3><div class="bars">'+days.map((d,i)=>'<div class="b"><i style="height:'+Math.round(counts[i]/mx*100)+'%" title="'+counts[i]+'"></i><span>'+(d.getMonth()+1)+"/"+d.getDate()+'</span></div>').join("")+'</div></div>';
+  // funnel
+  html+='<div class="card"><h3>Funnel</h3><div style="display:flex;flex-direction:column;gap:11px;margin-top:6px">'+
+    meter("Verified",rate(verifiedLeads().length,S.leads.length||1),"var(--good)")+
+    meter("Sent",rate(sent,verifiedLeads().length||1))+
+    meter("Opened",rate(opened,sent||1),"var(--gold)")+
+    meter("Replied",rate(replied,sent||1),"var(--ai)")+'</div></div></div>';
+  // distributions
+  html+='<div class="two">'+distCard("Industry distribution","industry")+distCard("Country distribution","country")+'</div>';
+  m.innerHTML=html;
+  document.getElementById("rCsv").onclick=()=>{
+    const rows=[["Metric","Value"],["Total Leads Found",S.leads.length],["Verified Emails",verifiedLeads().length],["Invalid Emails",S.leads.filter(l=>l.verify&&l.verify.status==="invalid").length],["Emails Sent",sent],["Delivered",delivered],["Opened",opened],["Clicked",clicked],["Replied",replied],["Bounced",bounced],["Open Rate %",rate(opened,sent)],["Reply Rate %",rate(replied,sent)],["Bounce Rate %",rate(bounced,sent)],["Export Date",new Date().toISOString()]];
+    download("vantage-report-"+new Date().toISOString().slice(0,10)+".csv","text/csv",rows.map(r=>r.join(",")).join("\n"));toast("Report exported");};
+};
+function distCard(title,field){
+  const counts={};S.leads.forEach(l=>{const k=(l[field]||"Unknown").trim()||"Unknown";counts[k]=(counts[k]||0)+1;});
+  const arr=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);const tot=S.leads.length||1;
+  let h='<div class="card"><h3>'+esc(title)+'</h3><div style="display:flex;flex-direction:column;gap:11px;margin-top:6px">';
+  if(!arr.length)h+='<div class="empty">No data yet.</div>';
+  else arr.forEach(([k,v])=>h+=meter(k,Math.round(v/tot*100),"var(--ai)"));
+  return h+'</div></div>';
+}
+
+/* ---------- Settings ---------- */
+VIEWS.settings=function(m){
+  const s=S.settings;
+  let html=viewTop("Settings","API key, sending defaults, compliance & data");
+  html+='<div class="card"><h3>Claude API</h3><div class="desc">Your key is stored only in this browser (localStorage) and sent directly to Anthropic. Get one at console.anthropic.com.</div>'+
+    '<div class="field"><label>API Key</label><input id="set_key" type="password" placeholder="sk-ant-..." value="'+esc(s.apiKey)+'"></div>'+
+    '<div class="field"><label>Model</label><select id="set_model">'+
+      [["claude-opus-5","Claude Opus 5 — most capable"],["claude-sonnet-5","Claude Sonnet 5 — balanced"],["claude-haiku-4-5","Claude Haiku 4.5 — fastest / cheapest"]].map(o=>'<option value="'+o[0]+'"'+(s.model===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
+    '<div class="btn-row"><button class="btn btn-primary" id="setSave">Save</button><button class="btn btn-ghost" id="setTest">Test key</button><span id="setTestOut" class="small"></span></div></div>';
+  html+='<div class="card"><h3>Sender identity (defaults)</h3><div class="form-grid">'+ff("set_sName","Sender name",s.senderName)+ff("set_sEmail","Sender email",s.senderEmail)+ff("set_reply","Reply-to",s.replyTo)+'</div></div>';
+  html+='<div class="card"><h3>Smart sending</h3><div class="form-grid">'+ff("set_cap","Daily cap",s.dailyCap)+ff("set_dmin","Min delay (s)",s.delayMin)+ff("set_dmax","Max delay (s)",s.delayMax)+'</div>'+
+    '<label style="display:flex;gap:9px;align-items:center;text-transform:none;font-family:var(--sans);font-weight:500;color:var(--ink)"><input type="checkbox" id="set_demo" '+(s.demoSpeed?"checked":"")+' style="width:auto"> Demo speed (compress delays so you can watch a run)</label></div>';
+  html+='<div class="card"><h3>Compliance</h3><div class="desc">Every simulated/exported email appends this footer. Keep a real physical address and a working opt-out to stay CAN-SPAM / GDPR-aligned.</div>'+
+    '<div class="field"><label>Email footer</label><textarea id="set_footer" rows="4">'+esc(s.footer)+'</textarea></div></div>';
+  html+='<div class="card"><h3>Data</h3><div class="desc">Everything is stored locally in your browser.</div><div class="btn-row"><button class="btn btn-ghost" id="dExport">Export all (JSON)</button><button class="btn btn-ghost" id="dImport">Import JSON</button><input type="file" id="dFile" accept=".json" class="hidden"><button class="btn btn-ghost" id="dReset" style="color:var(--bad)">Reset everything</button></div></div>';
+  m.innerHTML=html;
+  document.getElementById("setSave").onclick=()=>{s.apiKey=document.getElementById("set_key").value.trim();s.model=document.getElementById("set_model").value;
+    s.senderName=document.getElementById("set_sName").value.trim();s.senderEmail=document.getElementById("set_sEmail").value.trim();s.replyTo=document.getElementById("set_reply").value.trim();
+    s.dailyCap=parseInt(document.getElementById("set_cap").value)||200;s.delayMin=parseInt(document.getElementById("set_dmin").value)||30;s.delayMax=parseInt(document.getElementById("set_dmax").value)||90;
+    s.demoSpeed=document.getElementById("set_demo").checked;s.footer=document.getElementById("set_footer").value;
+    save();toast("Settings saved");};
+  document.getElementById("setTest").onclick=async()=>{const out=document.getElementById("setTestOut");S.settings.apiKey=document.getElementById("set_key").value.trim();S.settings.model=document.getElementById("set_model").value;
+    out.textContent="Testing…";try{await callClaude("You are a test.","Reply with the single word OK.",20);out.innerHTML='<span style="color:var(--good)">✓ key works</span>';save();refreshBadges();}catch(e){out.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';}};
+  document.getElementById("dExport").onclick=()=>download("vantage-data-"+new Date().toISOString().slice(0,10)+".json","application/json",JSON.stringify(S,null,2));
+  document.getElementById("dImport").onclick=()=>document.getElementById("dFile").click();
+  document.getElementById("dFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=Object.assign({},DEFAULTS,JSON.parse(r.result));save();toast("Data imported");render();}catch(err){toast("Invalid file");}};r.readAsText(f);};
+  document.getElementById("dReset").onclick=()=>{if(confirm("Delete all leads, templates, campaigns, and settings from this browser?")){S=JSON.parse(JSON.stringify(DEFAULTS));save();toast("Reset");render();}};
+};
+
+/* ---------- boot ---------- */
+function render(){const m=document.getElementById("main");const fn=VIEWS[CURRENT]||VIEWS.dashboard;fn(m);
+  m.querySelectorAll("[data-go]").forEach(b=>{if(!b._b){b._b=1;b.onclick=()=>go(b.dataset.go);}});}
+refreshBadges();
+(function(){const h=location.hash.slice(1);CURRENT=(h&&VIEWS[h])?h:"dashboard";document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("on",n.dataset.view===CURRENT));render();})();
+</script>
+</body>
+</html>
