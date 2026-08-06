@@ -1,0 +1,619 @@
+<title>AJ SHOP — Live Storefront Preview</title>
+<style>
+:root{
+  --brand:#e6482e;--brand-dark:#c53a22;--accent:#ff7a3d;--brand-soft:#fff1ec;
+  --ink:#1f2a44;--slate:#33415c;--muted:#7a869a;--line:#e8ecf2;
+  --bg:#f6f8fb;--card:#ffffff;--ok:#1a9d63;--star:#f5a524;
+  --navy:#1f2a44;--navy-line:#2a3450;--navy-text:#c2ccdd;
+  --radius:14px;--radius-sm:10px;--shadow-sm:0 1px 3px rgba(20,30,60,.06);--shadow:0 8px 26px rgba(20,30,60,.10);
+  --maxw:1200px;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --display:'Poppins',var(--font);
+}
+@media (prefers-color-scheme:dark){:root{
+  --brand:#ff6a4d;--brand-dark:#e6482e;--brand-soft:#2b1a15;
+  --ink:#f1f5fb;--slate:#cad3e0;--muted:#8b97ad;--line:#28324a;
+  --bg:#0d1320;--card:#151d2c;--star:#f5b942;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.4);--shadow:0 10px 30px rgba(0,0,0,.5);
+}}
+:root[data-theme="dark"]{
+  --brand:#ff6a4d;--brand-dark:#e6482e;--brand-soft:#2b1a15;
+  --ink:#f1f5fb;--slate:#cad3e0;--muted:#8b97ad;--line:#28324a;
+  --bg:#0d1320;--card:#151d2c;--star:#f5b942;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.4);--shadow:0 10px 30px rgba(0,0,0,.5);
+}
+:root[data-theme="light"]{
+  --brand:#e6482e;--brand-dark:#c53a22;--brand-soft:#fff1ec;
+  --ink:#1f2a44;--slate:#33415c;--muted:#7a869a;--line:#e8ecf2;
+  --bg:#f6f8fb;--card:#ffffff;--star:#f5a524;
+  --shadow-sm:0 1px 3px rgba(20,30,60,.06);--shadow:0 8px 26px rgba(20,30,60,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--slate);line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+img,svg{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+h1,h2,h3,h4{font-family:var(--display);color:var(--ink);line-height:1.2;font-weight:700;text-wrap:balance}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+:focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+.topbar{background:var(--navy);color:#dfe6f2;font-size:12.5px}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:36px;gap:16px}
+.topbar .tb-links{display:flex;gap:18px}
+.topbar .tb-links a{color:#fff;font-weight:600}
+@media(max-width:640px){.topbar .tb-links{display:none}}
+
+.site-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:200}
+.header-main{display:flex;align-items:center;gap:22px;height:72px}
+.brand img{height:42px}
+.search{flex:1;display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:0 14px;height:46px;max-width:560px}
+.search:focus-within{border-color:var(--brand);background:var(--card)}
+.search svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;flex-shrink:0}
+.search input{flex:1;border:none;background:transparent;outline:none;font-size:14.5px;color:var(--ink)}
+.header-actions{display:flex;align-items:center;gap:8px}
+.icon-btn{position:relative;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--slate);transition:.15s}
+.icon-btn:hover{background:var(--bg);color:var(--brand)}
+.icon-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9}
+.badge{position:absolute;top:6px;right:6px;min-width:18px;height:18px;padding:0 4px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--display)}
+.badge[hidden]{display:none}
+.btn-signin{display:flex;align-items:center;gap:8px;padding:0 14px;height:44px;border-radius:12px;font-weight:600;font-size:14px;color:var(--slate)}
+.btn-signin:hover{background:var(--bg)}
+@media(max-width:640px){.btn-signin span{display:none}}
+
+.catnav{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:72px;z-index:150}
+.catnav .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.catnav .wrap::-webkit-scrollbar{display:none}
+.catnav a{white-space:nowrap;padding:13px 14px;font-size:13.5px;font-weight:600;color:var(--slate);border-bottom:2.5px solid transparent;display:flex;align-items:center;gap:7px;transition:.15s}
+.catnav a:hover{color:var(--brand)}
+.catnav a.active{color:var(--brand);border-color:var(--brand)}
+.catnav a .emo{font-size:15px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:600;font-size:14.5px;padding:0 20px;height:46px;border-radius:12px;transition:.15s;white-space:nowrap}
+.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-dark)}
+.btn-ghost{background:var(--brand-soft);color:var(--brand)}
+.btn-dark{background:var(--ink);color:var(--card)}
+.btn-block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.hero{background:linear-gradient(120deg,var(--brand-soft) 0%,color-mix(in srgb,var(--brand-soft),var(--bg) 40%) 45%,var(--bg) 100%);border-radius:22px;margin-top:22px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:20px;padding:40px 44px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--card);color:var(--brand);font-weight:700;font-size:12.5px;padding:7px 14px;border-radius:30px;box-shadow:var(--shadow-sm);margin-bottom:18px}
+.hero h1{font-size:clamp(28px,4vw,44px);font-weight:800;margin-bottom:14px}
+.hero h1 span{color:var(--brand)}
+.hero p{font-size:16px;color:var(--slate);max-width:440px;margin-bottom:24px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero-art svg{width:100%;height:auto;filter:drop-shadow(0 20px 30px rgba(20,30,60,.14));border-radius:20px}
+@media(max-width:820px){.hero-grid{grid-template-columns:1fr;padding:30px 24px}.hero-art{display:none}}
+
+.section{margin-top:44px}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;gap:12px}
+.section-head h2{font-size:24px;font-weight:800}
+.section-head p{color:var(--muted);font-size:14px;margin-top:2px}
+.section-head a{color:var(--brand);font-weight:600;font-size:14px}
+
+.cat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media(max-width:900px){.cat-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.cat-grid{grid-template-columns:repeat(2,1fr)}}
+.cat-tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 14px;text-align:center;transition:.18s;box-shadow:var(--shadow-sm)}
+.cat-tile:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:transparent}
+.cat-tile .cat-ico{width:64px;height:64px;margin:0 auto 12px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;background:var(--brand-soft)}
+.cat-tile h3{font-size:14px;font-weight:600;color:var(--ink)}
+.cat-tile small{color:var(--muted);font-size:12px}
+
+.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:1000px){.prod-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.prod-grid{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.18s;display:flex;flex-direction:column;position:relative}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:transparent}
+.card-img{position:relative;aspect-ratio:1/1;background:var(--bg);overflow:hidden}
+.card-img svg{width:100%;height:100%;object-fit:cover}
+.card-tag{position:absolute;top:10px;left:10px;background:var(--ink);color:var(--card);font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:20px;font-family:var(--display)}
+.card-tag.sale{background:var(--brand);color:#fff}
+.card-tag.new{background:var(--ok);color:#fff}
+.wish{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);transition:.15s}
+.wish svg{width:17px;height:17px;stroke:#33415c;fill:none;stroke-width:2}
+.wish.on svg{fill:var(--brand);stroke:var(--brand)}
+.card-body{padding:13px 14px 15px;display:flex;flex-direction:column;flex:1}
+.card-cat{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.card-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.35;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px}
+.rating{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.rating .stars{color:var(--star);letter-spacing:1px}
+.price-row{display:flex;align-items:center;gap:8px;margin-top:auto;margin-bottom:12px;flex-wrap:wrap}
+.price{font-family:var(--display);font-weight:800;font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums}
+.mrp{font-size:13px;color:var(--muted);text-decoration:line-through}
+.off{font-size:12px;font-weight:700;color:var(--ok)}
+.add-btn{width:100%;height:40px;border-radius:10px;background:var(--brand-soft);color:var(--brand);font-weight:600;font-size:13.5px;font-family:var(--display);display:flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.add-btn:hover{background:var(--brand);color:#fff}
+.add-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+
+.catalog{display:grid;grid-template-columns:250px 1fr;gap:26px;margin-top:24px;align-items:start}
+@media(max-width:820px){.catalog{grid-template-columns:1fr}}
+.filters{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 8px;position:sticky;top:132px}
+@media(max-width:820px){.filters{position:static}}
+.filters h4{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:18px 0 10px}
+.filters h4:first-child{margin-top:0}
+.filter-opt{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px;color:var(--slate);cursor:pointer}
+.filter-opt input{accent-color:var(--brand);width:16px;height:16px}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 14px;border-radius:30px;border:1.5px solid var(--line);background:var(--card);font-size:13px;font-weight:600;color:var(--slate);transition:.15s}
+.chip:hover{border-color:var(--brand);color:var(--brand)}
+.chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.catalog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.catalog-head h1{font-size:26px;font-weight:800}
+.catalog-head .count{color:var(--muted);font-size:14px}
+.sortsel{border:1.5px solid var(--line);border-radius:10px;height:42px;padding:0 12px;font-family:var(--font);font-size:14px;color:var(--slate);background:var(--card)}
+.subfilter{display:flex;gap:10px;margin:16px 0 4px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:6px 16px;font-size:13px;font-weight:600;color:var(--slate)}
+.pill.active{background:var(--ink);color:var(--card);border-color:var(--ink)}
+
+.pdp{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:26px}
+@media(max-width:820px){.pdp{grid-template-columns:1fr;gap:24px}}
+.pdp-gallery{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.pdp-gallery svg{width:100%;aspect-ratio:1/1;object-fit:cover}
+.pdp-info h1{font-size:28px;font-weight:800;margin-bottom:10px}
+.pdp-price{display:flex;align-items:center;gap:12px;margin:16px 0}
+.pdp-price .price{font-size:30px}
+.pdp-desc{color:var(--slate);margin:16px 0;font-size:15px}
+.pdp-opts{margin:20px 0}
+.pdp-opts label{display:block;font-weight:600;color:var(--ink);margin-bottom:8px;font-size:14px}
+.qty{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+.qty button{width:40px;height:44px;font-size:20px;color:var(--slate)}
+.qty button:hover{background:var(--bg);color:var(--brand)}
+.qty span{width:46px;text-align:center;font-weight:700;font-family:var(--display)}
+.pdp-actions{display:flex;gap:12px;margin-top:22px}
+.pdp-meta{margin-top:26px;border-top:1px solid var(--line);padding-top:20px;display:grid;gap:12px}
+.pdp-meta div{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--slate)}
+.pdp-meta svg{width:20px;height:20px;stroke:var(--ok);fill:none;stroke-width:2;flex-shrink:0;margin-top:1px}
+
+.cart-layout,.checkout{display:grid;grid-template-columns:1fr 360px;gap:26px;margin-top:24px;align-items:start}
+@media(max-width:900px){.cart-layout,.checkout{grid-template-columns:1fr}}
+.cart-item{display:grid;grid-template-columns:96px 1fr auto;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px;align-items:center}
+.ci-img{width:96px;height:96px;border-radius:10px;overflow:hidden;background:var(--bg)}
+.ci-img svg{width:100%;height:100%;object-fit:cover}
+.ci-title{font-weight:600;color:var(--ink);font-size:15px;margin-bottom:4px}
+.ci-meta{font-size:13px;color:var(--muted);margin-bottom:8px}
+.ci-remove{color:var(--muted);font-size:13px;display:inline-flex;align-items:center;gap:5px}
+.ci-remove:hover{color:var(--brand)}
+.ci-remove svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.ci-right{text-align:right}
+.ci-price{font-family:var(--display);font-weight:800;color:var(--ink);font-size:17px;margin-bottom:8px}
+.summary{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;position:sticky;top:132px}
+.summary h3{font-size:18px;margin-bottom:16px}
+.sum-row{display:flex;justify-content:space-between;font-size:14.5px;color:var(--slate);padding:8px 0}
+.sum-row.total{border-top:1px solid var(--line);margin-top:8px;padding-top:14px;font-family:var(--display);font-weight:800;color:var(--ink);font-size:19px}
+.coupon{display:flex;gap:8px;margin:14px 0}
+.coupon input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;height:44px;font-family:var(--font);font-size:14px;outline:none;background:var(--card);color:var(--ink)}
+.coupon input:focus{border-color:var(--brand)}
+.empty{text-align:center;padding:70px 20px;color:var(--muted)}
+.empty svg{width:64px;height:64px;stroke:var(--line);fill:none;stroke-width:1.5;margin:0 auto 18px}
+.empty h3{color:var(--ink);margin-bottom:8px;font-size:20px}
+
+.co-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.co-card h3{font-size:17px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.co-card h3 .num{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-size:13px;font-weight:600;color:var(--ink)}
+.field input,.field select,.field textarea{border:1.5px solid var(--line);border-radius:10px;padding:0 12px;height:46px;font-family:var(--font);font-size:14.5px;color:var(--ink);outline:none;background:var(--card)}
+.field textarea{height:auto;padding:12px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand)}
+.field .err{color:var(--brand);font-size:12px;display:none}
+.field.invalid input,.field.invalid select,.field.invalid textarea{border-color:var(--brand)}
+.field.invalid .err{display:block}
+.pay-methods{display:grid;gap:12px}
+.pay-opt{display:flex;align-items:center;gap:14px;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:.15s}
+.pay-opt:hover{border-color:var(--brand)}
+.pay-opt.sel{border-color:var(--brand);background:var(--brand-soft)}
+.pay-opt input{accent-color:var(--brand);width:18px;height:18px}
+.pay-opt .pm-ico{font-size:22px}
+.pay-opt .pm-txt strong{display:block;color:var(--ink);font-size:14.5px}
+.pay-opt .pm-txt small{color:var(--muted);font-size:12.5px}
+.ccav{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-weight:600}
+.secure-note{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.secure-note svg{width:16px;height:16px;stroke:var(--ok);fill:none;stroke-width:2}
+
+.crumb{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin-top:20px;flex-wrap:wrap}
+.crumb a:hover{color:var(--brand)}
+.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+@media(max-width:720px){.trust{grid-template-columns:1fr 1fr}}
+.trust-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;gap:14px;align-items:center}
+.trust-item .ti-ico{width:44px;height:44px;border-radius:12px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.trust-item strong{display:block;color:var(--ink);font-size:14px;font-family:var(--display)}
+.trust-item small{color:var(--muted);font-size:12.5px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--navy);color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:var(--shadow);z-index:500;display:flex;align-items:center;gap:10px;transition:transform .3s cubic-bezier(.2,.8,.2,1);max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast svg{width:18px;height:18px;stroke:#7bed9f;fill:none;stroke-width:2.5}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.drawer-overlay{position:fixed;inset:0;background:rgba(15,22,40,.45);opacity:0;visibility:hidden;transition:.25s;z-index:300}
+.drawer-overlay.open{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;width:400px;max-width:92vw;height:100%;background:var(--card);z-index:301;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(20,30,60,.2)}
+.drawer.open{transform:translateX(0)}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid var(--line)}
+.drawer-head h3{font-size:18px}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 20px}
+.drawer-foot{padding:20px;border-top:1px solid var(--line)}
+.drawer-item{display:grid;grid-template-columns:60px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.di-img{width:60px;height:60px;border-radius:8px;overflow:hidden;background:var(--bg)}
+.di-img svg{width:100%;height:100%;object-fit:cover}
+.di-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3}
+.di-meta{font-size:12px;color:var(--muted)}
+.di-price{font-weight:700;font-family:var(--display);color:var(--ink);font-size:14px}
+.di-close{color:var(--muted);font-size:18px;line-height:1}
+
+.site-footer{background:var(--navy);color:var(--navy-text);margin-top:60px;padding:50px 0 24px}
+.footer-grid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:30px}
+@media(max-width:820px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.footer-grid{grid-template-columns:1fr}}
+.footer-grid h4{color:#fff;font-size:14px;margin-bottom:14px}
+.footer-grid a{display:block;padding:5px 0;font-size:13.5px;color:#a9b4c7}
+.footer-grid a:hover{color:#fff}
+.footer-brand p{font-size:13.5px;margin:14px 0;max-width:280px;color:#a9b4c7}
+.footer-logo{background:#fff;display:inline-block;padding:8px 12px;border-radius:10px}
+.footer-logo img{height:34px}
+.pay-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pay-badges span{background:var(--navy-line);color:#dfe6f2;font-size:11px;font-weight:600;padding:5px 10px;border-radius:6px}
+.footer-bottom{border-top:1px solid var(--navy-line);margin-top:34px;padding-top:20px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12.5px;color:#8b97ad}
+
+.previewbar{background:#111827;color:#fff;font-size:12.5px;text-align:center;padding:7px 16px}
+.previewbar b{color:#ff9a6b}
+</style>
+
+<div class="previewbar">🔎 <b>AJ SHOP — live design preview.</b> Click categories, products, add to cart & try checkout. This is the front-end; live CCAvenue payments run via the included Node server.</div>
+<div id="site-header"></div>
+<main class="wrap" id="view"></main>
+<div id="site-footer"></div>
+
+<script>
+/* ============ Original SVG illustration library ============ */
+(function(g){
+  const bg=(a,b)=>`<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/>`;
+  const ART={
+    'kids-tshirt':c=>bg('#fff3e0','#ffe0b2')+`<path d="M140 150 L120 175 L145 200 L160 185 V275 H240 V185 L255 200 L280 175 L260 150 L215 132 Q200 150 185 132 Z" fill="${c}" stroke="#00000018" stroke-width="3"/><circle cx="200" cy="230" r="26" fill="#ffffff88"/><path d="M188 230 l8 8 16-18" stroke="${c}" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    'kids-dress':c=>bg('#fce4ec','#f8bbd0')+`<path d="M170 140 q30 -20 60 0 l14 30 -20 12 v10 l40 130 h-128 l40 -130 v-10 l-20 -12 z" fill="${c}" stroke="#00000018" stroke-width="3"/><circle cx="200" cy="185" r="6" fill="#ffffffaa"/><circle cx="200" cy="215" r="6" fill="#ffffffaa"/>`,
+    'kids-hoodie':c=>bg('#e3f2fd','#bbdefb')+`<path d="M150 145 q50 -30 100 0 l30 25 -22 30 -18 -12 v110 h-80 v-110 l-18 12 -22 -30 z" fill="${c}" stroke="#00000018" stroke-width="3"/><path d="M175 150 q25 28 50 0 v22 q-25 20 -50 0z" fill="#ffffff55"/><line x1="190" y1="185" x2="190" y2="235" stroke="#ffffffaa" stroke-width="4"/><line x1="210" y1="185" x2="210" y2="235" stroke="#ffffffaa" stroke-width="4"/>`,
+    'shirt':c=>bg('#eceff1','#cfd8dc')+`<path d="M150 130 L125 160 L150 185 L165 172 V290 H235 V172 L250 185 L275 160 L250 130 L215 120 L200 140 L185 120 Z" fill="${c}" stroke="#00000018" stroke-width="3"/><line x1="200" y1="140" x2="200" y2="288" stroke="#00000022" stroke-width="3"/><circle cx="200" cy="175" r="3.5" fill="#00000033"/><circle cx="200" cy="205" r="3.5" fill="#00000033"/><circle cx="200" cy="235" r="3.5" fill="#00000033"/>`,
+    'dress':c=>bg('#f3e5f5','#e1bee7')+`<path d="M165 130 q35 -22 70 0 l16 34 -24 14 v8 l48 148 h-150 l48 -148 v-8 l-24 -14 z" fill="${c}" stroke="#00000018" stroke-width="3"/><path d="M176 178 h48" stroke="#ffffff88" stroke-width="4"/>`,
+    'jacket':c=>bg('#eceff1','#b0bec5')+`<path d="M150 130 L125 160 L150 190 L165 178 V290 H198 V150 L200 145 L202 150 V290 H235 V178 L250 190 L275 160 L250 130 L200 152 Z" fill="${c}" stroke="#00000018" stroke-width="3"/><rect x="182" y="205" width="12" height="34" rx="2" fill="#00000022"/>`,
+    'kurta':c=>bg('#fff8e1','#ffecb3')+`<path d="M155 132 L132 158 L152 182 L168 170 V296 H232 V170 L248 182 L268 158 L245 132 L215 122 Q200 138 185 122 Z" fill="${c}" stroke="#00000018" stroke-width="3"/><path d="M200 138 v150" stroke="#c8922a55" stroke-width="3"/><path d="M186 150 q14 10 28 0" stroke="#c8922a" stroke-width="3" fill="none"/><circle cx="200" cy="168" r="3" fill="#c8922a"/><circle cx="200" cy="188" r="3" fill="#c8922a"/>`,
+    'headphones':c=>bg('#ede7f6','#d1c4e9')+`<path d="M130 210 a70 70 0 0 1 140 0" fill="none" stroke="${c}" stroke-width="16" stroke-linecap="round"/><rect x="118" y="200" width="34" height="72" rx="14" fill="${c}"/><rect x="248" y="200" width="34" height="72" rx="14" fill="${c}"/><rect x="126" y="212" width="18" height="48" rx="9" fill="#ffffff55"/>`,
+    'earbuds':c=>bg('#e0f7fa','#b2ebf2')+`<rect x="150" y="150" width="100" height="70" rx="16" fill="#ffffff" stroke="#00000015" stroke-width="3"/><circle cx="180" cy="185" r="16" fill="${c}"/><circle cx="220" cy="185" r="16" fill="${c}"/><rect x="176" y="200" width="8" height="46" rx="4" fill="${c}"/><rect x="216" y="200" width="8" height="46" rx="4" fill="${c}"/>`,
+    'smartwatch':c=>bg('#e8eaf6','#c5cae9')+`<rect x="168" y="150" width="64" height="100" rx="20" fill="${c}"/><rect x="180" y="168" width="40" height="64" rx="10" fill="#0e1f2f"/><text x="200" y="205" text-anchor="middle" fill="#4fd1c5" font-size="15" font-family="monospace">10:24</text><rect x="182" y="120" width="36" height="34" rx="8" fill="${c}" opacity=".7"/><rect x="182" y="246" width="36" height="34" rx="8" fill="${c}" opacity=".7"/>`,
+    'powerbank':c=>bg('#eceff1','#cfd8dc')+`<rect x="160" y="140" width="80" height="130" rx="14" fill="${c}" stroke="#00000015" stroke-width="3"/><rect x="176" y="160" width="48" height="10" rx="5" fill="#ffffff88"/><circle cx="185" cy="235" r="5" fill="#7bed9f"/><circle cx="200" cy="235" r="5" fill="#7bed9f"/><circle cx="215" cy="235" r="5" fill="#ffffff55"/><circle cx="230" cy="235" r="5" fill="#ffffff55"/>`,
+    'smartphone':c=>bg('#e3f2fd','#90caf9')+`<rect x="150" y="110" width="100" height="180" rx="20" fill="#0e1f2f"/><rect x="158" y="122" width="84" height="156" rx="12" fill="${c}"/><rect x="184" y="116" width="32" height="6" rx="3" fill="#0e1f2f"/><circle cx="212" cy="150" r="9" fill="#ffffff33"/><circle cx="230" cy="150" r="9" fill="#ffffff33"/><rect x="170" y="190" width="60" height="8" rx="4" fill="#ffffff55"/><rect x="170" y="208" width="44" height="8" rx="4" fill="#ffffff44"/>`,
+    'lipstick':c=>bg('#fce4ec','#f48fb1')+`<rect x="182" y="200" width="36" height="80" rx="6" fill="#3a3a3a"/><rect x="186" y="176" width="28" height="30" rx="4" fill="#c9a227"/><path d="M188 176 h24 v-20 q0 -14 -12 -22 q-12 8 -12 22 z" fill="${c}"/>`,
+    'serum':c=>bg('#f1f8e9','#dcedc8')+`<rect x="176" y="160" width="48" height="110" rx="12" fill="${c}" opacity=".85"/><rect x="184" y="130" width="32" height="34" rx="6" fill="#37474f"/><rect x="182" y="120" width="36" height="14" rx="5" fill="#546e7a"/><rect x="188" y="185" width="24" height="60" rx="6" fill="#ffffff44"/>`,
+    'perfume':c=>bg('#f3e5f5','#ce93d8')+`<rect x="168" y="170" width="64" height="100" rx="12" fill="${c}" opacity=".85"/><rect x="188" y="140" width="24" height="34" fill="#d4af37"/><rect x="182" y="126" width="36" height="18" rx="4" fill="#b8860b"/><rect x="180" y="195" width="40" height="55" rx="8" fill="#ffffff33"/>`,
+    'notebook':c=>bg('#fff8e1','#ffe082')+`<rect x="150" y="130" width="100" height="140" rx="8" fill="${c}" stroke="#00000015" stroke-width="3"/><rect x="150" y="130" width="22" height="140" rx="6" fill="#00000022"/><line x1="185" y1="160" x2="232" y2="160" stroke="#ffffff99" stroke-width="4"/><line x1="185" y1="185" x2="232" y2="185" stroke="#ffffff99" stroke-width="4"/><line x1="185" y1="210" x2="220" y2="210" stroke="#ffffff99" stroke-width="4"/>`,
+    'pen-set':c=>bg('#e8f5e9','#c8e6c9')+`<rect x="176" y="130" width="18" height="140" rx="9" fill="${c}"/><path d="M176 130 l9 -22 9 22z" fill="#37474f"/><rect x="206" y="140" width="18" height="130" rx="9" fill="#37474f"/><path d="M206 140 l9 -20 9 20z" fill="${c}"/><rect x="180" y="200" width="10" height="20" rx="3" fill="#ffffff77"/>`,
+    'backpack':c=>bg('#e0f2f1','#b2dfdb')+`<rect x="150" y="150" width="100" height="120" rx="24" fill="${c}" stroke="#00000015" stroke-width="3"/><path d="M170 155 q30 -30 60 0" fill="none" stroke="#00000030" stroke-width="8"/><rect x="172" y="200" width="56" height="46" rx="10" fill="#ffffff44"/><rect x="192" y="185" width="16" height="20" rx="4" fill="#00000022"/>`,
+    'keyboard':c=>bg('#eceff1','#cfd8dc')+`<rect x="120" y="170" width="160" height="70" rx="12" fill="${c}" stroke="#00000015" stroke-width="3"/>${Array.from({length:5},(_,r)=>Array.from({length:8},(_,i)=>`<rect x="${132+i*17}" y="${180+r*11}" width="12" height="8" rx="2" fill="#ffffff77"/>`).join('')).join('')}`,
+    'mouse':c=>bg('#e8eaf6','#c5cae9')+`<path d="M200 140 q40 0 40 55 v20 q0 45 -40 45 q-40 0 -40 -45 v-20 q0 -55 40 -55z" fill="${c}" stroke="#00000015" stroke-width="3"/><line x1="200" y1="142" x2="200" y2="185" stroke="#00000025" stroke-width="3"/><rect x="195" y="155" width="10" height="16" rx="5" fill="#ffffff88"/>`,
+    'webcam':c=>bg('#e0f7fa','#b2ebf2')+`<circle cx="200" cy="200" r="52" fill="${c}"/><circle cx="200" cy="200" r="34" fill="#0e1f2f"/><circle cx="200" cy="200" r="18" fill="#1e88e5"/><circle cx="190" cy="190" r="6" fill="#ffffffaa"/><rect x="185" y="150" width="30" height="10" rx="5" fill="#37474f"/>`,
+    'ssd':c=>bg('#ede7f6','#d1c4e9')+`<rect x="150" y="165" width="100" height="70" rx="10" fill="${c}" stroke="#00000015" stroke-width="3"/><rect x="164" y="180" width="46" height="14" rx="3" fill="#ffffff88"/><circle cx="230" cy="222" r="5" fill="#7bed9f"/><text x="187" y="222" text-anchor="middle" fill="#ffffffcc" font-size="12" font-family="monospace">SSD</text>`,
+    'vase-clay':c=>bg('#efebe9','#d7ccc8')+`<path d="M175 140 h50 l-6 22 q26 20 26 58 q0 50 -45 50 q-45 0 -45 -50 q0 -38 26 -58 z" fill="${c}" stroke="#00000018" stroke-width="3"/><path d="M172 205 q28 14 56 0" stroke="#ffffff66" stroke-width="4" fill="none"/><path d="M178 235 q22 12 44 0" stroke="#00000022" stroke-width="4" fill="none"/>`,
+    'wall-art':c=>bg('#fbe9e7','#ffccbc')+`<rect x="140" y="140" width="120" height="120" rx="6" fill="#fff" stroke="#8d6e63" stroke-width="8"/><circle cx="180" cy="185" r="18" fill="#f5a524"/><path d="M150 250 l35 -45 25 25 20 -28 20 48z" fill="${c}"/>`,
+    'wooden-elephant':c=>bg('#efebe9','#bcaaa4')+`<ellipse cx="200" cy="210" rx="56" ry="40" fill="${c}"/><path d="M160 220 q-24 6 -20 40 h16 q-2 -24 12 -30z" fill="${c}"/><circle cx="245" cy="195" r="26" fill="${c}"/><path d="M262 210 q22 6 14 40 h-14z" fill="${c}"/><circle cx="250" cy="188" r="4" fill="#3e2723"/><rect x="176" y="244" width="12" height="22" rx="4" fill="${c}"/><rect x="212" y="244" width="12" height="22" rx="4" fill="${c}"/>`,
+    'table-lamp':c=>bg('#fff8e1','#ffe0b2')+`<path d="M170 175 h60 l16 40 h-92z" fill="${c}"/><rect x="196" y="215" width="8" height="55" fill="#8d6e63"/><ellipse cx="200" cy="272" rx="34" ry="10" fill="#8d6e63"/><circle cx="200" cy="200" r="30" fill="#fff59d" opacity=".5"/>`,
+    'cushion':c=>bg('#f9fbe7','#e6ee9c')+`<path d="M150 155 q50 -14 100 0 q14 50 0 100 q-50 14 -100 0 q-14 -50 0 -100z" fill="${c}" stroke="#00000015" stroke-width="3"/><path d="M175 180 h50 M175 205 h50 M175 230 h30" stroke="#ffffff77" stroke-width="4"/>`,
+    'wall-clock':c=>bg('#e0f2f1','#b2dfdb')+`<circle cx="200" cy="205" r="64" fill="#fff" stroke="${c}" stroke-width="8"/><line x1="200" y1="205" x2="200" y2="165" stroke="#37474f" stroke-width="5" stroke-linecap="round"/><line x1="200" y1="205" x2="232" y2="205" stroke="${c}" stroke-width="5" stroke-linecap="round"/><circle cx="200" cy="205" r="6" fill="#37474f"/>`,
+    'plant':c=>bg('#e8f5e9','#c8e6c9')+`<path d="M175 240 h50 l-8 40 h-34z" fill="#a1887f"/><path d="M200 240 q-40 -20 -30 -70 q30 10 30 50z" fill="${c}"/><path d="M200 240 q40 -20 30 -70 q-30 10 -30 50z" fill="${c}" opacity=".85"/><path d="M200 240 q0 -50 0 -80 q14 30 0 80z" fill="${c}"/>`,
+    'sneaker':c=>bg('#e3f2fd','#bbdefb')+`<path d="M130 235 q10 -70 60 -70 q10 20 40 26 q30 4 40 24 v20 q0 12 -14 12 h-118 q-14 0 -8 -12z" fill="${c}" stroke="#00000015" stroke-width="3"/><rect x="122" y="247" width="152" height="14" rx="7" fill="#ffffff"/><path d="M170 175 l14 16 M186 168 l14 18" stroke="#ffffff99" stroke-width="4"/>`,
+    'heel':c=>bg('#fce4ec','#f8bbd0')+`<path d="M140 210 q60 -20 120 -6 q10 2 6 14 l-10 8 h-96 q-30 0 -20 -16z" fill="${c}"/><path d="M250 226 l6 44 h-14 l-6 -40z" fill="${c}"/><path d="M140 210 q40 -30 80 -20" fill="none" stroke="#ffffff77" stroke-width="4"/>`,
+    'sandal':c=>bg('#fff3e0','#ffe0b2')+`<path d="M150 240 q0 -14 14 -14 h72 q14 0 14 14 q0 14 -14 14 h-72 q-14 0 -14 -14z" fill="${c}"/><path d="M164 226 q36 -40 72 0" fill="none" stroke="${c}" stroke-width="10" stroke-linecap="round"/><path d="M200 232 v-24" stroke="${c}" stroke-width="8" stroke-linecap="round"/>`,
+    'box':c=>bg('#eceff1','#cfd8dc')+`<path d="M200 140 l60 34 v66 l-60 34 -60 -34 v-66z" fill="${c}" stroke="#00000015" stroke-width="3"/><path d="M200 140 l60 34 -60 34 -60 -34z" fill="#ffffff44"/><path d="M200 208 v66" stroke="#00000022" stroke-width="3"/>`
+  };
+  g.AJArt={productSVG:(art,color)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="product illustration">${(ART[art]||ART.box)(color||'#e6482e')}</svg>`};
+})(window);
+
+/* logo (inline) */
+const LOGO_SVG=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 72" role="img" aria-label="AJ Shop" style="height:42px">
+<defs><linearGradient id="ajBag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3d"/><stop offset="1" stop-color="#e6482e"/></linearGradient></defs>
+<g transform="translate(6,8)"><rect x="2" y="16" width="52" height="48" rx="10" fill="url(#ajBag)"/><path d="M16 20v-3a12 12 0 0 1 24 0v3" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><text x="28" y="52" text-anchor="middle" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="26" fill="#fff">AJ</text></g>
+<g transform="translate(72,0)"><text x="0" y="38" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="34" fill="#1f2a44">AJ</text><text x="52" y="38" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="34" fill="#e6482e">SHOP</text><text x="2" y="58" font-family="Poppins,Segoe UI,sans-serif" font-weight="500" font-size="11" fill="#7a869a" letter-spacing="3.5">SHOP&#160;SMART&#160;·&#160;LIVE&#160;WELL</text></g></svg>`;
+const LOGO_SVG_WHITE=LOGO_SVG;
+</script>
+<script>
+/* ============ Catalog data ============ */
+window.AJ_CATEGORIES=[
+ {id:'kids-garments',name:"Kids' Garments",emoji:'🧒',tagline:'Age 1–12',groups:['Boys','Girls']},
+ {id:'adult-garments',name:'Adult Garments',emoji:'👗',tagline:'Age 13+',groups:['Gents','Ladies']},
+ {id:'electronics',name:'Electronics Accessories',emoji:'🎧',tagline:'Audio & wearables'},
+ {id:'mobiles',name:'Mobiles',emoji:'📱',tagline:'Latest smartphones'},
+ {id:'beauty',name:'Beauty Products',emoji:'💄',tagline:'Skin & fragrance'},
+ {id:'stationery',name:'Stationery',emoji:'📓',tagline:'Work & study'},
+ {id:'computer',name:'Computer Accessories',emoji:'⌨️',tagline:'Desk essentials'},
+ {id:'handicraft',name:'Handicraft Items',emoji:'🏺',tagline:'Handmade in India'},
+ {id:'home-decor',name:'Home Decor',emoji:'🪔',tagline:'Style your space'},
+ {id:'footwear',name:'Footwear',emoji:'👟',tagline:'Walk in comfort'}
+];
+let _id=0;const P=o=>({id:'AJ'+String(++_id).padStart(4,'0'),rating:4.3,reviews:120,badge:'',...o});
+window.AJ_PRODUCTS=[
+ P({cat:'kids-garments',group:'Boys',art:'kids-tshirt',color:'#3b82f6',name:'Boys Cotton Crew T-Shirt',mrp:699,price:449,rating:4.5,reviews:214,badge:'sale',desc:'Soft breathable cotton tee with a playful print — built for all-day play and easy machine wash.',sizes:['2-3Y','4-5Y','6-7Y','8-9Y','10-12Y']}),
+ P({cat:'kids-garments',group:'Boys',art:'kids-hoodie',color:'#0ea5e9',name:'Boys Fleece Zip Hoodie',mrp:1199,price:849,rating:4.6,reviews:98,badge:'new',desc:'Cosy brushed-fleece hoodie with a full zip and kangaroo pocket to keep little ones warm.',sizes:['2-3Y','4-5Y','6-7Y','8-9Y','10-12Y']}),
+ P({cat:'kids-garments',group:'Girls',art:'kids-dress',color:'#ec4899',name:'Girls Floral Frock Dress',mrp:999,price:649,rating:4.7,reviews:301,badge:'sale',desc:'Twirl-worthy A-line frock in a soft floral weave with comfy elastic waist.',sizes:['2-3Y','4-5Y','6-7Y','8-9Y','10-12Y']}),
+ P({cat:'kids-garments',group:'Girls',art:'kids-tshirt',color:'#f472b6',name:'Girls Printed Cotton Tee',mrp:599,price:399,rating:4.4,reviews:142,desc:'Everyday cotton tee with a cheerful print and tag-free neck for itch-free comfort.',sizes:['2-3Y','4-5Y','6-7Y','8-9Y','10-12Y']}),
+ P({cat:'kids-garments',group:'Boys',art:'shirt',color:'#22c55e',name:'Boys Checked Casual Shirt',mrp:1099,price:749,rating:4.3,reviews:76,desc:'Smart cotton check shirt for parties and outings — soft collar, wooden-tone buttons.',sizes:['2-3Y','4-5Y','6-7Y','8-9Y','10-12Y']}),
+ P({cat:'kids-garments',group:'Girls',art:'kids-dress',color:'#a855f7',name:'Girls Party Layered Gown',mrp:1799,price:1249,rating:4.8,reviews:120,badge:'new',desc:'Festive layered gown with a satin bow — the showstopper for birthdays and functions.',sizes:['2-3Y','4-5Y','6-7Y','8-9Y','10-12Y']}),
+ P({cat:'adult-garments',group:'Gents',art:'shirt',color:'#1e3a8a',name:'Men Slim-Fit Formal Shirt',mrp:1499,price:999,rating:4.5,reviews:412,badge:'sale',desc:'Wrinkle-resistant cotton-blend formal shirt with a modern slim fit — office to evening.',sizes:['S','M','L','XL','XXL']}),
+ P({cat:'adult-garments',group:'Gents',art:'kurta',color:'#f5deb3',name:'Men Cotton Ethnic Kurta',mrp:1699,price:1199,rating:4.6,reviews:188,badge:'new',desc:'Handloom-feel cotton kurta with subtle embroidery — festive comfort that breathes.',sizes:['S','M','L','XL','XXL']}),
+ P({cat:'adult-garments',group:'Gents',art:'jacket',color:'#374151',name:'Men Bomber Jacket',mrp:2999,price:1999,rating:4.4,reviews:96,desc:'Water-repellent bomber with ribbed cuffs and a smooth zip — layer up in style.',sizes:['S','M','L','XL','XXL']}),
+ P({cat:'adult-garments',group:'Ladies',art:'dress',color:'#be185d',name:'Women A-Line Midi Dress',mrp:2199,price:1499,rating:4.7,reviews:356,badge:'sale',desc:'Flattering A-line midi in a fluid crepe with hidden side zip — effortless elegance.',sizes:['XS','S','M','L','XL']}),
+ P({cat:'adult-garments',group:'Ladies',art:'kurta',color:'#d97706',name:'Women Anarkali Kurta Set',mrp:2799,price:1899,rating:4.8,reviews:240,badge:'new',desc:'Flowy Anarkali with printed dupatta — a graceful pick for festive occasions.',sizes:['XS','S','M','L','XL']}),
+ P({cat:'adult-garments',group:'Ladies',art:'shirt',color:'#0f766e',name:'Women Casual Linen Shirt',mrp:1399,price:949,rating:4.3,reviews:134,desc:'Breezy linen-blend shirt with a relaxed drape — perfect for warm-day comfort.',sizes:['XS','S','M','L','XL']}),
+ P({cat:'electronics',art:'headphones',color:'#7c3aed',name:'AJ Wireless Over-Ear Headphones',mrp:4999,price:2799,rating:4.6,reviews:820,badge:'sale',desc:'40mm drivers, active noise isolation and 40-hour battery — immersive sound, all day.'}),
+ P({cat:'electronics',art:'earbuds',color:'#0891b2',name:'AJ TWS Earbuds Pro',mrp:3499,price:1799,rating:4.5,reviews:1120,badge:'sale',desc:'True-wireless earbuds with ENC calls, low-latency game mode and a pocket charging case.'}),
+ P({cat:'electronics',art:'smartwatch',color:'#4f46e5',name:'AJ FitPulse Smartwatch',mrp:5999,price:2999,rating:4.4,reviews:640,badge:'new',desc:'1.8" AMOLED display, SpO2 & heart-rate tracking, 100+ sport modes and Bluetooth calling.'}),
+ P({cat:'electronics',art:'powerbank',color:'#334155',name:'AJ 20000mAh Fast Power Bank',mrp:2499,price:1499,rating:4.6,reviews:530,desc:'22.5W fast charging with dual USB-C — top up a phone up to four times on one charge.'}),
+ P({cat:'mobiles',art:'smartphone',color:'#111827',name:'AJ Nova 5G (8GB/128GB)',mrp:21999,price:17999,rating:4.5,reviews:980,badge:'sale',desc:'6.6" 120Hz AMOLED, 50MP triple camera, 5000mAh battery and 5G — flagship feel, mid-range price.',sizes:['128GB','256GB']}),
+ P({cat:'mobiles',art:'smartphone',color:'#1d4ed8',name:'AJ Nova Pro 5G (12GB/256GB)',mrp:32999,price:27999,rating:4.7,reviews:412,badge:'new',desc:'Snapdragon-class performance, 108MP OIS camera and 67W fast charge in a slim glass build.',sizes:['256GB','512GB']}),
+ P({cat:'mobiles',art:'smartphone',color:'#059669',name:'AJ Lite 4G (4GB/64GB)',mrp:9999,price:7499,rating:4.2,reviews:1340,badge:'sale',desc:'Big 6.5" display, 5000mAh battery and clean software — dependable everyday value.',sizes:['64GB','128GB']}),
+ P({cat:'mobiles',art:'smartphone',color:'#b91c1c',name:'AJ Nova Max 5G (12GB/512GB)',mrp:44999,price:39999,rating:4.8,reviews:220,desc:'6.8" LTPO display, periscope zoom camera and titanium-tone frame — the top of the range.',sizes:['512GB','1TB']}),
+ P({cat:'beauty',art:'lipstick',color:'#dc2626',name:'AJ Velvet Matte Lipstick',mrp:599,price:399,rating:4.5,reviews:760,badge:'sale',desc:'Weightless matte colour with jojoba oil for an all-day, non-drying finish.'}),
+ P({cat:'beauty',art:'serum',color:'#84cc16',name:'AJ Vitamin-C Glow Serum',mrp:899,price:599,rating:4.6,reviews:920,badge:'new',desc:'10% Vitamin-C with hyaluronic acid to brighten dull skin and even out tone. 30ml.'}),
+ P({cat:'beauty',art:'perfume',color:'#9333ea',name:'AJ Amber Oud Eau de Parfum',mrp:1999,price:1299,rating:4.7,reviews:340,desc:'A warm amber-oud fragrance with long-lasting sillage. 100ml, alcohol-based.'}),
+ P({cat:'beauty',art:'serum',color:'#f59e0b',name:'AJ Hydra Day Cream SPF30',mrp:749,price:499,rating:4.4,reviews:410,desc:'Lightweight daily moisturiser with broad-spectrum SPF30 and niacinamide. 50g.'}),
+ P({cat:'stationery',art:'notebook',color:'#0ea5e9',name:'AJ Premium A5 Hardbound Notebook',mrp:399,price:249,rating:4.6,reviews:530,badge:'sale',desc:'240 pages of 100gsm bleed-proof paper with a lay-flat binding and elastic band.'}),
+ P({cat:'stationery',art:'pen-set',color:'#16a34a',name:'AJ Gel Pen Set (Pack of 10)',mrp:299,price:179,rating:4.5,reviews:880,desc:'Quick-dry 0.5mm gel pens with a smooth, skip-free ink flow in ten vivid colours.'}),
+ P({cat:'stationery',art:'backpack',color:'#0d9488',name:'AJ Study Laptop Backpack 25L',mrp:1799,price:1099,rating:4.6,reviews:260,badge:'new',desc:'Water-resistant 25L backpack with a padded 15.6" laptop sleeve and USB charging port.'}),
+ P({cat:'stationery',art:'notebook',color:'#f59e0b',name:'AJ Undated Daily Planner',mrp:599,price:379,rating:4.5,reviews:190,desc:'Undated day-per-page planner with habit trackers and monthly goal spreads.'}),
+ P({cat:'computer',art:'keyboard',color:'#334155',name:'AJ Mechanical Keyboard (RGB)',mrp:3499,price:2199,rating:4.6,reviews:640,badge:'sale',desc:'Hot-swappable blue switches, per-key RGB and a detachable USB-C cable for crisp typing.'}),
+ P({cat:'computer',art:'mouse',color:'#4338ca',name:'AJ Silent Wireless Mouse',mrp:999,price:599,rating:4.5,reviews:1240,desc:'Silent-click 2.4GHz mouse with adjustable 1600 DPI and 18-month battery life.'}),
+ P({cat:'computer',art:'webcam',color:'#0891b2',name:'AJ 1080p HD Webcam',mrp:2299,price:1399,rating:4.4,reviews:310,badge:'new',desc:'Full-HD 1080p webcam with dual noise-cancelling mics and an auto low-light fix.'}),
+ P({cat:'computer',art:'ssd',color:'#7c3aed',name:'AJ Portable SSD 1TB',mrp:8999,price:6499,rating:4.7,reviews:280,desc:'USB 3.2 portable SSD with up to 1050MB/s reads in a shock-resistant metal shell.'}),
+ P({cat:'handicraft',art:'vase-clay',color:'#c2410c',name:'Hand-Painted Terracotta Vase',mrp:1299,price:899,rating:4.7,reviews:150,badge:'new',desc:'A hand-thrown terracotta vase, individually painted by artisans — each piece is unique.'}),
+ P({cat:'handicraft',art:'wooden-elephant',color:'#92400e',name:'Carved Wooden Elephant',mrp:1599,price:1099,rating:4.8,reviews:210,desc:'Sheesham-wood elephant carved and finished by hand — a warm, meaningful accent.'}),
+ P({cat:'handicraft',art:'wall-art',color:'#e11d48',name:'Madhubani Canvas Wall Art',mrp:2199,price:1499,rating:4.6,reviews:90,badge:'sale',desc:'Traditional Madhubani motifs hand-painted on canvas — folk art for a modern wall.'}),
+ P({cat:'handicraft',art:'vase-clay',color:'#0f766e',name:'Blue Pottery Decorative Bowl',mrp:1099,price:749,rating:4.5,reviews:70,desc:'Jaipur-style blue pottery bowl, glazed and kiln-fired by skilled craftspeople.'}),
+ P({cat:'home-decor',art:'table-lamp',color:'#f59e0b',name:'AJ Warm-Glow Table Lamp',mrp:1799,price:1149,rating:4.6,reviews:230,badge:'sale',desc:'Fabric-shade table lamp with a wooden base and warm dimmable LED — cosy ambient light.'}),
+ P({cat:'home-decor',art:'cushion',color:'#65a30d',name:'AJ Boho Cushion Cover (Set of 2)',mrp:899,price:549,rating:4.5,reviews:480,desc:'Textured cotton cushion covers with a hidden zip — refresh any sofa in seconds. 16x16".'}),
+ P({cat:'home-decor',art:'wall-clock',color:'#0d9488',name:'AJ Minimal Silent Wall Clock',mrp:1299,price:799,rating:4.6,reviews:390,badge:'new',desc:'12" silent sweep wall clock with a clean matte dial — keeps time without the tick.'}),
+ P({cat:'home-decor',art:'plant',color:'#16a34a',name:'AJ Faux Money Plant with Pot',mrp:999,price:649,rating:4.4,reviews:160,desc:'Lifelike low-maintenance faux money plant in a ceramic-look pot — evergreen, always.'}),
+ P({cat:'footwear',art:'sneaker',color:'#2563eb',name:'AJ Everyday Running Sneakers',mrp:2999,price:1799,rating:4.6,reviews:1020,badge:'sale',desc:'Lightweight knit sneakers with a cushioned EVA sole and breathable mesh upper.',sizes:['6','7','8','9','10','11']}),
+ P({cat:'footwear',art:'heel',color:'#be123c',name:'AJ Block-Heel Party Sandals',mrp:2499,price:1499,rating:4.5,reviews:340,badge:'new',desc:'Comfortable 2.5" block heels with a cushioned footbed — style that lasts the evening.',sizes:['4','5','6','7','8']}),
+ P({cat:'footwear',art:'sandal',color:'#d97706',name:'AJ Everyday Comfort Sliders',mrp:1299,price:799,rating:4.4,reviews:610,desc:'Soft-strap contoured sliders with anti-slip grip — the go-anywhere daily pair.',sizes:['6','7','8','9','10']}),
+ P({cat:'footwear',art:'sneaker',color:'#111827',name:'AJ Classic Canvas Shoes',mrp:1799,price:1099,rating:4.5,reviews:730,desc:'Timeless lace-up canvas shoes with a vulcanised rubber sole — pairs with everything.',sizes:['6','7','8','9','10','11']})
+];
+</script>
+<script>
+/* ============ App + hash router ============ */
+(function(){
+const money=n=>'₹'+Number(n).toLocaleString('en-IN');
+let CART=[],WISH=[],coupon='';
+const findProduct=id=>AJ_PRODUCTS.find(p=>p.id===id);
+const catObj=id=>AJ_CATEGORIES.find(c=>c.id===id)||{};
+const catName=id=>catObj(id).name||id;
+const svg=(a,c)=>AJArt.productSVG(a,c);
+
+/* cart ops */
+function addToCart(id,opts={}){const p=findProduct(id);if(!p)return;const variant=opts.variant||(p.sizes?p.sizes[0]:'');const key=id+'|'+variant;const l=CART.find(x=>x.key===key);if(l)l.qty+=opts.qty||1;else CART.push({key,id,variant,qty:opts.qty||1});sync();toast('Added to cart · '+p.name);renderDrawer();}
+function updateQty(key,d){const l=CART.find(x=>x.key===key);if(!l)return;l.qty+=d;CART=CART.filter(x=>x.qty>0);sync();renderDrawer();if(current.view==='cart')route();}
+function removeLine(key){CART=CART.filter(x=>x.key!==key);sync();renderDrawer();if(current.view==='cart')route();}
+const cartCount=()=>CART.reduce((s,l)=>s+l.qty,0);
+const detailed=()=>CART.map(l=>{const p=findProduct(l.id);return p?{...l,product:p,lineTotal:p.price*l.qty}:null}).filter(Boolean);
+function totals(){const items=detailed();const subtotal=items.reduce((s,i)=>s+i.lineTotal,0);const mrpTotal=items.reduce((s,i)=>s+i.product.mrp*i.qty,0);const shipping=subtotal===0||subtotal>=999?0:79;let discount=0;if(coupon==='AJ10')discount=Math.round(subtotal*.1);if(coupon==='WELCOME200'&&subtotal>=999)discount=200;return{items,subtotal,mrpTotal,saved:mrpTotal-subtotal,shipping,discount,total:Math.max(0,subtotal+shipping-discount)};}
+function toggleWish(id){const i=WISH.indexOf(id);if(i>=0)WISH.splice(i,1);else{WISH.push(id);toast('Saved to wishlist ❤');}sync();document.querySelectorAll('.wish[data-id="'+id+'"]').forEach(el=>el.classList.toggle('on',WISH.includes(id)));if(current.view==='wishlist')route();}
+const isWished=id=>WISH.includes(id);
+
+/* card + grid */
+function card(p){const off=Math.round((1-p.price/p.mrp)*100);const stars='★★★★★'.slice(0,Math.round(p.rating))+'☆☆☆☆☆'.slice(0,5-Math.round(p.rating));const tag=p.badge==='sale'?`<span class="card-tag sale">${off}% OFF</span>`:p.badge==='new'?`<span class="card-tag new">NEW</span>`:'';
+return `<article class="card"><div class="card-img"><a href="#/p/${p.id}">${svg(p.art,p.color)}</a>${tag}<button class="wish ${isWished(p.id)?'on':''}" data-id="${p.id}" data-act="wish" aria-label="Save to wishlist"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></button></div>
+<div class="card-body"><div class="card-cat">${catName(p.cat)}${p.group?' · '+p.group:''}</div><a href="#/p/${p.id}"><h3 class="card-title">${p.name}</h3></a><div class="rating"><span class="stars">${stars}</span> ${p.rating} · ${p.reviews}</div><div class="price-row"><span class="price">${money(p.price)}</span><span class="mrp">${money(p.mrp)}</span><span class="off">${off}% off</span></div>
+<button class="add-btn" data-id="${p.id}" data-act="add"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>Add to Cart</button></div></article>`;}
+const grid=list=>list.length?list.map(card).join(''):`<div class="empty" style="grid-column:1/-1"><h3>No products found</h3><p>Try a different filter.</p></div>`;
+
+/* header/footer */
+function header(active){const cats=AJ_CATEGORIES.map(c=>`<a href="#/c/${c.id}" class="${active===c.id?'active':''}"><span class="emo">${c.emoji}</span>${c.name}</a>`).join('');
+return `<div class="topbar"><div class="wrap"><span>🚚 Free shipping on orders over ₹999 · Pan-India delivery</span><div class="tb-links"><a href="#/">Track Order</a><a href="#/">Help</a><a href="#/">Sell on AJ</a></div></div></div>
+<header class="site-header"><div class="wrap header-main"><a class="brand" href="#/">${LOGO_SVG}</a>
+<label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.7" y2="16.7"/></svg><input type="search" id="globalSearch" placeholder="Search for products, brands and categories…" aria-label="Search"></label>
+<div class="header-actions"><a class="btn-signin" href="#/"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Sign in</span></a>
+<a class="icon-btn" href="#/wishlist" aria-label="Wishlist"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span class="badge" id="wishBadge" hidden>0</span></a>
+<button class="icon-btn" data-act="open-cart" aria-label="Cart"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg><span class="badge" id="cartBadge" hidden>0</span></button></div></div></header>
+<nav class="catnav"><div class="wrap"><a href="#/" class="${active==='home'?'active':''}">🏠 Home</a>${cats}</div></nav>`;}
+function footer(){return `<footer class="site-footer"><div class="wrap"><div class="footer-grid">
+<div class="footer-brand"><span class="footer-logo">${LOGO_SVG_WHITE}</span><p>AJ SHOP is your everyday online marketplace across fashion, electronics, home and more — quality picks at fair prices, delivered across India.</p><div class="pay-badges"><span>Visa</span><span>Mastercard</span><span>RuPay</span><span>UPI</span><span>Net Banking</span><span>CCAvenue</span></div></div>
+<div><h4>Shop</h4><a href="#/c/adult-garments">Fashion</a><a href="#/c/mobiles">Mobiles</a><a href="#/c/electronics">Electronics</a><a href="#/c/home-decor">Home Decor</a><a href="#/c/footwear">Footwear</a></div>
+<div><h4>Company</h4><a href="#/">About AJ SHOP</a><a href="#/">Careers</a><a href="#/">Sell with us</a><a href="#/">Contact</a></div>
+<div><h4>Help &amp; Policies</h4><a href="#/">Shipping &amp; Delivery</a><a href="#/">Returns &amp; Refunds</a><a href="#/">Privacy Policy</a><a href="#/">Terms of Use</a></div></div>
+<div class="footer-bottom"><span>© 2026 AJ SHOP. All product illustrations and copy are original works of AJ SHOP.</span><span>Payments secured by CCAvenue · GST-compliant invoicing</span></div></div></footer>
+<div class="drawer-overlay" data-act="close-cart"></div>
+<aside class="drawer" id="cartDrawer" aria-label="Shopping cart"><div class="drawer-head"><h3>Your Cart</h3><button class="icon-btn" data-act="close-cart" aria-label="Close">✕</button></div><div class="drawer-body" id="drawerBody"></div><div class="drawer-foot" id="drawerFoot"></div></aside>
+<div class="toast" id="toast"></div>`;}
+
+function renderDrawer(){const body=document.getElementById('drawerBody'),foot=document.getElementById('drawerFoot');if(!body)return;const t=totals();
+if(!t.items.length){body.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg><h3>Cart is empty</h3><p>Add products to get started.</p></div>`;foot.innerHTML=`<a class="btn btn-dark btn-block" href="#/" data-act="close-cart">Continue Shopping</a>`;return;}
+body.innerHTML=t.items.map(i=>`<div class="drawer-item"><div class="di-img">${svg(i.product.art,i.product.color)}</div><div><div class="di-title">${i.product.name}</div><div class="di-meta">${i.variant?i.variant+' · ':''}${money(i.product.price)}</div><div class="qty" style="margin-top:6px;transform:scale(.82);transform-origin:left"><button data-act="dec" data-key="${i.key}">−</button><span>${i.qty}</span><button data-act="inc" data-key="${i.key}">+</button></div></div><div style="text-align:right"><div class="di-price">${money(i.lineTotal)}</div><button class="di-close" data-act="rm" data-key="${i.key}" aria-label="Remove">🗑</button></div></div>`).join('');
+foot.innerHTML=`<div class="sum-row total"><span>Subtotal</span><span>${money(t.subtotal)}</span></div><a class="btn btn-primary btn-block" href="#/cart" data-act="close-cart" style="margin-top:12px">View Cart &amp; Checkout</a>`;}
+const openCart=()=>{document.querySelector('.drawer-overlay').classList.add('open');document.getElementById('cartDrawer').classList.add('open');renderDrawer();};
+const closeCart=()=>{document.querySelector('.drawer-overlay').classList.remove('open');document.getElementById('cartDrawer').classList.remove('open');};
+
+function sync(){const cb=document.getElementById('cartBadge'),wb=document.getElementById('wishBadge');if(cb){const n=cartCount();cb.textContent=n;cb.hidden=n===0;}if(wb){wb.textContent=WISH.length;wb.hidden=WISH.length===0;}}
+let toastTimer;function toast(m){const el=document.getElementById('toast');if(!el)return;el.innerHTML=`<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>${m}`;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
+
+/* ---------- views ---------- */
+const crumb=parts=>`<nav class="crumb">${parts.map((p,i)=>i<parts.length-1?`<a href="${p[1]}">${p[0]}</a><span>›</span>`:`<span>${p[0]}</span>`).join('')}</nav>`;
+
+function viewHome(){
+ const deals=[...AJ_PRODUCTS].sort((a,b)=>(1-a.price/a.mrp)<(1-b.price/b.mrp)?1:-1).slice(0,8);
+ const trending=[...AJ_PRODUCTS].sort((a,b)=>b.rating*b.reviews-a.rating*a.reviews).slice(0,8);
+ return `<section class="hero"><div class="hero-grid"><div><span class="hero-eyebrow">✨ India's everyday marketplace</span><h1>Everything you love, <span>one AJ SHOP.</span></h1><p>From kids' wear to the latest mobiles, beauty to handicrafts — quality picks at fair prices, delivered to your door with secure CCAvenue payments.</p><div class="hero-cta"><a class="btn btn-primary" href="#/c/mobiles">Shop Mobiles</a><a class="btn btn-ghost" href="#/c/adult-garments">Browse Fashion</a></div></div><div class="hero-art">${svg('smartphone','#111827')}</div></div></section>
+ <section class="section"><div class="section-head"><div><h2>Shop by Category</h2><p>Ten curated departments, something for everyone.</p></div></div><div class="cat-grid">${AJ_CATEGORIES.map(c=>`<a class="cat-tile" href="#/c/${c.id}"><div class="cat-ico">${c.emoji}</div><h3>${c.name}</h3><small>${c.tagline}</small></a>`).join('')}</div></section>
+ <section class="section"><div class="section-head"><div><h2>Today's Best Deals</h2><p>Handpicked offers, refreshed daily.</p></div></div><div class="prod-grid">${grid(deals)}</div></section>
+ <section class="section"><div class="section-head"><div><h2>Trending Now</h2><p>What shoppers are loving this week.</p></div></div><div class="prod-grid">${grid(trending)}</div></section>
+ <section class="trust"><div class="trust-item"><div class="ti-ico">🚚</div><div><strong>Free Shipping</strong><small>On orders over ₹999</small></div></div><div class="trust-item"><div class="ti-ico">🔒</div><div><strong>Secure Payments</strong><small>Card · UPI · Net Banking</small></div></div><div class="trust-item"><div class="ti-ico">↩️</div><div><strong>7-Day Returns</strong><small>Easy &amp; hassle-free</small></div></div><div class="trust-item"><div class="ti-ico">🎧</div><div><strong>24×7 Support</strong><small>We're here to help</small></div></div></section>`;
+}
+
+let catState={};
+function viewCategory(catId,group){
+ const cat=catObj(catId);catState={catId,group:group||'all',price:'all',rating:0,deals:false,sort:'pop'};
+ setTimeout(bindCategory,0);
+ return `${crumb([['Home','#/'],[cat.name]])}<div class="subfilter" id="subfilter"></div>
+ <div class="catalog"><aside class="filters"><h4>Sub-category</h4><div id="groupFilters"></div>
+ <h4>Price</h4>
+ <label class="filter-opt"><input type="radio" name="price" value="all" checked> All prices</label>
+ <label class="filter-opt"><input type="radio" name="price" value="0-999"> Under ₹999</label>
+ <label class="filter-opt"><input type="radio" name="price" value="999-2999"> ₹999 – ₹2,999</label>
+ <label class="filter-opt"><input type="radio" name="price" value="2999-9999"> ₹2,999 – ₹9,999</label>
+ <label class="filter-opt"><input type="radio" name="price" value="9999-999999"> ₹9,999 &amp; above</label>
+ <h4>Rating</h4>
+ <label class="filter-opt"><input type="radio" name="rating" value="0" checked> All ratings</label>
+ <label class="filter-opt"><input type="radio" name="rating" value="4.5"> 4.5★ &amp; above</label>
+ <label class="filter-opt"><input type="radio" name="rating" value="4.0"> 4.0★ &amp; above</label>
+ <h4>Offers</h4><label class="filter-opt"><input type="checkbox" id="onlyDeals"> On sale only</label></aside>
+ <section><div class="catalog-head"><div><h1>${cat.name}</h1><span class="count" id="catCount"></span></div>
+ <select class="sortsel" id="sort"><option value="pop">Sort: Popularity</option><option value="low">Price: Low to High</option><option value="high">Price: High to Low</option><option value="disc">Biggest Discount</option><option value="rating">Top Rated</option></select></div>
+ <div class="prod-grid" id="grid"></div></section></div>`;
+}
+function bindCategory(){
+ const cat=catObj(catState.catId);const gf=document.getElementById('groupFilters');const sf=document.getElementById('subfilter');if(!gf)return;
+ if(cat.groups){const opts=['all',...cat.groups];
+  gf.innerHTML=opts.map(g=>`<label class="filter-opt"><input type="radio" name="group" value="${g}" ${g===catState.group?'checked':''}> ${g==='all'?'All':g}</label>`).join('');
+  sf.innerHTML=opts.map(g=>`<button class="pill ${g===catState.group?'active':''}" data-group="${g}">${g==='all'?'All '+cat.name:g}</button>`).join('');
+  sf.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{catState.group=b.dataset.group;sf.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.group===catState.group));gf.querySelectorAll('input').forEach(r=>r.checked=r.value===catState.group);renderCat();});
+  gf.querySelectorAll('input[name=group]').forEach(r=>r.onchange=()=>{catState.group=r.value;sf.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.group===catState.group));renderCat();});
+ }else{gf.innerHTML='<p style="font-size:13px;color:var(--muted)">No sub-categories</p>';sf.style.display='none';}
+ document.querySelectorAll('input[name=price],input[name=rating],#onlyDeals,#sort').forEach(el=>el.addEventListener('change',renderCat));
+ renderCat();
+}
+function renderCat(){
+ let list=AJ_PRODUCTS.filter(p=>p.cat===catState.catId);
+ if(catState.group!=='all')list=list.filter(p=>p.group===catState.group);
+ const price=document.querySelector('input[name=price]:checked').value;if(price!=='all'){const[lo,hi]=price.split('-').map(Number);list=list.filter(p=>p.price>=lo&&p.price<=hi);}
+ const rating=parseFloat(document.querySelector('input[name=rating]:checked').value);if(rating)list=list.filter(p=>p.rating>=rating);
+ if(document.getElementById('onlyDeals').checked)list=list.filter(p=>p.badge==='sale');
+ const sort=document.getElementById('sort').value;
+ if(sort==='low')list.sort((a,b)=>a.price-b.price);else if(sort==='high')list.sort((a,b)=>b.price-a.price);else if(sort==='disc')list.sort((a,b)=>(1-b.price/b.mrp)-(1-a.price/a.mrp));else if(sort==='rating')list.sort((a,b)=>b.rating-a.rating);else list.sort((a,b)=>b.rating*b.reviews-a.rating*a.reviews);
+ document.getElementById('catCount').textContent=list.length+' products';
+ document.getElementById('grid').innerHTML=grid(list);
+}
+
+function viewProduct(id){const p=findProduct(id);if(!p)return `<div class="empty"><h3>Product not found</h3><p><a href="#/" style="color:var(--brand)">Back to home</a></p></div>`;
+ const off=Math.round((1-p.price/p.mrp)*100);const stars='★★★★★'.slice(0,Math.round(p.rating))+'☆☆☆☆☆'.slice(0,5-Math.round(p.rating));
+ const sizeBlock=p.sizes?`<div class="pdp-opts"><label>${p.cat==='mobiles'?'Storage':p.cat==='footwear'?'Size (UK)':'Size'}</label><div class="chip-row" id="sizes">${p.sizes.map((s,i)=>`<button class="chip ${i===0?'active':''}" data-size="${s}">${s}</button>`).join('')}</div></div>`:'';
+ const related=AJ_PRODUCTS.filter(x=>x.cat===p.cat&&x.id!==p.id).slice(0,4);
+ setTimeout(()=>bindProduct(p),0);
+ return `${crumb([['Home','#/'],[catName(p.cat),'#/c/'+p.cat],[p.name]])}
+ <div class="pdp"><div class="pdp-gallery">${svg(p.art,p.color)}</div>
+ <div class="pdp-info"><div class="card-cat">${catName(p.cat)}${p.group?' · '+p.group:''}</div><h1>${p.name}</h1>
+ <div class="rating"><span class="stars">${stars}</span> ${p.rating} · ${p.reviews} ratings</div>
+ <div class="pdp-price"><span class="price">${money(p.price)}</span><span class="mrp">${money(p.mrp)}</span><span class="off">${off}% off</span></div>
+ <p class="pdp-desc">${p.desc}</p>${sizeBlock}
+ <div class="pdp-opts"><label>Quantity</label><div class="qty"><button id="dec">−</button><span id="q">1</span><button id="inc">+</button></div></div>
+ <div class="pdp-actions"><button class="btn btn-primary" id="addBtn" style="flex:1">Add to Cart</button><button class="btn btn-dark" id="buyBtn" style="flex:1">Buy Now</button></div>
+ <div class="pdp-meta"><div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> ${p.price>=999?'Eligible for FREE delivery':'Delivery ₹79 · FREE over ₹999'}</div><div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> 7-day easy returns &amp; replacement</div><div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Secure CCAvenue payment · Card, UPI &amp; Net Banking</div><div><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Cash on Delivery available on eligible orders</div></div></div></div>
+ <section class="section"><div class="section-head"><div><h2>You may also like</h2></div></div><div class="prod-grid">${grid(related.length?related:AJ_PRODUCTS.slice(0,4))}</div></section>`;
+}
+function bindProduct(p){let qty=1,size=p.sizes?p.sizes[0]:'';const qEl=document.getElementById('q');if(!qEl)return;
+ document.getElementById('inc').onclick=()=>{qty++;qEl.textContent=qty;};document.getElementById('dec').onclick=()=>{if(qty>1){qty--;qEl.textContent=qty;}};
+ if(p.sizes)document.querySelectorAll('#sizes .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#sizes .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');size=c.dataset.size;});
+ document.getElementById('addBtn').onclick=()=>addToCart(p.id,{qty,variant:size});
+ document.getElementById('buyBtn').onclick=()=>{addToCart(p.id,{qty,variant:size});location.hash='#/cart';};
+}
+
+function viewCart(){const t=totals();
+ if(!t.items.length)return `${crumb([['Home','#/'],['Cart']])}<h1 style="margin:16px 0 4px">Your Shopping Cart</h1><div class="empty"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg><h3>Your cart is empty</h3><p>Looks like you haven't added anything yet.</p><a class="btn btn-primary" href="#/" style="margin-top:16px">Start Shopping</a></div>`;
+ setTimeout(bindCart,0);
+ return `${crumb([['Home','#/'],['Cart']])}<h1 style="margin:16px 0 4px">Your Shopping Cart</h1>
+ <div class="cart-layout"><div>${t.items.map(i=>`<div class="cart-item"><div class="ci-img">${svg(i.product.art,i.product.color)}</div><div><div class="ci-title">${i.product.name}</div><div class="ci-meta">${catName(i.product.cat)}${i.variant?' · '+i.variant:''}</div><div class="qty" style="transform:scale(.9);transform-origin:left"><button data-act="dec" data-key="${i.key}">−</button><span>${i.qty}</span><button data-act="inc" data-key="${i.key}">+</button></div></div><div class="ci-right"><div class="ci-price">${money(i.lineTotal)}</div><button class="ci-remove" data-act="rm" data-key="${i.key}"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg> Remove</button></div></div>`).join('')}</div>
+ <aside class="summary"><h3>Order Summary</h3>
+ <div class="sum-row"><span>Price (${t.items.reduce((s,i)=>s+i.qty,0)} items)</span><span>${money(t.mrpTotal)}</span></div>
+ <div class="sum-row"><span>Product discount</span><span style="color:var(--ok)">− ${money(t.saved)}</span></div>
+ ${t.discount?`<div class="sum-row"><span>Coupon (${coupon})</span><span style="color:var(--ok)">− ${money(t.discount)}</span></div>`:''}
+ <div class="sum-row"><span>Delivery</span><span>${t.shipping?money(t.shipping):'<span style="color:var(--ok)">FREE</span>'}</span></div>
+ <div class="coupon"><input id="couponInput" placeholder="Coupon: AJ10 or WELCOME200" value="${coupon}"><button class="btn btn-dark" id="applyCoupon" style="height:44px">Apply</button></div>
+ <div class="sum-row total"><span>Total Payable</span><span>${money(t.total)}</span></div>
+ <a class="btn btn-primary btn-block" href="#/checkout" style="margin-top:16px">Proceed to Checkout</a>
+ <p style="text-align:center;color:var(--ok);font-size:13px;margin-top:12px">🎉 You save ${money(t.saved+t.discount)} on this order</p></aside></div>`;
+}
+function bindCart(){const btn=document.getElementById('applyCoupon');if(!btn)return;btn.onclick=()=>{const v=document.getElementById('couponInput').value.trim().toUpperCase();if(v&&v!=='AJ10'&&v!=='WELCOME200'){toast('Invalid coupon code');return;}coupon=v;if(v)toast('Coupon applied ✓');route();};}
+
+function viewCheckout(){const t=totals();if(!t.items.length){location.hash='#/cart';return'';}
+ setTimeout(bindCheckout,0);
+ return `${crumb([['Home','#/'],['Cart','#/cart'],['Checkout']])}<h1 style="margin:16px 0 4px">Checkout</h1>
+ <form id="coForm" class="checkout" novalidate><div>
+ <div class="co-card"><h3><span class="num">1</span> Contact &amp; Shipping</h3><div class="form-grid">
+ <div class="field"><label>Full name *</label><input name="name" required><small class="err">Enter your name</small></div>
+ <div class="field"><label>Mobile number *</label><input name="phone" inputmode="numeric" maxlength="10" required><small class="err">Enter a valid 10-digit number</small></div>
+ <div class="field full"><label>Email *</label><input name="email" type="email" required><small class="err">Enter a valid email</small></div>
+ <div class="field full"><label>Address (House no, street, area) *</label><textarea name="address" rows="2" required></textarea><small class="err">Enter your address</small></div>
+ <div class="field"><label>City *</label><input name="city" required><small class="err">Enter your city</small></div>
+ <div class="field"><label>State *</label><select name="state" required><option value="">Select state</option><option>Delhi</option><option>Maharashtra</option><option>Karnataka</option><option>Tamil Nadu</option><option>Uttar Pradesh</option><option>Gujarat</option><option>West Bengal</option><option>Telangana</option><option>Rajasthan</option><option>Punjab</option><option>Kerala</option><option>Haryana</option><option>Other</option></select><small class="err">Select your state</small></div>
+ <div class="field"><label>PIN code *</label><input name="pin" inputmode="numeric" maxlength="6" required><small class="err">Enter a valid 6-digit PIN</small></div>
+ <div class="field"><label>Country</label><input name="country" value="India" readonly></div></div></div>
+ <div class="co-card"><h3><span class="num">2</span> Payment Method</h3><div class="pay-methods" id="payMethods">
+ <label class="pay-opt sel"><input type="radio" name="pay" value="card" checked><span class="pm-ico">💳</span><span class="pm-txt"><strong>Credit / Debit Card</strong><small>Visa, Mastercard, RuPay, Amex</small></span><span class="ccav">via CCAvenue</span></label>
+ <label class="pay-opt"><input type="radio" name="pay" value="netbanking"><span class="pm-ico">🏦</span><span class="pm-txt"><strong>Net Banking</strong><small>All major banks supported</small></span><span class="ccav">via CCAvenue</span></label>
+ <label class="pay-opt"><input type="radio" name="pay" value="upi"><span class="pm-ico">📲</span><span class="pm-txt"><strong>UPI</strong><small>GPay, PhonePe, Paytm, BHIM &amp; more</small></span><span class="ccav">via CCAvenue</span></label>
+ <label class="pay-opt"><input type="radio" name="pay" value="cod"><span class="pm-ico">💵</span><span class="pm-txt"><strong>Cash on Delivery</strong><small>Pay when your order arrives</small></span></label></div>
+ <div class="secure-note"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Your payment is processed securely by <strong style="color:var(--slate);margin:0 4px">CCAvenue</strong> — AJ SHOP never stores your card details.</div></div></div>
+ <aside class="summary"><h3>Order Summary</h3>${t.items.map(i=>`<div class="drawer-item" style="border:none;padding:8px 0"><div class="di-img">${svg(i.product.art,i.product.color)}</div><div><div class="di-title">${i.product.name}</div><div class="di-meta">${i.variant?i.variant+' · ':''}Qty ${i.qty}</div></div><div class="di-price">${money(i.lineTotal)}</div></div>`).join('')}
+ <div class="sum-row" style="border-top:1px solid var(--line);margin-top:8px;padding-top:12px"><span>Subtotal</span><span>${money(t.subtotal)}</span></div><div class="sum-row"><span>Delivery</span><span>${t.shipping?money(t.shipping):'<span style="color:var(--ok)">FREE</span>'}</span></div>
+ <div class="sum-row total"><span>Total Payable</span><span>${money(t.total)}</span></div>
+ <button type="submit" class="btn btn-primary btn-block" id="placeBtn" style="margin-top:16px">Place Order · Pay ${money(t.total)}</button>
+ <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px">🔒 100% secure payments · Powered by CCAvenue</p></aside></form>`;
+}
+function bindCheckout(){const form=document.getElementById('coForm');if(!form)return;
+ document.getElementById('payMethods').addEventListener('change',e=>{document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('sel'));e.target.closest('.pay-opt').classList.add('sel');});
+ form.addEventListener('input',e=>{const f=e.target.closest('.field');if(f)f.classList.remove('invalid');});
+ form.addEventListener('submit',e=>{e.preventDefault();let ok=true;
+  form.querySelectorAll('[required]').forEach(el=>{const f=el.closest('.field');let bad=!el.value.trim();if(el.name==='phone')bad=!/^\d{10}$/.test(el.value.trim());if(el.name==='pin')bad=!/^\d{6}$/.test(el.value.trim());if(el.name==='email')bad=!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim());f.classList.toggle('invalid',bad);if(bad)ok=false;});
+  if(!ok){toast('Please fix the highlighted fields');form.querySelector('.invalid input,.invalid select,.invalid textarea')?.focus();return;}
+  const fd=new FormData(form);const method=fd.get('pay');const t=totals();
+  lastOrder={order_id:'AJ'+(t.total.toString(36)+performance.now().toString(36).replace('.','')).toUpperCase().slice(0,9),method,total:t.total,name:fd.get('name'),city:fd.get('city'),state:fd.get('state'),pin:fd.get('pin')};
+  CART=[];coupon='';sync();location.hash='#/success';
+ });
+}
+
+let lastOrder=null;
+function viewSuccess(){const o=lastOrder;const labels={card:'Credit/Debit Card',netbanking:'Net Banking',upi:'UPI',cod:'Cash on Delivery'};
+ const rows=[['Order ID',o?o.order_id:'—'],['Payment method',o?labels[o.method]:'—'],['Amount',o?money(o.total):'—'],['Delivery to',o?`${o.name}, ${o.city}, ${o.state} — ${o.pin}`:'—'],['Estimated delivery','3–6 business days']];
+ return `<div class="co-card" style="max-width:640px;margin:40px auto;text-align:center;padding:44px 30px">
+ <div style="width:84px;height:84px;border-radius:50%;background:#e7f8ef;display:flex;align-items:center;justify-content:center;margin:0 auto 20px"><svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="#1a9d63" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+ <h1 style="font-size:28px;margin-bottom:8px">Thank you for your order!</h1>
+ <p style="color:var(--muted);margin-bottom:8px">${o&&o.method==='cod'?'Your Cash on Delivery order is confirmed.':'Your payment was successful and your order is confirmed.'}</p>
+ <p style="font-size:12.5px;color:var(--muted);background:#fff6e6;border:1px solid #ffe0a3;border-radius:8px;padding:8px 12px;display:inline-block;margin-top:6px">Preview mode — in the live site, card/UPI/net-banking are processed by CCAvenue before this page.</p>
+ <div style="background:var(--bg);border-radius:12px;padding:18px;margin:22px 0;text-align:left">${rows.map(r=>`<div style="display:flex;justify-content:space-between;gap:16px;padding:6px 0;font-size:14px"><span style="color:var(--muted)">${r[0]}</span><strong style="color:var(--ink);text-align:right">${r[1]}</strong></div>`).join('')}</div>
+ <p style="color:var(--muted);font-size:14px;margin-bottom:22px">A confirmation with tracking details has been sent to your email.</p>
+ <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a class="btn btn-primary" href="#/">Continue Shopping</a></div></div>`;
+}
+
+function viewWishlist(){const list=WISH.map(findProduct).filter(Boolean);
+ return `${crumb([['Home','#/'],['Wishlist']])}<h1 style="margin:16px 0 4px">Your Wishlist</h1><p class="count" style="margin-bottom:18px">${list.length} saved item${list.length===1?'':'s'}</p>
+ <div class="prod-grid">${list.length?grid(list):`<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><h3>Your wishlist is empty</h3><p>Tap the heart on any product to save it here.</p><a class="btn btn-primary" href="#/" style="margin-top:16px">Explore Products</a></div>`}</div>`;
+}
+function viewSearch(q){const s=(q||'').toLowerCase();let list=AJ_PRODUCTS.filter(p=>!s||p.name.toLowerCase().includes(s)||p.desc.toLowerCase().includes(s)||catName(p.cat).toLowerCase().includes(s)||(p.group||'').toLowerCase().includes(s));list.sort((a,b)=>b.rating*b.reviews-a.rating*a.reviews);
+ return `${crumb([['Home','#/'],['Search']])}<div class="catalog-head" style="margin-top:16px"><div><h1>${q?`Results for "${q}"`:'All Products'}</h1><span class="count">${list.length} products</span></div></div><div class="prod-grid">${grid(list)}</div>`;
+}
+
+/* ---------- router ---------- */
+let current={view:'home'};
+function parseHash(){let h=location.hash.replace(/^#/,'');if(!h||h==='/')return{view:'home'};const[path,query]=h.split('?');const seg=path.split('/').filter(Boolean);const q=new URLSearchParams(query||'');
+ switch(seg[0]){case 'c':return{view:'category',id:seg[1],group:q.get('group')};case 'p':return{view:'product',id:seg[1]};case 'cart':return{view:'cart'};case 'checkout':return{view:'checkout'};case 'success':return{view:'success'};case 'wishlist':return{view:'wishlist'};case 'search':return{view:'search',q:q.get('q')||''};default:return{view:'home'};}}
+function route(){current=parseHash();const active=current.view==='home'?'home':current.view==='category'?current.id:'';
+ document.getElementById('site-header').innerHTML=header(active);
+ document.getElementById('site-footer').innerHTML=footer();
+ const view=document.getElementById('view');let html='';
+ if(current.view==='home')html=viewHome();
+ else if(current.view==='category')html=viewCategory(current.id,current.group);
+ else if(current.view==='product')html=viewProduct(current.id);
+ else if(current.view==='cart')html=viewCart();
+ else if(current.view==='checkout')html=viewCheckout();
+ else if(current.view==='success')html=viewSuccess();
+ else if(current.view==='wishlist')html=viewWishlist();
+ else if(current.view==='search')html=viewSearch(current.q);
+ view.innerHTML=html;sync();
+ const gs=document.getElementById('globalSearch');if(gs){if(current.view==='search')gs.value=current.q||'';gs.addEventListener('keydown',e=>{if(e.key==='Enter'&&gs.value.trim())location.hash='#/search?q='+encodeURIComponent(gs.value.trim());});}
+ window.scrollTo(0,0);
+}
+
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act;
+ if(a==='add')addToCart(t.dataset.id);else if(a==='wish')toggleWish(t.dataset.id);else if(a==='open-cart')openCart();else if(a==='close-cart')closeCart();else if(a==='inc')updateQty(t.dataset.key,1);else if(a==='dec')updateQty(t.dataset.key,-1);else if(a==='rm')removeLine(t.dataset.key);});
+window.addEventListener('hashchange',route);
+route();
+})();
+</script>
