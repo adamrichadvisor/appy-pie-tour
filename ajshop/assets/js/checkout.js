@@ -25,6 +25,18 @@ const summary = document.getElementById('coSummary');
 const t0 = AJ.cartTotals();
 if (!t0.items.length) { location.replace('cart.html'); }
 
+/* require a delivery location to have been selected before checkout */
+const AJ_LOC = AJ.getLocation();
+if (!AJ_LOC) { AJ.toast('Please select your delivery location first'); location.replace('cart.html'); }
+
+/* prefill PIN / state from the chosen delivery location */
+function prefillLocation() {
+  if (!AJ_LOC) return;
+  const pin = form.querySelector('[name=pin]'); if (pin && !pin.value) pin.value = AJ_LOC.pin;
+  const state = form.querySelector('[name=state]');
+  if (state && AJ_LOC.city && [...state.options].some(o => o.value === AJ_LOC.city)) state.value = AJ_LOC.city;
+}
+
 /* order id (deterministic-ish, no Date/Math.random needed for demo) */
 function makeOrderId() {
   const n = (AJ.cartTotals().total + AJ.cartDetailed().length * 7).toString(36).toUpperCase();
@@ -37,7 +49,7 @@ function renderSummary() {
     <h3>Order Summary</h3>
     ${t.items.map(i => `
       <div class="drawer-item" style="border:none;padding:8px 0">
-        <div class="di-img">${AJArt.productSVG(i.product.art, i.product.color)}</div>
+        <div class="di-img">${AJ.media(i.product)}</div>
         <div><div class="di-title">${i.product.name}</div><div class="di-meta">${i.variant?i.variant+' · ':''}Qty ${i.qty}</div></div>
         <div class="di-price">${AJ.money(i.lineTotal)}</div>
       </div>`).join('')}
@@ -48,6 +60,7 @@ function renderSummary() {
     <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px">🔒 100% secure payments · Powered by CCAvenue</p>`;
 }
 renderSummary();
+prefillLocation();
 
 /* payment method selection styling */
 document.getElementById('payMethods').addEventListener('change', (e) => {

@@ -44,13 +44,47 @@ h1,h2,h3,h4{font-family:var(--display);color:var(--ink);line-height:1.2;font-wei
 @media(max-width:640px){.topbar .tb-links{display:none}}
 
 .site-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:200}
-.header-main{display:flex;align-items:center;gap:22px;height:72px}
-.brand img{height:42px}
-.search{flex:1;display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:0 14px;height:46px;max-width:560px}
+.header-main{display:flex;align-items:center;gap:16px;height:66px}
+.brand{flex-shrink:0}
+.brand img,.brand svg{height:36px;width:auto}
+@media(max-width:520px){.brand img,.brand svg{height:30px}}
+.loc-btn{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;color:var(--slate);flex-shrink:0;max-width:190px}
+.loc-btn:hover{background:var(--bg)}
+.loc-btn svg{width:18px;height:18px;stroke:var(--brand);fill:none;stroke-width:2;flex-shrink:0}
+.loc-btn .loc-txt{text-align:left;line-height:1.2;overflow:hidden}
+.loc-btn .loc-txt small{display:block;font-size:10.5px;color:var(--muted)}
+.loc-btn .loc-txt strong{display:block;font-size:13px;color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loc-btn .loc-txt strong svg{width:12px;height:12px;stroke:var(--slate);display:inline-block;vertical-align:middle;margin-left:2px;height:12px}
+@media(max-width:900px){.loc-btn .loc-txt{display:none}}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,22,40,.5);display:none;align-items:center;justify-content:center;z-index:400;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:16px;max-width:420px;width:100%;padding:26px;box-shadow:var(--shadow)}
+.modal h3{font-size:20px;margin-bottom:6px}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:18px}
+.modal .field{margin-bottom:14px}
+.modal .field input{width:100%;border:1.5px solid var(--line);border-radius:10px;height:48px;padding:0 14px;font-family:var(--font);font-size:15px;color:var(--ink);background:var(--card);outline:none}
+.modal .field input:focus{border-color:var(--brand)}
+.modal .loc-msg{font-size:13px;font-weight:600;margin:2px 0 14px;min-height:18px}
+.modal .loc-msg.ok{color:var(--ok)}.modal .loc-msg.bad{color:var(--brand)}
+.modal .close-x{float:right;color:var(--muted);font-size:20px;margin-top:-4px}
+.deliver-strip{display:flex;align-items:center;gap:8px;background:var(--brand-soft);border:1px solid color-mix(in srgb,var(--brand),transparent 70%);border-radius:10px;padding:10px 14px;font-size:13.5px;color:var(--slate);margin:16px 0}
+.deliver-strip svg{width:17px;height:17px;stroke:var(--brand);fill:none;stroke-width:2;flex-shrink:0}
+.deliver-strip b{color:var(--ink)}
+.deliver-strip button{margin-left:auto;color:var(--brand);font-weight:600;font-size:13px}
+.info-page{max-width:820px;margin:10px auto 0}
+.info-page h1{font-size:32px;font-weight:800;margin:14px 0 6px}
+.info-lead{color:var(--muted);font-size:16px;margin-bottom:24px}
+.info-page h2{font-size:20px;margin:26px 0 10px}
+.info-page p{margin-bottom:14px;font-size:15px}
+.info-page ul{margin:0 0 16px 20px}.info-page li{margin-bottom:8px;font-size:15px}
+.info-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;margin-bottom:18px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.info-grid{grid-template-columns:1fr}}
+.search{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:0 14px;height:44px;max-width:560px}
 .search:focus-within{border-color:var(--brand);background:var(--card)}
 .search svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;flex-shrink:0}
 .search input{flex:1;border:none;background:transparent;outline:none;font-size:14.5px;color:var(--ink)}
-.header-actions{display:flex;align-items:center;gap:8px}
+.header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .icon-btn{position:relative;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--slate);transition:.15s}
 .icon-btn:hover{background:var(--bg);color:var(--brand)}
 .icon-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9}
@@ -311,10 +345,10 @@ h1,h2,h3,h4{font-family:var(--display);color:var(--ink);line-height:1.2;font-wei
 })(window);
 
 /* logo (inline) */
-const LOGO_SVG=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 72" role="img" aria-label="AJ Shop" style="height:42px">
+const LOGO_SVG=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" role="img" aria-label="AJ Shop">
 <defs><linearGradient id="ajBag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3d"/><stop offset="1" stop-color="#e6482e"/></linearGradient></defs>
-<g transform="translate(6,8)"><rect x="2" y="16" width="52" height="48" rx="10" fill="url(#ajBag)"/><path d="M16 20v-3a12 12 0 0 1 24 0v3" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><text x="28" y="52" text-anchor="middle" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="26" fill="#fff">AJ</text></g>
-<g transform="translate(72,0)"><text x="0" y="38" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="34" fill="#1f2a44">AJ</text><text x="52" y="38" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="34" fill="#e6482e">SHOP</text><text x="2" y="58" font-family="Poppins,Segoe UI,sans-serif" font-weight="500" font-size="11" fill="#7a869a" letter-spacing="3.5">SHOP&#160;SMART&#160;·&#160;LIVE&#160;WELL</text></g></svg>`;
+<g transform="translate(4,10)"><rect x="2" y="14" width="48" height="44" rx="10" fill="url(#ajBag)"/><path d="M15 18v-3a11 11 0 0 1 22 0v3" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><text x="26" y="47" text-anchor="middle" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="23" fill="#fff">AJ</text></g>
+<g transform="translate(64,0)"><text x="0" y="38" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="32" fill="#1f2a44">AJ</text><text x="46" y="38" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="32" fill="#e6482e">SHOP</text><text x="2" y="57" font-family="Poppins,Segoe UI,sans-serif" font-weight="600" font-size="10" fill="#7a869a" letter-spacing="2.4">SHOP&#160;SMART&#160;·&#160;LIVE&#160;WELL</text></g></svg>`;
 const LOGO_SVG_WHITE=LOGO_SVG;
 </script>
 <script>
@@ -389,6 +423,16 @@ const catObj=id=>AJ_CATEGORIES.find(c=>c.id===id)||{};
 const catName=id=>catObj(id).name||id;
 const svg=(a,c)=>AJArt.productSVG(a,c);
 
+/* delivery location (in-memory for preview) */
+let LOC=null,locAfter=null;
+function cityForPin(pin){const m={'11':'Delhi','12':'Haryana','14':'Punjab','30':'Rajasthan','36':'Gujarat','38':'Gujarat','40':'Maharashtra','41':'Maharashtra','50':'Telangana','56':'Karnataka','60':'Tamil Nadu','68':'Kerala','70':'West Bengal'};return m[String(pin).slice(0,2)]||'India';}
+function syncLocation(){document.querySelectorAll('#locText').forEach(el=>{el.innerHTML=LOC?`<small>Deliver to ${LOC.city}</small><strong>${LOC.pin} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></strong>`:`<small>Deliver to</small><strong>Select location <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></strong>`;});}
+function openLocation(after){locAfter=typeof after==='function'?after:null;const m=document.getElementById('locModal');if(!m)return;const i=document.getElementById('pinInput');i.value=LOC?LOC.pin:'';document.getElementById('locMsg').textContent='';m.classList.add('open');setTimeout(()=>i.focus(),50);}
+function closeLocation(){const m=document.getElementById('locModal');if(m)m.classList.remove('open');}
+function saveLocation(){const i=document.getElementById('pinInput'),msg=document.getElementById('locMsg'),pin=(i.value||'').trim();if(!/^\d{6}$/.test(pin)){msg.className='loc-msg bad';msg.textContent='Please enter a valid 6-digit PIN code.';return;}const city=cityForPin(pin);LOC={pin,city};syncLocation();msg.className='loc-msg ok';msg.textContent='✓ Delivering to '+city+' ('+pin+')';toast('📍 Delivery location set · '+city+' '+pin);const cb=locAfter;locAfter=null;setTimeout(()=>{closeLocation();if(cb)cb();else route();},500);}
+function requireLocation(next){if(LOC){next();return true;}toast('Please select your delivery location first');openLocation(next);return false;}
+function deliverStrip(){return LOC?`<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Deliver to <b>${LOC.city} — ${LOC.pin}</b> · in 3–6 days <button data-act="open-location">Change</button>`:`<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Select a delivery location to check availability <button data-act="open-location">Select</button>`;}
+
 /* cart ops */
 function addToCart(id,opts={}){const p=findProduct(id);if(!p)return;const variant=opts.variant||(p.sizes?p.sizes[0]:'');const key=id+'|'+variant;const l=CART.find(x=>x.key===key);if(l)l.qty+=opts.qty||1;else CART.push({key,id,variant,qty:opts.qty||1});sync();toast('Added to cart · '+p.name);renderDrawer();}
 function updateQty(key,d){const l=CART.find(x=>x.key===key);if(!l)return;l.qty+=d;CART=CART.filter(x=>x.qty>0);sync();renderDrawer();if(current.view==='cart')route();}
@@ -408,21 +452,23 @@ const grid=list=>list.length?list.map(card).join(''):`<div class="empty" style="
 
 /* header/footer */
 function header(active){const cats=AJ_CATEGORIES.map(c=>`<a href="#/c/${c.id}" class="${active===c.id?'active':''}"><span class="emo">${c.emoji}</span>${c.name}</a>`).join('');
-return `<div class="topbar"><div class="wrap"><span>🚚 Free shipping on orders over ₹999 · Pan-India delivery</span><div class="tb-links"><a href="#/">Track Order</a><a href="#/">Help</a><a href="#/">Sell on AJ</a></div></div></div>
+return `<div class="topbar"><div class="wrap"><span>🚚 Free shipping on orders over ₹999 · Pan-India delivery</span><div class="tb-links"><a href="#/page/track">Track Order</a><a href="#/page/help">Help</a><a href="#/page/sell">Sell on AJ</a></div></div></div>
 <header class="site-header"><div class="wrap header-main"><a class="brand" href="#/">${LOGO_SVG}</a>
+<button class="loc-btn" data-act="open-location" aria-label="Set delivery location"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="loc-txt" id="locText"></span></button>
 <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.7" y2="16.7"/></svg><input type="search" id="globalSearch" placeholder="Search for products, brands and categories…" aria-label="Search"></label>
-<div class="header-actions"><a class="btn-signin" href="#/"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Sign in</span></a>
+<div class="header-actions"><a class="btn-signin" href="#/page/account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Sign in</span></a>
 <a class="icon-btn" href="#/wishlist" aria-label="Wishlist"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span class="badge" id="wishBadge" hidden>0</span></a>
 <button class="icon-btn" data-act="open-cart" aria-label="Cart"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg><span class="badge" id="cartBadge" hidden>0</span></button></div></div></header>
 <nav class="catnav"><div class="wrap"><a href="#/" class="${active==='home'?'active':''}">🏠 Home</a>${cats}</div></nav>`;}
 function footer(){return `<footer class="site-footer"><div class="wrap"><div class="footer-grid">
 <div class="footer-brand"><span class="footer-logo">${LOGO_SVG_WHITE}</span><p>AJ SHOP is your everyday online marketplace across fashion, electronics, home and more — quality picks at fair prices, delivered across India.</p><div class="pay-badges"><span>Visa</span><span>Mastercard</span><span>RuPay</span><span>UPI</span><span>Net Banking</span><span>CCAvenue</span></div></div>
 <div><h4>Shop</h4><a href="#/c/adult-garments">Fashion</a><a href="#/c/mobiles">Mobiles</a><a href="#/c/electronics">Electronics</a><a href="#/c/home-decor">Home Decor</a><a href="#/c/footwear">Footwear</a></div>
-<div><h4>Company</h4><a href="#/">About AJ SHOP</a><a href="#/">Careers</a><a href="#/">Sell with us</a><a href="#/">Contact</a></div>
-<div><h4>Help &amp; Policies</h4><a href="#/">Shipping &amp; Delivery</a><a href="#/">Returns &amp; Refunds</a><a href="#/">Privacy Policy</a><a href="#/">Terms of Use</a></div></div>
+<div><h4>Company</h4><a href="#/page/about">About AJ SHOP</a><a href="#/page/careers">Careers</a><a href="#/page/sell">Sell with us</a><a href="#/page/contact">Contact</a></div>
+<div><h4>Help &amp; Policies</h4><a href="#/page/shipping">Shipping &amp; Delivery</a><a href="#/page/returns">Returns &amp; Refunds</a><a href="#/page/privacy">Privacy Policy</a><a href="#/page/terms">Terms of Use</a></div></div>
 <div class="footer-bottom"><span>© 2026 AJ SHOP. All product illustrations and copy are original works of AJ SHOP.</span><span>Payments secured by CCAvenue · GST-compliant invoicing</span></div></div></footer>
 <div class="drawer-overlay" data-act="close-cart"></div>
 <aside class="drawer" id="cartDrawer" aria-label="Shopping cart"><div class="drawer-head"><h3>Your Cart</h3><button class="icon-btn" data-act="close-cart" aria-label="Close">✕</button></div><div class="drawer-body" id="drawerBody"></div><div class="drawer-foot" id="drawerFoot"></div></aside>
+<div class="modal-overlay" id="locModal"><div class="modal" role="dialog" aria-label="Choose delivery location"><button class="close-x" data-act="close-location" aria-label="Close">✕</button><h3>Choose your delivery location</h3><p>Enter your PIN code so we can show delivery options and confirm we ship to you.</p><div class="field"><input id="pinInput" inputmode="numeric" maxlength="6" placeholder="6-digit PIN code (e.g. 110001)"></div><div class="loc-msg" id="locMsg"></div><div class="modal-actions"><button class="btn btn-primary btn-block" data-act="save-location">Apply Location</button></div></div></div>
 <div class="toast" id="toast"></div>`;}
 
 function renderDrawer(){const body=document.getElementById('drawerBody'),foot=document.getElementById('drawerFoot');if(!body)return;const t=totals();
@@ -502,6 +548,7 @@ function viewProduct(id){const p=findProduct(id);if(!p)return `<div class="empty
  <div class="pdp-info"><div class="card-cat">${catName(p.cat)}${p.group?' · '+p.group:''}</div><h1>${p.name}</h1>
  <div class="rating"><span class="stars">${stars}</span> ${p.rating} · ${p.reviews} ratings</div>
  <div class="pdp-price"><span class="price">${money(p.price)}</span><span class="mrp">${money(p.mrp)}</span><span class="off">${off}% off</span></div>
+ <div class="deliver-strip">${deliverStrip()}</div>
  <p class="pdp-desc">${p.desc}</p>${sizeBlock}
  <div class="pdp-opts"><label>Quantity</label><div class="qty"><button id="dec">−</button><span id="q">1</span><button id="inc">+</button></div></div>
  <div class="pdp-actions"><button class="btn btn-primary" id="addBtn" style="flex:1">Add to Cart</button><button class="btn btn-dark" id="buyBtn" style="flex:1">Buy Now</button></div>
@@ -512,7 +559,7 @@ function bindProduct(p){let qty=1,size=p.sizes?p.sizes[0]:'';const qEl=document.
  document.getElementById('inc').onclick=()=>{qty++;qEl.textContent=qty;};document.getElementById('dec').onclick=()=>{if(qty>1){qty--;qEl.textContent=qty;}};
  if(p.sizes)document.querySelectorAll('#sizes .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#sizes .chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');size=c.dataset.size;});
  document.getElementById('addBtn').onclick=()=>addToCart(p.id,{qty,variant:size});
- document.getElementById('buyBtn').onclick=()=>{addToCart(p.id,{qty,variant:size});location.hash='#/cart';};
+ document.getElementById('buyBtn').onclick=()=>requireLocation(()=>{addToCart(p.id,{qty,variant:size});location.hash='#/cart';});
 }
 
 function viewCart(){const t=totals();
@@ -527,12 +574,14 @@ function viewCart(){const t=totals();
  <div class="sum-row"><span>Delivery</span><span>${t.shipping?money(t.shipping):'<span style="color:var(--ok)">FREE</span>'}</span></div>
  <div class="coupon"><input id="couponInput" placeholder="Coupon: AJ10 or WELCOME200" value="${coupon}"><button class="btn btn-dark" id="applyCoupon" style="height:44px">Apply</button></div>
  <div class="sum-row total"><span>Total Payable</span><span>${money(t.total)}</span></div>
- <a class="btn btn-primary btn-block" href="#/checkout" style="margin-top:16px">Proceed to Checkout</a>
+ <div class="deliver-strip" style="margin:14px 0 4px">${deliverStrip()}</div>
+ <button class="btn btn-primary btn-block" id="proceedBtn" style="margin-top:12px">Proceed to Checkout</button>
  <p style="text-align:center;color:var(--ok);font-size:13px;margin-top:12px">🎉 You save ${money(t.saved+t.discount)} on this order</p></aside></div>`;
 }
-function bindCart(){const btn=document.getElementById('applyCoupon');if(!btn)return;btn.onclick=()=>{const v=document.getElementById('couponInput').value.trim().toUpperCase();if(v&&v!=='AJ10'&&v!=='WELCOME200'){toast('Invalid coupon code');return;}coupon=v;if(v)toast('Coupon applied ✓');route();};}
+function bindCart(){const btn=document.getElementById('applyCoupon');if(!btn)return;btn.onclick=()=>{const v=document.getElementById('couponInput').value.trim().toUpperCase();if(v&&v!=='AJ10'&&v!=='WELCOME200'){toast('Invalid coupon code');return;}coupon=v;if(v)toast('Coupon applied ✓');route();};const pb=document.getElementById('proceedBtn');if(pb)pb.onclick=()=>requireLocation(()=>{location.hash='#/checkout';});}
 
 function viewCheckout(){const t=totals();if(!t.items.length){location.hash='#/cart';return'';}
+ if(!LOC){toast('Please select your delivery location first');location.hash='#/cart';return'';}
  setTimeout(bindCheckout,0);
  return `${crumb([['Home','#/'],['Cart','#/cart'],['Checkout']])}<h1 style="margin:16px 0 4px">Checkout</h1>
  <form id="coForm" class="checkout" novalidate><div>
@@ -558,6 +607,7 @@ function viewCheckout(){const t=totals();if(!t.items.length){location.hash='#/ca
  <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px">🔒 100% secure payments · Powered by CCAvenue</p></aside></form>`;
 }
 function bindCheckout(){const form=document.getElementById('coForm');if(!form)return;
+ if(LOC){const pin=form.querySelector('[name=pin]');if(pin&&!pin.value)pin.value=LOC.pin;const st=form.querySelector('[name=state]');if(st&&LOC.city&&[...st.options].some(o=>o.value===LOC.city))st.value=LOC.city;}
  document.getElementById('payMethods').addEventListener('change',e=>{document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('sel'));e.target.closest('.pay-opt').classList.add('sel');});
  form.addEventListener('input',e=>{const f=e.target.closest('.field');if(f)f.classList.remove('invalid');});
  form.addEventListener('submit',e=>{e.preventDefault();let ok=true;
@@ -590,10 +640,25 @@ function viewSearch(q){const s=(q||'').toLowerCase();let list=AJ_PRODUCTS.filter
  return `${crumb([['Home','#/'],['Search']])}<div class="catalog-head" style="margin-top:16px"><div><h1>${q?`Results for "${q}"`:'All Products'}</h1><span class="count">${list.length} products</span></div></div><div class="prod-grid">${grid(list)}</div>`;
 }
 
+const PAGES={
+ about:{title:'About AJ SHOP',lead:'Shop smart. Live well.',html:`<div class="info-card"><p>AJ SHOP is an everyday online marketplace built to make quality shopping simple and affordable for every Indian household. From kids’ and adults’ clothing to the latest mobiles, electronics, beauty, stationery, computer accessories, handmade crafts, home decor and footwear — we bring ten departments together in one trusted store.</p><p>We started with a simple belief: good products shouldn’t cost a fortune, and buying them online should feel effortless and safe. Every order is backed by secure CCAvenue payments, transparent pricing and pan-India delivery.</p></div><h2>What we stand for</h2><div class="info-grid"><div class="info-card"><h3>Fair prices</h3><p>Honest, everyday pricing with genuine discounts — no inflated “fake MRP” games.</p></div><div class="info-card"><h3>Quality first</h3><p>Products are checked for quality before they reach your doorstep.</p></div><div class="info-card"><h3>Support local</h3><p>We showcase Indian artisans and handicrafts alongside leading brands.</p></div><div class="info-card"><h3>Customer care</h3><p>Friendly 24×7 support and a no-fuss 7-day return promise.</p></div></div>`},
+ careers:{title:'Careers at AJ SHOP',lead:'Help us build India’s friendliest marketplace.',html:`<div class="info-card"><p>We’re a small, fast-moving team that loves solving everyday problems for shoppers. If you’re curious, kind and take ownership, you’ll fit right in.</p></div><h2>Open roles</h2><div class="info-grid"><div class="info-card"><h3>Frontend Engineer</h3><p>Bengaluru / Remote · Build delightful, fast shopping experiences.</p></div><div class="info-card"><h3>Catalog Associate</h3><p>Delhi · Curate products, photography and descriptions.</p></div><div class="info-card"><h3>Customer Support Lead</h3><p>Remote · Own the post-purchase experience end to end.</p></div><div class="info-card"><h3>Warehouse Operations</h3><p>Mumbai · Pick, pack and dispatch with speed and care.</p></div></div><p>Interested? Write to <b>careers@ajshop.example</b>.</p>`},
+ sell:{title:'Sell on AJ SHOP',lead:'Reach customers across India.',html:`<div class="info-card"><p>Grow your business by listing your products on AJ SHOP. Whether you’re a brand, a reseller or an artisan, we make selling online simple.</p></div><h2>How it works</h2><div class="info-grid"><div class="info-card"><h3>1 · Register</h3><p>Sign up with your GST and bank details in minutes.</p></div><div class="info-card"><h3>2 · List</h3><p>Add your products, photos and prices to the catalog.</p></div><div class="info-card"><h3>3 · Sell</h3><p>Receive orders and hand parcels to our logistics partners.</p></div><div class="info-card"><h3>4 · Get paid</h3><p>Secure, on-time settlements to your bank account.</p></div></div><p>Email <b>sellers@ajshop.example</b> to get started.</p>`},
+ contact:{title:'Contact Us',lead:'We’d love to hear from you.',html:`<div class="info-grid"><div class="info-card"><h3>Customer Support</h3><p>📧 support@ajshop.example<br>📞 1800-000-000 (toll-free)<br>🕑 Mon–Sun, 9am–9pm IST</p></div><div class="info-card"><h3>Registered Office</h3><p>AJ SHOP<br>123 Market Road<br>New Delhi 110001, India</p></div></div><div class="info-card"><h2 style="margin-top:0">Send a message</h2><div class="form-grid"><div class="field"><label>Your name</label><input placeholder="Full name"></div><div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div><div class="field full"><label>Message</label><textarea rows="4" placeholder="How can we help?"></textarea></div></div><button class="btn btn-primary" style="margin-top:14px" onclick="window.__ajToast&&window.__ajToast('Thanks! Our team will get back to you.')">Send Message</button></div>`},
+ shipping:{title:'Shipping & Delivery',lead:'Fast, reliable, pan-India delivery.',html:`<div class="info-card"><ul><li><b>Free shipping</b> on all orders over ₹999. Orders below ₹999 carry a flat ₹79 delivery fee.</li><li><b>Delivery time:</b> typically 3–6 business days depending on your PIN code.</li><li><b>Tracking:</b> you’ll receive an SMS and email with a tracking link once your order ships.</li><li><b>Serviceability:</b> set your PIN code at the top of any page to confirm we deliver to you.</li><li><b>Cash on Delivery</b> is available on eligible orders and PIN codes.</li></ul></div>`},
+ returns:{title:'Returns & Refunds',lead:'Easy 7-day returns.',html:`<div class="info-card"><ul><li><b>7-day returns</b> from the date of delivery on most items.</li><li>Items must be unused, in original packaging and with tags intact.</li><li>Some categories (innerwear, opened beauty items, personalised goods) are non-returnable for hygiene and safety reasons.</li><li><b>Refunds</b> are processed to your original payment method within 5–7 business days after the return is received and checked.</li><li>To start a return, go to <i>My Orders</i> and select <i>Return / Replace</i>.</li></ul></div>`},
+ privacy:{title:'Privacy Policy',lead:'Your data, handled with care.',html:`<div class="info-card"><p>This Privacy Policy explains how AJ SHOP collects, uses and protects your information. <i>(Sample content — replace with your reviewed legal policy before going live.)</i></p><h2>Information we collect</h2><p>Contact details, delivery address, order history and device information needed to process orders and improve your experience.</p><h2>Payments</h2><p>Card, UPI and net-banking payments are processed securely by <b>CCAvenue</b>. AJ SHOP does not store your full card details.</p><h2>How we use it</h2><p>To fulfil orders, provide support, prevent fraud and — with your consent — send offers you can opt out of anytime.</p><h2>Your rights</h2><p>Request access, correction or deletion by writing to privacy@ajshop.example.</p></div>`},
+ terms:{title:'Terms of Use',lead:'The rules of the road.',html:`<div class="info-card"><p>By using AJ SHOP you agree to these Terms. <i>(Sample content — replace with your reviewed legal terms before going live.)</i></p><h2>Orders & pricing</h2><p>All prices are in INR and inclusive of applicable taxes unless stated otherwise. We may cancel orders for pricing errors or stock issues, with a full refund.</p><h2>Accounts</h2><p>You are responsible for keeping your account secure and for activity under it.</p><h2>Acceptable use</h2><p>Don’t misuse the platform, attempt fraud or infringe others’ rights.</p><h2>Liability</h2><p>Our liability is limited to the value of the order in question, to the extent permitted by law.</p></div>`},
+ help:{title:'Help Centre',lead:'Answers to common questions.',html:`<div class="info-card"><h2 style="margin-top:0">Popular topics</h2><ul><li><a style="color:var(--brand)" href="#/page/track">Where is my order?</a></li><li><a style="color:var(--brand)" href="#/page/returns">How do returns and refunds work?</a></li><li><a style="color:var(--brand)" href="#/page/shipping">Shipping charges and delivery times</a></li><li><a style="color:var(--brand)" href="#/page/contact">Contact customer support</a></li></ul></div>`},
+ track:{title:'Track Your Order',lead:'Enter your order ID to see its status.',html:`<div class="info-card"><div class="form-grid"><div class="field full"><label>Order ID</label><input placeholder="e.g. AJ7F3K2Q9"></div></div><button class="btn btn-primary" style="margin-top:12px" onclick="window.__ajToast&&window.__ajToast('Order tracking is a demo in this build.')">Track Order</button><p style="margin-top:14px;color:var(--muted)">You’ll also get a tracking link by SMS and email once your order ships.</p></div>`},
+ account:{title:'Sign in to AJ SHOP',lead:'Access your orders, wishlist and addresses.',html:`<div class="info-card" style="max-width:420px"><div class="field" style="margin-bottom:14px"><label>Mobile number or email</label><input placeholder="Enter mobile or email"></div><div class="field" style="margin-bottom:14px"><label>Password</label><input type="password" placeholder="Password"></div><button class="btn btn-primary btn-block" onclick="window.__ajToast&&window.__ajToast('Accounts are a demo in this build.')">Sign in</button><p style="margin-top:14px;color:var(--muted);font-size:14px">New here? Create an account in seconds.</p></div>`}
+};
+function viewPage(topic){const pg=PAGES[topic]||PAGES.about;return `${crumb([['Home','#/'],[pg.title]])}<div class="info-page"><h1>${pg.title}</h1><p class="info-lead">${pg.lead}</p>${pg.html}</div>`;}
+
 /* ---------- router ---------- */
 let current={view:'home'};
 function parseHash(){let h=location.hash.replace(/^#/,'');if(!h||h==='/')return{view:'home'};const[path,query]=h.split('?');const seg=path.split('/').filter(Boolean);const q=new URLSearchParams(query||'');
- switch(seg[0]){case 'c':return{view:'category',id:seg[1],group:q.get('group')};case 'p':return{view:'product',id:seg[1]};case 'cart':return{view:'cart'};case 'checkout':return{view:'checkout'};case 'success':return{view:'success'};case 'wishlist':return{view:'wishlist'};case 'search':return{view:'search',q:q.get('q')||''};default:return{view:'home'};}}
+ switch(seg[0]){case 'c':return{view:'category',id:seg[1],group:q.get('group')};case 'p':return{view:'product',id:seg[1]};case 'cart':return{view:'cart'};case 'checkout':return{view:'checkout'};case 'success':return{view:'success'};case 'wishlist':return{view:'wishlist'};case 'search':return{view:'search',q:q.get('q')||''};case 'page':return{view:'page',topic:seg[1]||'about'};default:return{view:'home'};}}
 function route(){current=parseHash();const active=current.view==='home'?'home':current.view==='category'?current.id:'';
  document.getElementById('site-header').innerHTML=header(active);
  document.getElementById('site-footer').innerHTML=footer();
@@ -606,13 +671,17 @@ function route(){current=parseHash();const active=current.view==='home'?'home':c
  else if(current.view==='success')html=viewSuccess();
  else if(current.view==='wishlist')html=viewWishlist();
  else if(current.view==='search')html=viewSearch(current.q);
- view.innerHTML=html;sync();
+ else if(current.view==='page')html=viewPage(current.topic);
+ view.innerHTML=html;sync();syncLocation();
  const gs=document.getElementById('globalSearch');if(gs){if(current.view==='search')gs.value=current.q||'';gs.addEventListener('keydown',e=>{if(e.key==='Enter'&&gs.value.trim())location.hash='#/search?q='+encodeURIComponent(gs.value.trim());});}
  window.scrollTo(0,0);
 }
 
 document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act;
- if(a==='add')addToCart(t.dataset.id);else if(a==='wish')toggleWish(t.dataset.id);else if(a==='open-cart')openCart();else if(a==='close-cart')closeCart();else if(a==='inc')updateQty(t.dataset.key,1);else if(a==='dec')updateQty(t.dataset.key,-1);else if(a==='rm')removeLine(t.dataset.key);});
+ if(a==='add')addToCart(t.dataset.id);else if(a==='wish')toggleWish(t.dataset.id);else if(a==='open-cart')openCart();else if(a==='close-cart')closeCart();else if(a==='inc')updateQty(t.dataset.key,1);else if(a==='dec')updateQty(t.dataset.key,-1);else if(a==='rm')removeLine(t.dataset.key);else if(a==='open-location')openLocation();else if(a==='close-location')closeLocation();else if(a==='save-location')saveLocation();});
+document.addEventListener('click',e=>{const m=document.getElementById('locModal');if(m&&e.target===m)closeLocation();});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='pinInput'){e.preventDefault();saveLocation();}});
+window.__ajToast=toast;
 window.addEventListener('hashchange',route);
 route();
 })();

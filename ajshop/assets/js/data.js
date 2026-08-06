@@ -129,3 +129,28 @@ window.AJ_PRODUCTS = [
   P({ cat:'footwear', art:'sneaker', color:'#111827', name:'AJ Classic Canvas Shoes', mrp:1799, price:1099, rating:4.5, reviews:730,
       desc:'Timeless lace-up canvas shoes with a vulcanised rubber sole — pairs with everything.', sizes:['6','7','8','9','10','11'] })
 ];
+
+/* ============================================================
+   Real product photography.
+   Each product loads a real keyword-matched photograph. If a
+   photo can't load (offline, or the sandboxed preview blocks
+   external images) it falls back to the built-in illustration.
+
+   FOR PRODUCTION: replace these with your OWN product photos
+   (upload them to assets/img/products/ and point the URL here),
+   or licensed stock. The keyword source below is a ready-to-run
+   starting point for the live demo.
+   ============================================================ */
+window.AJ_IMG_KW = {
+  'kids-tshirt':'kids,tshirt','kids-dress':'girl,dress,kids','kids-hoodie':'kids,hoodie',
+  'shirt':'shirt,apparel','dress':'women,dress','jacket':'jacket,men','kurta':'kurta,ethnic',
+  'headphones':'headphones','earbuds':'earphones,earbuds','smartwatch':'smartwatch','powerbank':'powerbank,charger',
+  'smartphone':'smartphone','lipstick':'lipstick,cosmetics','serum':'skincare,serum','perfume':'perfume',
+  'notebook':'notebook,stationery','pen-set':'pen,stationery','backpack':'backpack',
+  'keyboard':'keyboard,computer','mouse':'computer,mouse','webcam':'webcam','ssd':'harddrive,storage',
+  'vase-clay':'vase,pottery','wall-art':'painting,art','wooden-elephant':'wooden,handicraft',
+  'table-lamp':'lamp,decor','cushion':'cushion,pillow','wall-clock':'clock,wall','plant':'plant,pot',
+  'sneaker':'sneakers,shoes','heel':'heels,shoes','sandal':'sandals,footwear'
+};
+/* Base URL for keyword-matched real photos. Swap for your own CDN if preferred. */
+window.AJ_IMG_BASE = 'https://loremflickr.com/600/600/';

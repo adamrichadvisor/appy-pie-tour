@@ -46,7 +46,7 @@
 
     items.innerHTML = t.items.map(i => `
       <div class="cart-item">
-        <div class="ci-img">${AJArt.productSVG(i.product.art, i.product.color)}</div>
+        <div class="ci-img">${AJ.media(i.product)}</div>
         <div>
           <div class="ci-title">${i.product.name}</div>
           <div class="ci-meta">${AJ.catName(i.product.cat)}${i.variant?' · '+i.variant:''}</div>
@@ -72,7 +72,8 @@
         <button class="btn btn-dark" id="applyCoupon" style="height:44px">Apply</button>
       </div>
       <div class="sum-row total"><span>Total Payable</span><span>${AJ.money(t.total)}</span></div>
-      <a class="btn btn-primary btn-block" href="checkout.html" style="margin-top:16px">Proceed to Checkout</a>
+      <div class="deliver-strip" id="cartDeliver" style="margin:14px 0 4px"></div>
+      <button class="btn btn-primary btn-block" id="proceedBtn" style="margin-top:12px">Proceed to Checkout</button>
       <p style="text-align:center;color:var(--ok);font-size:13px;margin-top:12px">🎉 You save ${AJ.money(t.saved + t.discount)} on this order</p>`;
 
     document.getElementById('applyCoupon').onclick = () => {
@@ -82,6 +83,17 @@
       if (v) AJ.toast('Coupon applied ✓');
       renderCartPage();
     };
+
+    // delivery location strip + gated checkout
+    function renderDeliver() {
+      const loc = AJ.getLocation();
+      document.getElementById('cartDeliver').innerHTML = loc
+        ? `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Deliver to <b>${loc.city} — ${loc.pin}</b><button data-act="open-location">Change</button>`
+        : `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Select delivery location to continue<button data-act="open-location">Select</button>`;
+    }
+    renderDeliver();
+    document.getElementById('proceedBtn').onclick = () => AJ.requireLocation(() => { location.href = 'checkout.html'; });
+    document.addEventListener('click', (e) => { if (e.target.closest('[data-act="save-location"],[data-act="open-location"]')) setTimeout(renderDeliver, 60); });
   };
   renderCartPage();
 </script>

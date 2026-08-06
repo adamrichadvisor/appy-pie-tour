@@ -7,7 +7,37 @@
   const LOGO = 'assets/img/logo.svg';
   const CART_KEY = 'aj_cart';
   const WISH_KEY = 'aj_wish';
+  const LOC_KEY = 'aj_location';
   const money = (n) => '₹' + Number(n).toLocaleString('en-IN');
+
+  /* ---------- product media (real photo + illustration fallback) ---------- */
+  function productImgURL(p) {
+    const kw = (window.AJ_IMG_KW && window.AJ_IMG_KW[p.art]) || 'product';
+    const lock = parseInt(String(p.id).replace(/\D/g, ''), 10) || 1;
+    return (window.AJ_IMG_BASE || 'https://loremflickr.com/600/600/') + encodeURIComponent(kw) + '?lock=' + lock;
+  }
+  // Renders a real <img>; if it fails to load it swaps to the built-in SVG illustration.
+  function media(p) {
+    return `<img class="pmedia" src="${productImgURL(p)}" alt="${p.name}" loading="lazy" data-fb="${AJArt.dataURI(p.art, p.color)}">`;
+  }
+
+  /* ---------- delivery location ---------- */
+  const getLocation = () => readJSON(LOC_KEY, null);
+  const setLocation = (loc) => { writeJSON(LOC_KEY, loc); syncLocation(); };
+  // Simple, illustrative city lookup by PIN prefix (dummy serviceability data).
+  function cityForPin(pin) {
+    const map = { '11':'Delhi','12':'Haryana','14':'Punjab','30':'Rajasthan','36':'Gujarat','38':'Gujarat',
+      '40':'Maharashtra','41':'Maharashtra','50':'Telangana','56':'Karnataka','60':'Tamil Nadu','68':'Kerala','70':'West Bengal' };
+    return map[String(pin).slice(0, 2)] || 'India';
+  }
+  function syncLocation() {
+    const loc = getLocation();
+    document.querySelectorAll('#locText').forEach((el) => {
+      el.innerHTML = loc
+        ? `<small>Deliver to ${loc.city}</small><strong>${loc.pin} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></strong>`
+        : `<small>Deliver to</small><strong>Select location <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></strong>`;
+    });
+  }
 
   /* ---------- storage ---------- */
   const readJSON = (k, def) => { try { return JSON.parse(localStorage.getItem(k)) || def; } catch { return def; } };
@@ -82,7 +112,7 @@
       : p.badge === 'new' ? `<span class="card-tag new">NEW</span>` : '';
     return `<article class="card">
       <div class="card-img">
-        <a href="product.html?id=${p.id}">${AJArt.productSVG(p.art, p.color)}</a>
+        <a href="product.html?id=${p.id}">${media(p)}</a>
         ${tag}
         <button class="wish ${isWished(p.id) ? 'on' : ''}" data-id="${p.id}" data-act="wish" aria-label="Save to wishlist">
           <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
@@ -116,16 +146,20 @@
     return `
     <div class="topbar"><div class="wrap">
       <span>🚚 Free shipping on orders over ₹999 · Pan-India delivery</span>
-      <div class="tb-links"><a href="#">Track Order</a><a href="#">Help</a><a href="#">Sell on AJ</a></div>
+      <div class="tb-links"><a href="page.html?topic=track">Track Order</a><a href="page.html?topic=help">Help</a><a href="page.html?topic=sell">Sell on AJ</a></div>
     </div></div>
     <header class="site-header"><div class="wrap header-main">
       <a class="brand" href="index.html"><img src="${LOGO}" alt="AJ SHOP"></a>
+      <button class="loc-btn" data-act="open-location" aria-label="Set delivery location">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span class="loc-txt" id="locText"></span>
+      </button>
       <label class="search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.7" y2="16.7"/></svg>
         <input type="search" id="globalSearch" placeholder="Search for products, brands and categories…" aria-label="Search">
       </label>
       <div class="header-actions">
-        <a class="btn-signin" href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Sign in</span></a>
+        <a class="btn-signin" href="page.html?topic=account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Sign in</span></a>
         <a class="icon-btn" href="wishlist.html" aria-label="Wishlist">
           <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
           <span class="badge" id="wishBadge" hidden>0</span>
@@ -158,10 +192,10 @@
           <a href="category.html?cat=footwear">Footwear</a>
         </div>
         <div><h4>Company</h4>
-          <a href="#">About AJ SHOP</a><a href="#">Careers</a><a href="#">Sell with us</a><a href="#">Contact</a>
+          <a href="page.html?topic=about">About AJ SHOP</a><a href="page.html?topic=careers">Careers</a><a href="page.html?topic=sell">Sell with us</a><a href="page.html?topic=contact">Contact</a>
         </div>
         <div><h4>Help & Policies</h4>
-          <a href="#">Shipping &amp; Delivery</a><a href="#">Returns &amp; Refunds</a><a href="#">Privacy Policy</a><a href="#">Terms of Use</a>
+          <a href="page.html?topic=shipping">Shipping &amp; Delivery</a><a href="page.html?topic=returns">Returns &amp; Refunds</a><a href="page.html?topic=privacy">Privacy Policy</a><a href="page.html?topic=terms">Terms of Use</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -176,6 +210,19 @@
       <div class="drawer-body" id="drawerBody"></div>
       <div class="drawer-foot" id="drawerFoot"></div>
     </aside>
+    <!-- location modal -->
+    <div class="modal-overlay" id="locModal">
+      <div class="modal" role="dialog" aria-label="Choose delivery location">
+        <button class="close-x" data-act="close-location" aria-label="Close">✕</button>
+        <h3>Choose your delivery location</h3>
+        <p>Enter your PIN code so we can show delivery options and confirm we ship to you.</p>
+        <div class="field"><input id="pinInput" inputmode="numeric" maxlength="6" placeholder="6-digit PIN code (e.g. 110001)"></div>
+        <div class="loc-msg" id="locMsg"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary btn-block" data-act="save-location">Apply Location</button>
+        </div>
+      </div>
+    </div>
     <div class="toast" id="toast"></div>`;
   }
 
@@ -192,7 +239,7 @@
     }
     body.innerHTML = t.items.map((i) => `
       <div class="drawer-item">
-        <div class="di-img">${AJArt.productSVG(i.product.art, i.product.color)}</div>
+        <div class="di-img">${media(i.product)}</div>
         <div>
           <div class="di-title">${i.product.name}</div>
           <div class="di-meta">${i.variant ? i.variant + ' · ' : ''}${money(i.product.price)}</div>
@@ -230,6 +277,39 @@
     toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
   }
 
+  /* ---------- location modal ---------- */
+  let locAfterSave = null; // optional callback after a location is set (used to gate checkout)
+  function openLocation(after) {
+    locAfterSave = typeof after === 'function' ? after : null;
+    const m = document.getElementById('locModal'); if (!m) return;
+    const loc = getLocation();
+    const input = document.getElementById('pinInput');
+    input.value = loc ? loc.pin : '';
+    document.getElementById('locMsg').textContent = '';
+    m.classList.add('open');
+    setTimeout(() => input.focus(), 50);
+  }
+  function closeLocation() { const m = document.getElementById('locModal'); if (m) m.classList.remove('open'); }
+  function saveLocation() {
+    const input = document.getElementById('pinInput');
+    const msg = document.getElementById('locMsg');
+    const pin = (input.value || '').trim();
+    if (!/^\d{6}$/.test(pin)) { msg.className = 'loc-msg bad'; msg.textContent = 'Please enter a valid 6-digit PIN code.'; return; }
+    const city = cityForPin(pin);
+    setLocation({ pin, city });
+    msg.className = 'loc-msg ok'; msg.textContent = `✓ Delivering to ${city} (${pin})`;
+    toast(`📍 Delivery location set · ${city} ${pin}`);
+    const cb = locAfterSave; locAfterSave = null;
+    setTimeout(() => { closeLocation(); if (cb) cb(); }, 500);
+  }
+  // Gate an action behind having a delivery location set.
+  function requireLocation(next) {
+    if (getLocation()) { next(); return true; }
+    toast('Please select your delivery location first');
+    openLocation(next);
+    return false;
+  }
+
   /* ---------- global click handling ---------- */
   function wireEvents() {
     document.addEventListener('click', (e) => {
@@ -242,7 +322,22 @@
       else if (act === 'inc') { updateQty(t.dataset.key, 1); }
       else if (act === 'dec') { updateQty(t.dataset.key, -1); }
       else if (act === 'rm') { removeLine(t.dataset.key); }
+      else if (act === 'open-location') { openLocation(); }
+      else if (act === 'close-location') { closeLocation(); }
+      else if (act === 'save-location') { saveLocation(); }
     });
+    // close location modal on overlay click
+    const lm = document.getElementById('locModal');
+    if (lm) lm.addEventListener('click', (e) => { if (e.target === lm) closeLocation(); });
+    // Enter key inside PIN input
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target && e.target.id === 'pinInput') { e.preventDefault(); saveLocation(); }
+    });
+    // Real-photo error → swap to built-in illustration (capture phase; error doesn't bubble)
+    document.addEventListener('error', (e) => {
+      const el = e.target;
+      if (el && el.tagName === 'IMG' && el.dataset && el.dataset.fb) { el.src = el.dataset.fb; el.removeAttribute('data-fb'); }
+    }, true);
     const s = document.getElementById('globalSearch');
     if (s) s.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && s.value.trim()) location.href = 'search.html?q=' + encodeURIComponent(s.value.trim());
@@ -257,10 +352,12 @@
     if (f) f.innerHTML = buildFooter();
     wireEvents();
     syncCount();
+    syncLocation();
   }
 
   window.AJ = {
     mount, money, productCard, renderGrid, addToCart, cartTotals, cartDetailed,
-    updateQty, removeLine, toggleWish, isWished, findProduct, catName, toast, openCart
+    updateQty, removeLine, toggleWish, isWished, findProduct, catName, toast, openCart,
+    media, getLocation, openLocation, requireLocation
   };
 })();

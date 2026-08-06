@@ -47,12 +47,13 @@
       </div>` : '';
 
     root.innerHTML = `
-      <div class="pdp-gallery">${AJArt.productSVG(p.art, p.color)}</div>
+      <div class="pdp-gallery">${AJ.media(p)}</div>
       <div class="pdp-info">
         <div class="card-cat">${AJ.catName(p.cat)}${p.group?' · '+p.group:''}</div>
         <h1>${p.name}</h1>
         <div class="rating"><span class="stars">${stars}</span> ${p.rating} · ${p.reviews} ratings</div>
         <div class="pdp-price"><span class="price">${AJ.money(p.price)}</span><span class="mrp">${AJ.money(p.mrp)}</span><span class="off">${off}% off</span></div>
+        <div class="deliver-strip" id="deliverStrip"></div>
         <p class="pdp-desc">${p.desc}</p>
         ${sizeBlock}
         <div class="pdp-opts">
@@ -80,7 +81,18 @@
       c.classList.add('active'); size = c.dataset.size;
     });
     document.getElementById('addBtn').onclick = () => AJ.addToCart(p.id, { qty, variant: size });
-    document.getElementById('buyBtn').onclick = () => { AJ.addToCart(p.id, { qty, variant: size }); location.href='cart.html'; };
+    document.getElementById('buyBtn').onclick = () => AJ.requireLocation(() => { AJ.addToCart(p.id, { qty, variant: size }); location.href='cart.html'; });
+
+    // delivery strip reflects the chosen location
+    function renderDeliver() {
+      const loc = AJ.getLocation();
+      const el = document.getElementById('deliverStrip');
+      el.innerHTML = loc
+        ? `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Deliver to <b>${loc.city} — ${loc.pin}</b> · in 3–6 days <button data-act="open-location">Change</button>`
+        : `<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Select a delivery location to check availability <button data-act="open-location">Select</button>`;
+    }
+    renderDeliver();
+    document.addEventListener('click', (e) => { if (e.target.closest('[data-act="save-location"],[data-act="open-location"]')) setTimeout(renderDeliver, 60); });
 
     const related = AJ_PRODUCTS.filter(x => x.cat===p.cat && x.id!==p.id).slice(0,4);
     AJ.renderGrid(document.getElementById('related'), related.length?related:AJ_PRODUCTS.slice(0,4));
