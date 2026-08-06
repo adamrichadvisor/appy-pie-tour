@@ -63,7 +63,7 @@
     if (line) line.qty += qty;
     else cart.push({ key, id, variant, qty });
     setCart(cart);
-    toast(`Added to cart · ${p.name}`);
+    showAdded(p, qty, variant);
     renderDrawer();
   }
   function updateQty(key, delta) {
@@ -225,6 +225,18 @@
         </div>
       </div>
     </div>
+    <!-- added-to-cart popup -->
+    <div class="modal-overlay" id="addedModal">
+      <div class="modal added-pop" role="dialog" aria-label="Added to cart">
+        <button class="close-x" data-act="close-added" aria-label="Close">✕</button>
+        <div class="added-head"><span class="added-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span> Added to your cart</div>
+        <div class="added-body" id="addedBody"></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" data-act="close-added" style="flex:1">Continue Shopping</button>
+          <a class="btn btn-primary" href="cart.html" style="flex:1">View Cart</a>
+        </div>
+      </div>
+    </div>
     <div class="toast" id="toast"></div>`;
   }
 
@@ -270,6 +282,23 @@
   }
 
   /* ---------- toast ---------- */
+  /* ---------- "added to cart" popup ---------- */
+  let addedTimer;
+  function showAdded(p, qty, variant) {
+    const m = document.getElementById('addedModal');
+    if (!m) { toast(`Added to cart · ${p.name}`); return; }
+    const t = cartTotals();
+    document.getElementById('addedBody').innerHTML =
+      `<div class="added-item"><div class="ci-img">${media(p)}</div>
+        <div><div class="ci-title">${p.name}</div>
+        <div class="ci-meta">${variant ? variant + ' · ' : ''}Qty ${qty} · ${money(p.price)}</div></div></div>
+       <p class="added-count">🛒 ${cartCount()} item${cartCount() === 1 ? '' : 's'} in your cart · Subtotal ${money(t.subtotal)}</p>`;
+    m.classList.add('open');
+    clearTimeout(addedTimer);
+    addedTimer = setTimeout(() => m.classList.remove('open'), 4000);
+  }
+  function closeAdded() { const m = document.getElementById('addedModal'); if (m) m.classList.remove('open'); clearTimeout(addedTimer); }
+
   let toastTimer;
   function toast(msg) {
     const el = document.getElementById('toast'); if (!el) return;
@@ -327,10 +356,13 @@
       else if (act === 'open-location') { openLocation(); }
       else if (act === 'close-location') { closeLocation(); }
       else if (act === 'save-location') { saveLocation(); }
+      else if (act === 'close-added') { closeAdded(); }
     });
-    // close location modal on overlay click
+    // close modals on overlay click
     const lm = document.getElementById('locModal');
     if (lm) lm.addEventListener('click', (e) => { if (e.target === lm) closeLocation(); });
+    const am = document.getElementById('addedModal');
+    if (am) am.addEventListener('click', (e) => { if (e.target === am) closeAdded(); });
     // Enter key inside PIN input
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target && e.target.id === 'pinInput') { e.preventDefault(); saveLocation(); }
