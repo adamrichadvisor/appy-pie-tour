@@ -12,11 +12,14 @@ AI-powered B2B **lead generation & cold email outreach** — a concept product w
 ## Using the tool
 
 1. **Open `app.html`** in a browser — double-click the file, or host the folder on GitHub Pages and visit `…/vantage/app.html`.
-2. **Add your Claude API key** in **Settings** (get one at [console.anthropic.com](https://console.anthropic.com)). It's stored only in your browser's `localStorage` and sent directly to Anthropic — nothing goes to any third-party server.
-3. Work the sidebar top to bottom: **Lead Finder → Verification → Export → AI Templates → Campaigns → Mailboxes → Smart Send → Reports.**
+2. Work the sidebar top to bottom: **Lead Finder → Verification → Export → Templates → Campaigns → Mailboxes → Smart Send → Reports.**
 
-### What genuinely works (no backend)
-- **AI Template Generator** — real personalized subject/body/CTA/signature via the Claude API (your key).
+> **No account needed.** The entire workflow runs with **no API key** — built-in starter templates, a local sample-lead generator, live MX verification, export, campaigns, sending, and reports all work as-is.
+
+**Optional:** add a Claude API key in **Settings** (from [console.anthropic.com](https://console.anthropic.com)) to unlock the *AI* template generator and more varied AI sample leads. The key is stored only in your browser's `localStorage` and sent directly to Anthropic — nothing goes to any third-party server. (There is no free/hosted inference path: any model call needs someone's credited key, and it can't be the assistant's session credentials.)
+
+### What genuinely works (no backend, no key)
+- **Outreach templates** — a built-in library for all 9 styles, fully editable, merge tags included. (An *optional* AI generator writes custom drafts when a key is set.)
 - **Email Verification** — live **MX-record** lookups (DNS-over-HTTPS) plus syntax, disposable-domain, role-based, and free-mail detection → Verified / Risky / Invalid.
 - **Lead management** — add manually, import CSV, generate clearly-labelled synthetic sample leads, filter/search.
 - **CSV / Excel export** with the full field set.

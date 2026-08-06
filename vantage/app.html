@@ -178,7 +178,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
     <button class="nav" data-view="leads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Lead Finder<span class="badge" id="b-leads">0</span></button>
     <button class="nav" data-view="verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Verification<span class="badge" id="b-ver">0</span></button>
     <button class="nav" data-view="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M8 11l4 4 4-4M4 21h16"/></svg>Export</button>
-    <button class="nav" data-view="templates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M4 4h16v10H8l-4 4V4Z"/></svg>AI Templates<span class="badge" id="b-tpl">0</span></button>
+    <button class="nav" data-view="templates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M4 4h16v10H8l-4 4V4Z"/></svg>Templates<span class="badge" id="b-tpl">0</span></button>
     <button class="nav" data-view="campaigns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Campaigns<span class="badge" id="b-cmp">0</span></button>
     <button class="nav" data-view="mailboxes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Mailboxes<span class="badge" id="b-mbx">0</span></button>
     <button class="nav" data-view="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>Smart Send</button>
@@ -401,7 +401,7 @@ let leadFilter="all",leadSearch="";
 VIEWS.leads=function(m){
   let html=viewTop("Lead Finder","import, add, and organize B2B prospects across 13 fields",
     '<button class="btn btn-ghost" id="lImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 7l4-4 4 4M4 21h16"/></svg>Import CSV</button>'+
-    '<button class="btn btn-ai" id="lGen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg>AI sample leads</button>'+
+    '<button class="btn btn-ghost" id="lGen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg>Sample leads</button>'+
     '<button class="btn btn-primary" id="lAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add lead</button>');
   html+='<input type="file" id="lFile" accept=".csv,text/csv" class="hidden">';
   html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>Real B2B contact databases (Apollo/ZoomInfo-style) are licensed data this in-browser tool can\'t provide. Import your own CSV, add leads manually, or generate clearly-labelled <b>synthetic sample leads</b> to try the full workflow end to end.</div></div>';
@@ -410,9 +410,9 @@ VIEWS.leads=function(m){
     ff("l_name","Full Name")+ff("l_email","Email")+ff("l_phone","Phone")+ff("l_linkedin","LinkedIn URL")+ff("l_company","Company")+ff("l_position","Job Title")+ff("l_industry","Industry")+ff("l_size","Company Size")+ff("l_revenue","Revenue")+ff("l_country","Country")+ff("l_website","Website")+ff("l_notes","Notes")+
     '</div><div class="btn-row" style="margin-top:6px"><button class="btn btn-primary" id="lSave">Save lead</button><button class="btn btn-ghost" id="lCancel">Cancel</button></div></div>';
   // AI form (hidden)
-  html+='<div class="card hidden" id="lGenCard"><h3>Generate synthetic sample leads</h3><div class="desc">AI-generated fictional prospects for testing — clearly marked, using example domains. Not real contacts.</div><div class="form-grid">'+
+  html+='<div class="card hidden" id="lGenCard"><h3>Generate synthetic sample leads</h3><div class="desc">Fictional prospects for testing the workflow — clearly marked, using example domains, never real contacts. Works with <b>no API key</b> (built-in generator); with a Claude key set, AI makes them more varied.</div><div class="form-grid">'+
     ff("g_count","How many (1–20)","10")+ff("g_industry","Industry","SaaS")+ff("g_role","Target role","VP of Sales")+ff("g_country","Country","United States")+
-    '</div><div class="btn-row" style="margin-top:6px"><button class="btn btn-ai" id="lGenRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>Generate</button><button class="btn btn-ghost" id="lGenCancel">Cancel</button></div></div>';
+    '</div><div class="btn-row" style="margin-top:6px"><button class="btn btn-primary" id="lGenRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>Generate</button><button class="btn btn-ghost" id="lGenCancel">Cancel</button></div></div>';
   // toolbar
   html+='<div class="card"><div class="card-head" style="margin-bottom:14px"><div style="flex:1;min-width:200px"><input id="lSearch" placeholder="Search name, company, email…" value="'+esc(leadSearch)+'"></div>'+
     '<div class="pills">'+["all","verified","risky","invalid","unchecked"].map(f=>'<button class="pill'+(leadFilter===f?" on":"")+'" data-f="'+f+'">'+f[0].toUpperCase()+f.slice(1)+'</button>').join("")+'</div></div>';
@@ -450,9 +450,25 @@ function bindLeadRows(){
   document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.leads=S.leads.filter(l=>l.id!==b.dataset.del);save();document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();});
   document.querySelectorAll("[data-v]").forEach(b=>b.onclick=async()=>{const l=S.leads.find(x=>x.id===b.dataset.v);if(!l||!l.email){toast("No email to verify");return;}b.disabled=true;b.textContent="…";l.verify=await verifyEmail(l.email);save();document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();toast("Verified: "+l.verify.status);});
 }
+const FN=["Sara","Marcus","Jia","Diego","Priya","Liam","Amara","Noah","Elena","Omar","Chloe","Ravi","Maya","Tom","Ines","Kofi","Lena","Hugo","Nadia","Sam"];
+const LN=["Reyes","Okafor","Tan","Park","Shah","Nguyen","Okoro","Bennett","Kovac","Haddad","Dubois","Iyer","Silva","Fischer","Costa","Mensah","Berg","Moreau","Kaur","Ellis"];
+const CO=["Northloop","Brightlane","Vellum","Axil","Cobalt","Everpeak","Lumen","Harbor","Quanta","Trailhead","Meridian","Juno","Aster","Forge","Pallas","Vireo"];
+const SIZES=["11-50","51-200","201-500","501-1000"];const REV=["$2M-$10M","$10M-$50M","$50M-$100M","$100M+"];
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function sampleLeadsLocal(count,industry,role,country){
+  let n=0;for(let i=0;i<count;i++){const fn=pick(FN),ln=pick(LN),co=pick(CO);
+    const slug=co.toLowerCase().replace(/[^a-z]/g,"");
+    S.leads.push({id:uid(),source:"sample",verify:null,name:fn+" "+ln,email:(fn[0]+"."+ln).toLowerCase()+"@"+slug+"-demo.com",
+      phone:"+1 (555) "+String(100+Math.floor(Math.random()*899))+"-"+String(1000+Math.floor(Math.random()*8999)),
+      company:co,position:role||"VP of Sales",industry:industry||"SaaS",size:pick(SIZES),revenue:pick(REV),country:country||"United States",
+      website:"https://"+slug+"-demo.com",linkedin:"https://linkedin.com/in/"+fn.toLowerCase()+"-"+ln.toLowerCase(),notes:"Synthetic sample (not a real contact)"});n++;}
+  return n;
+}
 async function genLeads(){
   const btn=document.getElementById("lGenRun");const g=id=>document.getElementById(id).value.trim();
   let count=Math.max(1,Math.min(20,parseInt(g("g_count"))||10));
+  // no key → keyless local generator
+  if(!S.settings.apiKey){const n=sampleLeadsLocal(count,g("g_industry"),g("g_role"),g("g_country"));save();toast(n+" sample leads generated");render();return;}
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Generating…';
   try{
     const sys="You generate fictional, clearly-synthetic B2B sample prospect data for testing an outreach tool. Never invent real people or real email addresses. Use obviously fictional example domains like @acme-demo.com, @northloop-demo.io.";
@@ -460,8 +476,8 @@ async function genLeads(){
     const txt=await callClaude(sys,prompt,4000);
     const data=extractJSON(txt);const arr=(data.leads||data.prospects||[]);
     let n=0;arr.forEach(x=>{if(!x)return;S.leads.push({id:uid(),source:"ai-sample",verify:null,name:x.name||"",email:(x.email||"").toLowerCase(),phone:x.phone||"",company:x.company||"",position:x.position||x.title||"",industry:x.industry||"",size:x.size||x.company_size||"",revenue:x.revenue||"",country:x.country||"",website:x.website||"",linkedin:x.linkedin||"",notes:"AI sample (synthetic)"});n++;});
-    save();toast(n+" sample leads generated");render();
-  }catch(e){toast("Error: "+e.message);btn.disabled=false;btn.innerHTML="Generate";}
+    save();toast(n+" AI sample leads generated");render();
+  }catch(e){const n=sampleLeadsLocal(count,g("g_industry"),g("g_role"),g("g_country"));save();toast("AI unavailable ("+e.message+") — used built-in generator");render();}
 }
 
 /* ---------- Verification ---------- */
@@ -527,11 +543,45 @@ VIEWS.export=function(m){
 
 /* ---------- AI Templates ---------- */
 const STYLES=["Cold Outreach","Sales Pitch","Follow-up","Demo Request","Partnership","Recruitment","Event Invitation","Product Launch","Reminder"];
+/* built-in starter templates — no API key required, fully editable */
+const STARTERS={
+"Cold Outreach":{subjects:["Quick idea for {{company}}","{{first_name}} — a faster path for {{company}}","Worth a look, {{first_name}}?"],
+  body:"Hi {{first_name}},\n\nI work with teams in {{industry}} and noticed {{company}} is scaling its outbound. Most {{position}}s I speak with lose hours a week to manual prospecting and low reply rates.\n\nWe help fix that — better-targeted leads, verified addresses, and personalized sends that actually land. Teams like yours typically see reply rates climb within a couple of weeks.",
+  cta:"Open to a quick 15-minute call next week to see if it's a fit?",signature:"{{sender_name}}"},
+"Sales Pitch":{subjects:["Cut {{company}}'s prospecting time in half","A better outbound engine for {{company}}","{{first_name}}, the numbers behind our pitch"],
+  body:"Hi {{first_name}},\n\nRunning outbound at {{company}} usually means stitching together a data tool, a verifier, a writer, and a sender. That stack is slow and leaks deliverability.\n\nWe collapse it into one workflow: find → verify → personalize → send → measure. The result for {{industry}} teams is cleaner data, higher inbox placement, and more booked meetings per rep.",
+  cta:"Can I send over a short breakdown tailored to {{company}}?",signature:"{{sender_name}}"},
+"Follow-up":{subjects:["Following up, {{first_name}}","Re: a faster path for {{company}}","Circling back — still relevant?"],
+  body:"Hi {{first_name}},\n\nJust floating this back to the top of your inbox. I know a {{position}}'s week fills up fast.\n\nMy earlier note was about helping {{company}} run outbound as one clean workflow instead of a patchwork of tools. Happy to keep it to a short, no-pressure conversation.",
+  cta:"Would a 15-minute call this week or next work better?",signature:"{{sender_name}}"},
+"Demo Request":{subjects:["See it on {{company}}'s data","A 15-min demo for {{company}}?","{{first_name}} — want a quick walkthrough?"],
+  body:"Hi {{first_name}},\n\nRather than tell you how it works, I'd rather show you — using a slice of {{industry}} data so it's relevant to {{company}}.\n\nIn 15 minutes you'll see lead discovery, live verification, and a personalized send go out end to end.",
+  cta:"Grab a slot here, or reply with a couple of times that suit you.",signature:"{{sender_name}}"},
+"Partnership":{subjects:["Partnering with {{company}}","A collaboration idea, {{first_name}}","{{company}} + us — worth exploring?"],
+  body:"Hi {{first_name}},\n\nI've been following {{company}}'s work in {{industry}} and think there's a natural overlap with what we do. Our audiences and offerings complement each other rather than compete.\n\nI'd love to explore a partnership — co-marketing, a referral arrangement, or an integration, whatever fits best.",
+  cta:"Open to a short call to compare notes?",signature:"{{sender_name}}"},
+"Recruitment":{subjects:["A role that fits your background, {{first_name}}","{{company}} is hiring — thought of you","Worth a conversation?"],
+  body:"Hi {{first_name}},\n\nYour experience as a {{position}} in {{industry}} stood out. We're growing the team and I think you'd be a strong fit for what we're building.\n\nNo pressure at all — I'd just like to share what the role involves and hear what you're looking for next.",
+  cta:"Would you be open to a brief, confidential chat this week?",signature:"{{sender_name}}"},
+"Event Invitation":{subjects:["You're invited, {{first_name}}","An event for {{industry}} leaders","Save your spot, {{first_name}}"],
+  body:"Hi {{first_name}},\n\nWe're hosting a small, practical session for {{industry}} leaders on building outbound that actually converts — no fluff, just tactics you can use the next day.\n\nGiven your role at {{company}}, I thought you'd get real value from it (and from the room).",
+  cta:"Can I reserve you a seat? Just reply 'yes' and I'll send details.",signature:"{{sender_name}}"},
+"Product Launch":{subjects:["Just launched — built for {{company}}","New: a cleaner way to run outbound","{{first_name}}, this is live now"],
+  body:"Hi {{first_name}},\n\nWe just shipped something I think {{company}} will care about: one workflow that finds leads, verifies every address, writes personalized outreach, and sends it — with deliverability and compliance built in.\n\nIt's the tool I wish {{industry}} teams had a year ago.",
+  cta:"Want early access? I'll set {{company}} up personally.",signature:"{{sender_name}}"},
+"Reminder":{subjects:["Quick reminder, {{first_name}}","Don't miss this","Last nudge — then I'll stop :)"],
+  body:"Hi {{first_name}},\n\nA friendly reminder about my earlier note. If the timing isn't right for {{company}}, no worries at all — just let me know and I'll close the loop.\n\nIf it is, I'd still love to show you how it works.",
+  cta:"Reply with a good time, or a simple 'not now' — either helps.",signature:"{{sender_name}}"}
+};
 let draft=null;
 VIEWS.templates=function(m){
-  let html=viewTop("AI Template Generator","personalized outreach in 9 styles — subject, body, CTA, signature");
-  if(!S.settings.apiKey)html+='<div class="banner warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><div>Add your Claude API key in <b>Settings</b> to generate templates.</div></div>';
-  html+='<div class="card"><h3>Generate</h3><div class="form-grid">'+
+  let html=viewTop("Outreach Templates","9 styles — subject, body, CTA, signature");
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>No API key needed:</b> pick a built-in starter below, edit it, and save. Adding a Claude key in <b>Settings</b> unlocks the optional AI generator for custom, fully-personalized drafts.</div></div>';
+  // starter library (no key)
+  html+='<div class="card"><h3>Start from a built-in template</h3><div class="desc">Ready-to-edit copy for each outreach style — merge tags included. Works offline, no key.</div>'+
+    '<div class="btn-row" style="align-items:flex-end"><div style="flex:1;min-width:200px"><label>Style</label><select id="t_starter">'+STYLES.map(s=>'<option>'+s+'</option>').join("")+'</select></div>'+
+    '<button class="btn btn-primary" id="tStarter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Load starter</button></div></div>';
+  html+='<div class="card"><div class="card-head"><h3>Generate with AI</h3><span class="chip '+(S.settings.apiKey?"c-ai":"c-unchecked")+'"><i></i>'+(S.settings.apiKey?"key set":"optional · needs key")+'</span></div><div class="form-grid">'+
     '<div class="field"><label>Style</label><select id="t_style">'+STYLES.map(s=>'<option>'+s+'</option>').join("")+'</select></div>'+
     ff("t_industry","Industry","SaaS")+ff("t_role","Job role","VP of Sales")+ff("t_audience","Target audience","B2B revenue teams")+ff("t_country","Country","United States")+ff("t_type","Business type","B2B software")+ff("t_services","Your services / offer","AI-powered lead generation")+ff("t_pain","Pain points","manual prospecting, low reply rates")+
     '<div class="field"><label>Tone</label><select id="t_tone"><option>Professional</option><option>Friendly</option><option>Direct</option><option>Consultative</option></select></div>'+
@@ -539,6 +589,8 @@ VIEWS.templates=function(m){
   html+='<div id="tDraft"></div>';
   html+='<div class="card"><div class="card-head"><h3>Saved templates</h3><span class="chip c-info"><i></i>'+S.templates.length+'</span></div>'+savedTemplates()+'</div>';
   m.innerHTML=html;
+  document.getElementById("tStarter").onclick=()=>{const style=document.getElementById("t_starter").value;const s=STARTERS[style];
+    draft={style:style,subjects:s.subjects.slice(),body:s.body,cta:s.cta,signature:s.signature};renderDraft();toast("Starter loaded — edit & save");};
   document.getElementById("tGen").onclick=genTemplate;
   if(draft)renderDraft();
   bindSaved();
