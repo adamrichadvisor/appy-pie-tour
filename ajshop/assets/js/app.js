@@ -16,9 +16,11 @@
     const lock = parseInt(String(p.id).replace(/\D/g, ''), 10) || 1;
     return (window.AJ_IMG_BASE || 'https://loremflickr.com/600/600/') + encodeURIComponent(kw) + '?lock=' + lock;
   }
-  // Renders a real <img>; if it fails to load it swaps to the built-in SVG illustration.
+  // Image priority chain: YOUR photo (assets/img/products/<id>.jpg) → keyword stock photo → illustration.
+  // Drop a file named e.g. AJ0001.jpg into assets/img/products/ and it is used automatically.
   function media(p) {
-    return `<img class="pmedia" src="${productImgURL(p)}" alt="${p.name}" loading="lazy" data-fb="${AJArt.dataURI(p.art, p.color)}">`;
+    const local = 'assets/img/products/' + p.id + '.jpg';
+    return `<img class="pmedia" src="${local}" alt="${p.name}" loading="lazy" data-stock="${productImgURL(p)}" data-fb="${AJArt.dataURI(p.art, p.color)}">`;
   }
 
   /* ---------- delivery location ---------- */
@@ -333,10 +335,13 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target && e.target.id === 'pinInput') { e.preventDefault(); saveLocation(); }
     });
-    // Real-photo error → swap to built-in illustration (capture phase; error doesn't bubble)
+    // Image fallback chain (capture phase; error events don't bubble):
+    // your photo → keyword stock photo (data-stock) → illustration (data-fb)
     document.addEventListener('error', (e) => {
       const el = e.target;
-      if (el && el.tagName === 'IMG' && el.dataset && el.dataset.fb) { el.src = el.dataset.fb; el.removeAttribute('data-fb'); }
+      if (!el || el.tagName !== 'IMG' || !el.dataset) return;
+      if (el.dataset.stock) { const s = el.dataset.stock; el.removeAttribute('data-stock'); el.src = s; return; }
+      if (el.dataset.fb) { const f = el.dataset.fb; el.removeAttribute('data-fb'); el.src = f; }
     }, true);
     const s = document.getElementById('globalSearch');
     if (s) s.addEventListener('keydown', (e) => {
