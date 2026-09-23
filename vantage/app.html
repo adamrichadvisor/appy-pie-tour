@@ -430,10 +430,10 @@ VIEWS.leads=function(m){
     '<div class="desc">Pick a category and location to auto-pull real companies (name, website, phone, and email where listed). Filter machine for local &amp; agency outreach.</div>'+
     '<div class="form-grid">'+
     '<div class="field"><label>Category</label><select id="d_cat">'+DIRCATS.map((c,i)=>'<option value="'+i+'"'+(i===dcatSel?" selected":"")+'>'+esc(c.label)+'</option>').join("")+'</select></div>'+
-    '<div class="field"><label>Country</label><input id="d_country" value="'+esc(dCountry)+'"></div>'+
-    '<div class="field"><label>City</label><input id="d_city" value="'+esc(dCity)+'" placeholder="e.g. London"></div>'+
-    '<div class="field"><label>Target role (for outreach)</label><input id="d_role" value="'+esc(dRole)+'" placeholder="e.g. Owner"></div>'+
-    '<div class="field"><label>Max results</label><input id="d_limit" value="'+dLimit+'"></div>'+
+    '<div class="field"><label>Country</label><select id="d_country">'+COUNTRIES.map(c=>'<option'+(c===dCountry?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></div>'+
+    '<div class="field"><label>City / region</label><input id="d_city" value="'+esc(dCity)+'" placeholder="e.g. Los Angeles"></div>'+
+    '<div class="field"><label>Target role (for outreach)</label><select id="d_role">'+ROLES.map(r=>{const val=(r==="— any —"?"":r);return '<option value="'+esc(val)+'"'+(val===dRole?" selected":"")+'>'+esc(r)+'</option>';}).join("")+'</select></div>'+
+    '<div class="field"><label>Max results</label><select id="d_limit">'+[10,25,50,100].map(n=>'<option'+(n===dLimit?" selected":"")+'>'+n+'</option>').join("")+'</select></div>'+
     '</div><div class="btn-row"><button class="btn btn-primary" id="dRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find businesses</button><span id="dStatus" class="small"></span></div></div>';
   // add form (hidden)
   html+='<div class="card hidden" id="lAddCard"><h3>Add a lead</h3><div class="desc">Only Name or Email is required.</div><div class="form-grid">'+
@@ -522,11 +522,20 @@ const DIRCATS=[
  {label:"Photographer",sel:"craft=photographer",industry:"Photography"}
 ];
 let lastDir=null;
+const ROLES=["— any —","Owner","Founder","Co-Founder","CEO","Managing Director","Director","VP of Sales","Head of Sales","Sales Manager","CMO","Head of Marketing","Marketing Manager","Business Development","Operations Manager","General Manager","Partner","Procurement Manager","Office Manager","IT Manager","HR Manager"];
+const COUNTRIES=["United States","United Kingdom","Canada","Australia","India","Ireland","New Zealand","Singapore","United Arab Emirates","Saudi Arabia","Qatar","Germany","France","Spain","Italy","Netherlands","Belgium","Switzerland","Austria","Sweden","Norway","Denmark","Finland","Poland","Portugal","Greece","Czech Republic","Romania","Hungary","Ukraine","Turkey","Russia","Israel","South Africa","Nigeria","Kenya","Egypt","Morocco","Ghana","Brazil","Mexico","Argentina","Chile","Colombia","Peru","Japan","China","Hong Kong","South Korea","Taiwan","Malaysia","Indonesia","Thailand","Vietnam","Philippines","Pakistan","Bangladesh","Sri Lanka","Nepal"];
+async function robustGet(url){
+  try{const r=await fetch(url,{headers:{accept:"application/json"}});if(r.ok)return await r.text();}catch(e){}
+  const proxies=["https://api.allorigins.win/raw?url=","https://corsproxy.io/?url="];
+  for(const px of proxies){
+    try{const r=await fetch(px+encodeURIComponent(url));if(r.ok){const t=await r.text();if(t)return t;}}catch(e){}
+  }
+  throw new Error("Network blocked — try the hosted https link, a different network, or turn off ad/privacy blockers.");
+}
 async function geocode(q){
-  const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q),{headers:{accept:"application/json"}});
-  if(!r.ok)throw new Error("Location lookup failed ("+r.status+")");
-  const j=await r.json();
-  if(!j.length)throw new Error("Location not found — check the city/country spelling.");
+  const txt=await robustGet("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q));
+  let j;try{j=JSON.parse(txt);}catch(e){throw new Error("Location lookup failed — try again.");}
+  if(!j.length)throw new Error("Location not found — try 'City, Country' spelling.");
   const b=j[0].boundingbox; // [south, north, west, east]
   return {s:+b[0],n:+b[1],w:+b[2],e:+b[3]};
 }
@@ -537,11 +546,8 @@ async function overpass(sel,bb,limit){
   const eps=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
   let lastErr;
   for(const ep of eps){
-    try{
-      const r=await fetch(ep,{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)});
-      if(!r.ok){lastErr=new Error("Directory service busy ("+r.status+") — try again in a moment.");continue;}
-      const j=await r.json();return j.elements||[];
-    }catch(e){lastErr=e;}
+    try{const txt=await robustGet(ep+"?data="+encodeURIComponent(q));const j=JSON.parse(txt);return j.elements||[];}
+    catch(e){lastErr=e;}
   }
   throw lastErr||new Error("Couldn't reach the directory service.");
 }
