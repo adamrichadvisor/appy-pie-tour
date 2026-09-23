@@ -192,6 +192,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
   </aside>
   <main class="main" id="main"></main>
 </div>
+<div id="fileWarn"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -524,13 +525,15 @@ const DIRCATS=[
 let lastDir=null;
 const ROLES=["— any —","Owner","Founder","Co-Founder","CEO","Managing Director","Director","VP of Sales","Head of Sales","Sales Manager","CMO","Head of Marketing","Marketing Manager","Business Development","Operations Manager","General Manager","Partner","Procurement Manager","Office Manager","IT Manager","HR Manager"];
 const COUNTRIES=["United States","United Kingdom","Canada","Australia","India","Ireland","New Zealand","Singapore","United Arab Emirates","Saudi Arabia","Qatar","Germany","France","Spain","Italy","Netherlands","Belgium","Switzerland","Austria","Sweden","Norway","Denmark","Finland","Poland","Portugal","Greece","Czech Republic","Romania","Hungary","Ukraine","Turkey","Russia","Israel","South Africa","Nigeria","Kenya","Egypt","Morocco","Ghana","Brazil","Mexico","Argentina","Chile","Colombia","Peru","Japan","China","Hong Kong","South Korea","Taiwan","Malaysia","Indonesia","Thailand","Vietnam","Philippines","Pakistan","Bangladesh","Sri Lanka","Nepal"];
+function isFileOrigin(){return location.protocol==="file:";}
 async function robustGet(url){
   try{const r=await fetch(url,{headers:{accept:"application/json"}});if(r.ok)return await r.text();}catch(e){}
   const proxies=["https://api.allorigins.win/raw?url=","https://corsproxy.io/?url="];
   for(const px of proxies){
     try{const r=await fetch(px+encodeURIComponent(url));if(r.ok){const t=await r.text();if(t)return t;}}catch(e){}
   }
-  throw new Error("Network blocked — try the hosted https link, a different network, or turn off ad/privacy blockers.");
+  if(isFileOrigin())throw new Error("You've opened the downloaded file directly (file://). Browsers block all internet access from local files, so live search can't run here. Open the hosted link instead: https://adamrichadvisor.github.io/appy-pie-tour/app.html — or use 'Import CSV' below, which works offline.");
+  throw new Error("Network blocked — try a different network, or turn off ad/privacy blockers. (Directory search needs OpenStreetMap; some networks block it.)");
 }
 async function geocode(q){
   const txt=await robustGet("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q));
@@ -974,6 +977,13 @@ VIEWS.settings=function(m){
 function render(){const m=document.getElementById("main");const fn=VIEWS[CURRENT]||VIEWS.dashboard;fn(m);
   m.querySelectorAll("[data-go]").forEach(b=>{if(!b._b){b._b=1;b.onclick=()=>go(b.dataset.go);}});}
 refreshBadges();
+(function(){
+  if(location.protocol==="file:"){
+    const w=document.getElementById("fileWarn");
+    w.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#7a2e2e;color:#fff;padding:12px 18px;font-size:13.5px;line-height:1.5;box-shadow:0 -4px 20px rgba(0,0,0,.35);display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap";
+    w.innerHTML='<span>⚠️ You opened the <b>downloaded file</b>. Browsers block internet access from local files, so live search, verification &amp; AI won\'t run. Use the hosted link → <a href="https://adamrichadvisor.github.io/appy-pie-tour/app.html" style="color:#fff;text-decoration:underline;font-weight:600">adamrichadvisor.github.io/appy-pie-tour/app.html</a>. (Offline features like <b>Import CSV</b>, templates &amp; export still work here.)</span><button onclick="this.parentNode.remove()" style="background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:13px">Dismiss</button>';
+  }
+})();
 (function(){const h=location.hash.slice(1);CURRENT=(h&&VIEWS[h])?h:"dashboard";document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("on",n.dataset.view===CURRENT));render();})();
 </script>
 </body>
