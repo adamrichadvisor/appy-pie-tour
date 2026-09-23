@@ -423,7 +423,18 @@ VIEWS.leads=function(m){
     '<button class="btn btn-ghost" id="lGen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg>Sample leads</button>'+
     '<button class="btn btn-primary" id="lAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add lead</button>');
   html+='<input type="file" id="lFile" accept=".csv,text/csv" class="hidden">';
-  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>Real B2B contact databases (Apollo/ZoomInfo-style) are licensed data this in-browser tool can\'t provide. Import your own CSV, add leads manually, or generate clearly-labelled <b>synthetic sample leads</b> to try the full workflow end to end.</div></div>';
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>Directory search</b> below pulls <b>real businesses</b> by category + location (free, via OpenStreetMap). Person-level data (named decision-makers with verified personal emails) is the licensed Apollo/ZoomInfo piece a browser tool can\'t provide — import a CSV for that, or generate synthetic samples to test the flow.</div></div>';
+  // Directory search (real businesses, free)
+  const dcatSel=(lastDir?lastDir.cat:0),dCountry=(lastDir?lastDir.country:"United States"),dCity=(lastDir?lastDir.city:""),dRole=(lastDir?lastDir.role:""),dLimit=(lastDir?lastDir.limit:25);
+  html+='<div class="card"><div class="card-head"><h3>Directory search — find real businesses</h3><span class="chip c-info"><i></i>free · OpenStreetMap</span></div>'+
+    '<div class="desc">Pick a category and location to auto-pull real companies (name, website, phone, and email where listed). Filter machine for local &amp; agency outreach.</div>'+
+    '<div class="form-grid">'+
+    '<div class="field"><label>Category</label><select id="d_cat">'+DIRCATS.map((c,i)=>'<option value="'+i+'"'+(i===dcatSel?" selected":"")+'>'+esc(c.label)+'</option>').join("")+'</select></div>'+
+    '<div class="field"><label>Country</label><input id="d_country" value="'+esc(dCountry)+'"></div>'+
+    '<div class="field"><label>City</label><input id="d_city" value="'+esc(dCity)+'" placeholder="e.g. London"></div>'+
+    '<div class="field"><label>Target role (for outreach)</label><input id="d_role" value="'+esc(dRole)+'" placeholder="e.g. Owner"></div>'+
+    '<div class="field"><label>Max results</label><input id="d_limit" value="'+dLimit+'"></div>'+
+    '</div><div class="btn-row"><button class="btn btn-primary" id="dRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find businesses</button><span id="dStatus" class="small"></span></div></div>';
   // add form (hidden)
   html+='<div class="card hidden" id="lAddCard"><h3>Add a lead</h3><div class="desc">Only Name or Email is required.</div><div class="form-grid">'+
     ff("l_name","Full Name")+ff("l_email","Email")+ff("l_phone","Phone")+ff("l_linkedin","LinkedIn URL")+ff("l_company","Company")+ff("l_position","Job Title")+ff("l_industry","Industry")+ff("l_size","Company Size")+ff("l_revenue","Revenue")+ff("l_country","Country")+ff("l_website","Website")+ff("l_notes","Notes")+
@@ -449,6 +460,7 @@ VIEWS.leads=function(m){
     const lead={id:uid(),source:"manual",verify:null,name:g("l_name"),email:g("l_email"),phone:g("l_phone"),linkedin:g("l_linkedin"),company:g("l_company"),position:g("l_position"),industry:g("l_industry"),size:g("l_size"),revenue:g("l_revenue"),country:g("l_country"),website:g("l_website"),notes:g("l_notes")};
     if(!lead.name&&!lead.email){toast("Enter a name or email");return;}S.leads.push(lead);save();toast("Lead added");render();};
   document.getElementById("lGenRun").onclick=genLeads;
+  document.getElementById("dRun").onclick=dirSearch;
   document.getElementById("lSearch").oninput=e=>{leadSearch=e.target.value;document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();};
   m.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{leadFilter=b.dataset.f;render();});
   bindLeadRows();
@@ -482,6 +494,87 @@ function sampleLeadsLocal(count,industry,role,country){
       company:co,position:role||"VP of Sales",industry:industry||"SaaS",size:pick(SIZES),revenue:pick(REV),country:country||"United States",
       website:"https://"+slug+"-demo.com",linkedin:"https://linkedin.com/in/"+fn.toLowerCase()+"-"+ln.toLowerCase(),notes:"Synthetic sample (not a real contact)"});n++;}
   return n;
+}
+/* ---------- Directory search: real businesses via OpenStreetMap (free, no key) ---------- */
+const DIRCATS=[
+ {label:"Advertising / marketing agency",sel:"office=advertising_agency",industry:"Marketing Agency"},
+ {label:"IT / software company",sel:"office=it",industry:"IT / Software"},
+ {label:"Company / business office",sel:"office=company",industry:"Business Services"},
+ {label:"Estate agent / real estate",sel:"office=estate_agent",industry:"Real Estate"},
+ {label:"Law firm / lawyer",sel:"office=lawyer",industry:"Legal"},
+ {label:"Accountant",sel:"office=accountant",industry:"Accounting"},
+ {label:"Insurance",sel:"office=insurance",industry:"Insurance"},
+ {label:"Coworking space",sel:"office=coworking",industry:"Coworking"},
+ {label:"Restaurant",sel:"amenity=restaurant",industry:"Restaurant"},
+ {label:"Cafe",sel:"amenity=cafe",industry:"Cafe"},
+ {label:"Hotel",sel:"tourism=hotel",industry:"Hospitality"},
+ {label:"Gym / fitness centre",sel:"leisure=fitness_centre",industry:"Fitness"},
+ {label:"Beauty salon",sel:"shop=beauty",industry:"Beauty"},
+ {label:"Hairdresser",sel:"shop=hairdresser",industry:"Beauty"},
+ {label:"Dentist",sel:"amenity=dentist",industry:"Dental"},
+ {label:"Clinic / doctors",sel:"amenity=clinic",industry:"Healthcare"},
+ {label:"Pharmacy",sel:"amenity=pharmacy",industry:"Pharmacy"},
+ {label:"Car dealer",sel:"shop=car",industry:"Automotive"},
+ {label:"Car repair",sel:"shop=car_repair",industry:"Automotive"},
+ {label:"Travel agency",sel:"shop=travel_agency",industry:"Travel"},
+ {label:"Electronics shop",sel:"shop=electronics",industry:"Retail"},
+ {label:"Supermarket",sel:"shop=supermarket",industry:"Retail"},
+ {label:"Photographer",sel:"craft=photographer",industry:"Photography"}
+];
+let lastDir=null;
+async function geocode(q){
+  const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q),{headers:{accept:"application/json"}});
+  if(!r.ok)throw new Error("Location lookup failed ("+r.status+")");
+  const j=await r.json();
+  if(!j.length)throw new Error("Location not found — check the city/country spelling.");
+  const b=j[0].boundingbox; // [south, north, west, east]
+  return {s:+b[0],n:+b[1],w:+b[2],e:+b[3]};
+}
+async function overpass(sel,bb,limit){
+  const p=sel.split("="),k=p[0],v=p[1];
+  const filt='["'+k+'"="'+v+'"]('+bb.s+','+bb.w+','+bb.n+','+bb.e+')';
+  const q="[out:json][timeout:25];(node"+filt+";way"+filt+";);out center "+limit+";";
+  const eps=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+  let lastErr;
+  for(const ep of eps){
+    try{
+      const r=await fetch(ep,{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)});
+      if(!r.ok){lastErr=new Error("Directory service busy ("+r.status+") — try again in a moment.");continue;}
+      const j=await r.json();return j.elements||[];
+    }catch(e){lastErr=e;}
+  }
+  throw lastErr||new Error("Couldn't reach the directory service.");
+}
+async function dirSearch(){
+  const idx=+document.getElementById("d_cat").value;const cat=DIRCATS[idx]||DIRCATS[0];
+  const country=document.getElementById("d_country").value.trim();
+  const city=document.getElementById("d_city").value.trim();
+  const role=document.getElementById("d_role").value.trim();
+  const limit=Math.max(1,Math.min(60,parseInt(document.getElementById("d_limit").value)||25));
+  lastDir={cat:idx,country:country,city:city,role:role,limit:limit};
+  const st=document.getElementById("dStatus");const btn=document.getElementById("dRun");
+  const where=[city,country].filter(Boolean).join(", ");
+  if(!where){st.innerHTML='<span style="color:var(--bad)">Enter a city and/or country.</span>';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Searching…';st.textContent="Locating "+where+"…";
+  try{
+    const bb=await geocode(where);
+    st.textContent="Searching "+cat.label+" in "+where+"…";
+    const els=await overpass(cat.sel,bb,limit);
+    const seen=new Set(S.leads.map(l=>((l.website||l.name||"")+"").toLowerCase()));
+    let n=0,withEmail=0;
+    els.forEach(el=>{const t=el.tags||{};const name=t.name;if(!name)return;
+      const key=((t.website||t["contact:website"]||name)+"").toLowerCase();
+      if(seen.has(key))return;seen.add(key);
+      const email=(t.email||t["contact:email"]||"").toLowerCase();if(email)withEmail++;
+      S.leads.push({id:uid(),source:"directory",verify:null,name:name,company:name,position:role||"",
+        email:email,phone:t.phone||t["contact:phone"]||"",website:t.website||t["contact:website"]||"",linkedin:"",
+        country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(t["addr:city"]?" · "+t["addr:city"]:"")});
+      n++;});
+    save();
+    if(n===0)toast("No listed businesses found there — try a bigger city or another category.");
+    else toast("Added "+n+" real businesses ("+withEmail+" with an email).");
+    render();
+  }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
 }
 async function genLeads(){
   const btn=document.getElementById("lGenRun");const g=id=>document.getElementById(id).value.trim();
