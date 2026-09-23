@@ -16,7 +16,7 @@ AI-powered B2B **lead generation & cold email outreach** — a concept product w
 
 > **No account needed.** The entire workflow runs with **no API key** — built-in starter templates, a local sample-lead generator, live MX verification, export, campaigns, sending, and reports all work as-is.
 
-**Optional:** add a Claude API key in **Settings** (from [console.anthropic.com](https://console.anthropic.com)) to unlock the *AI* template generator and more varied AI sample leads. The key is stored only in your browser's `localStorage` and sent directly to Anthropic — nothing goes to any third-party server. (There is no free/hosted inference path: any model call needs someone's credited key, and it can't be the assistant's session credentials.)
+**Optional (free):** to enable the *AI* generators, add a key in **Settings**. You can use a **free Google Gemini key** (get one at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) — no credit card), or an Anthropic Claude key. Keys are stored only in your browser's `localStorage` and sent directly to the provider — nothing goes to any third-party server. (There is no free/hosted inference path built into the page: any model call needs your own provider key.)
 
 ### What genuinely works (no backend, no key)
 - **Outreach templates** — a built-in library for all 9 styles, fully editable, merge tags included. (An *optional* AI generator writes custom drafts when a key is set.)
