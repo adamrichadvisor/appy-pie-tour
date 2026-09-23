@@ -203,7 +203,8 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
    ============================================================ */
 const KEY="vantage.tool.v1";
 const DEFAULTS={
-  settings:{apiKey:"",model:"claude-opus-5",senderName:"",senderEmail:"",replyTo:"",
+  settings:{provider:"anthropic",apiKey:"",model:"claude-opus-5",geminiKey:"",geminiModel:"gemini-2.0-flash",
+    senderName:"",senderEmail:"",replyTo:"",
     dailyCap:200,delayMin:30,delayMax:90,demoSpeed:true,
     footer:"You are receiving this because we believe our solution is relevant to your team.\nVantage Demo Inc · 123 Market St, San Francisco, CA 94105\nReply STOP or click unsubscribe to opt out.",
     unsubText:"Unsubscribe"},
@@ -255,9 +256,24 @@ async function verifyEmail(email){
   }
 }
 
-/* ---------- Anthropic API (browser-direct) ---------- */
+/* ---------- AI API (browser-direct; Anthropic or free Google Gemini) ---------- */
+function hasKey(){const s=S.settings;return (s.provider==="gemini")?!!s.geminiKey:!!s.apiKey;}
 async function callClaude(system,user,maxTokens){
   const s=S.settings;
+  if(s.provider==="gemini"){
+    if(!s.geminiKey)throw new Error("Add your free Google Gemini key in Settings first.");
+    const model=s.geminiModel||"gemini-2.0-flash";
+    const res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(s.geminiKey),{
+      method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({system_instruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],generationConfig:{maxOutputTokens:maxTokens||2048,temperature:0.7}})
+    });
+    if(!res.ok){let msg="Gemini error "+res.status;try{const e=await res.json();if(e.error&&e.error.message)msg=e.error.message;}catch(_){}throw new Error(msg);}
+    const data=await res.json();
+    const cand=(data.candidates||[])[0];
+    if(!cand){const bm=data.promptFeedback&&data.promptFeedback.blockReason;throw new Error(bm?("blocked: "+bm):"No response from Gemini.");}
+    return ((cand.content&&cand.content.parts)||[]).map(p=>p.text||"").join("");
+  }
+  // Anthropic (default)
   if(!s.apiKey)throw new Error("Add your Claude API key in Settings first.");
   const res=await fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
@@ -339,7 +355,7 @@ function refreshBadges(){
   document.getElementById("b-tpl").textContent=S.templates.length;
   document.getElementById("b-cmp").textContent=S.campaigns.length;
   document.getElementById("b-mbx").textContent=S.mailboxes.length;
-  const ok=!!S.settings.apiKey;const kd=document.getElementById("keyDot");kd.classList.toggle("ok",ok);kd.querySelector("span").textContent=ok?"key set":"no key";
+  const ok=hasKey();const kd=document.getElementById("keyDot");kd.classList.toggle("ok",ok);kd.querySelector("span").textContent=ok?"key set":"no key";
 }
 let CURRENT="dashboard";
 function go(view){CURRENT=view;location.hash=view;
@@ -468,7 +484,7 @@ async function genLeads(){
   const btn=document.getElementById("lGenRun");const g=id=>document.getElementById(id).value.trim();
   let count=Math.max(1,Math.min(20,parseInt(g("g_count"))||10));
   // no key → keyless local generator
-  if(!S.settings.apiKey){const n=sampleLeadsLocal(count,g("g_industry"),g("g_role"),g("g_country"));save();toast(n+" sample leads generated");render();return;}
+  if(!hasKey()){const n=sampleLeadsLocal(count,g("g_industry"),g("g_role"),g("g_country"));save();toast(n+" sample leads generated");render();return;}
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Generating…';
   try{
     const sys="You generate fictional, clearly-synthetic B2B sample prospect data for testing an outreach tool. Never invent real people or real email addresses. Use obviously fictional example domains like @acme-demo.com, @northloop-demo.io.";
@@ -576,12 +592,12 @@ const STARTERS={
 let draft=null;
 VIEWS.templates=function(m){
   let html=viewTop("Outreach Templates","9 styles — subject, body, CTA, signature");
-  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>No API key needed:</b> pick a built-in starter below, edit it, and save. Adding a Claude key in <b>Settings</b> unlocks the optional AI generator for custom, fully-personalized drafts.</div></div>';
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>No API key needed:</b> pick a built-in starter below, edit it, and save. Adding a key in <b>Settings</b> (free Google Gemini, or Claude) unlocks the optional AI generator for custom, fully-personalized drafts.</div></div>';
   // starter library (no key)
   html+='<div class="card"><h3>Start from a built-in template</h3><div class="desc">Ready-to-edit copy for each outreach style — merge tags included. Works offline, no key.</div>'+
     '<div class="btn-row" style="align-items:flex-end"><div style="flex:1;min-width:200px"><label>Style</label><select id="t_starter">'+STYLES.map(s=>'<option>'+s+'</option>').join("")+'</select></div>'+
     '<button class="btn btn-primary" id="tStarter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Load starter</button></div></div>';
-  html+='<div class="card"><div class="card-head"><h3>Generate with AI</h3><span class="chip '+(S.settings.apiKey?"c-ai":"c-unchecked")+'"><i></i>'+(S.settings.apiKey?"key set":"optional · needs key")+'</span></div><div class="form-grid">'+
+  html+='<div class="card"><div class="card-head"><h3>Generate with AI</h3><span class="chip '+(hasKey()?"c-ai":"c-unchecked")+'"><i></i>'+(hasKey()?"key set":"optional · needs key")+'</span></div><div class="form-grid">'+
     '<div class="field"><label>Style</label><select id="t_style">'+STYLES.map(s=>'<option>'+s+'</option>').join("")+'</select></div>'+
     ff("t_industry","Industry","SaaS")+ff("t_role","Job role","VP of Sales")+ff("t_audience","Target audience","B2B revenue teams")+ff("t_country","Country","United States")+ff("t_type","Business type","B2B software")+ff("t_services","Your services / offer","AI-powered lead generation")+ff("t_pain","Pain points","manual prospecting, low reply rates")+
     '<div class="field"><label>Tone</label><select id="t_tone"><option>Professional</option><option>Friendly</option><option>Direct</option><option>Consultative</option></select></div>'+
@@ -817,11 +833,18 @@ function distCard(title,field){
 VIEWS.settings=function(m){
   const s=S.settings;
   let html=viewTop("Settings","API key, sending defaults, compliance & data");
-  html+='<div class="card"><h3>Claude API</h3><div class="desc">Your key is stored only in this browser (localStorage) and sent directly to Anthropic. Get one at console.anthropic.com.</div>'+
-    '<div class="field"><label>API Key</label><input id="set_key" type="password" placeholder="sk-ant-..." value="'+esc(s.apiKey)+'"></div>'+
-    '<div class="field"><label>Model</label><select id="set_model">'+
-      [["claude-opus-5","Claude Opus 5 — most capable"],["claude-sonnet-5","Claude Sonnet 5 — balanced"],["claude-haiku-4-5","Claude Haiku 4.5 — fastest / cheapest"]].map(o=>'<option value="'+o[0]+'"'+(s.model===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
-    '<div class="btn-row"><button class="btn btn-primary" id="setSave">Save</button><button class="btn btn-ghost" id="setTest">Test key</button><span id="setTestOut" class="small"></span></div></div>';
+  html+='<div class="card"><h3>AI provider (optional)</h3><div class="desc">Only needed for the AI-generate buttons — the rest of the tool works without a key. Keys are stored only in this browser and sent directly to the provider.</div>'+
+    '<div class="field"><label>Provider</label><select id="set_provider">'+
+      [["anthropic","Anthropic (Claude) — paid / free trial credit"],["gemini","Google Gemini — free tier, no card"]].map(o=>'<option value="'+o[0]+'"'+(s.provider===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
+    // Anthropic block
+    '<div id="apBlock"'+(s.provider==="gemini"?' class="hidden"':'')+'><div class="field"><label>Anthropic API key</label><input id="set_key" type="password" placeholder="sk-ant-..." value="'+esc(s.apiKey)+'"></div>'+
+      '<div class="field"><label>Model</label><select id="set_model">'+[["claude-opus-5","Claude Opus 5 — most capable"],["claude-sonnet-5","Claude Sonnet 5 — balanced"],["claude-haiku-4-5","Claude Haiku 4.5 — fastest"]].map(o=>'<option value="'+o[0]+'"'+(s.model===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
+      '<div class="small">Get a key at console.anthropic.com → API Keys (new accounts often get free starter credit).</div></div>'+
+    // Gemini block
+    '<div id="gmBlock"'+(s.provider==="gemini"?'':' class="hidden"')+'><div class="field"><label>Google Gemini API key (free)</label><input id="set_gkey" type="password" placeholder="AIza..." value="'+esc(s.geminiKey)+'"></div>'+
+      '<div class="field"><label>Model</label><select id="set_gmodel">'+[["gemini-2.0-flash","Gemini 2.0 Flash — free, fast"],["gemini-2.5-flash","Gemini 2.5 Flash — free"],["gemini-1.5-flash","Gemini 1.5 Flash — free"]].map(o=>'<option value="'+o[0]+'"'+(s.geminiModel===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
+      '<div class="small">Get a <b>free</b> key at aistudio.google.com/app/apikey — no credit card required.</div></div>'+
+    '<div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="setSave">Save</button><button class="btn btn-ghost" id="setTest">Test key</button><span id="setTestOut" class="small"></span></div></div>';
   html+='<div class="card"><h3>Sender identity (defaults)</h3><div class="form-grid">'+ff("set_sName","Sender name",s.senderName)+ff("set_sEmail","Sender email",s.senderEmail)+ff("set_reply","Reply-to",s.replyTo)+'</div></div>';
   html+='<div class="card"><h3>Smart sending</h3><div class="form-grid">'+ff("set_cap","Daily cap",s.dailyCap)+ff("set_dmin","Min delay (s)",s.delayMin)+ff("set_dmax","Max delay (s)",s.delayMax)+'</div>'+
     '<label style="display:flex;gap:9px;align-items:center;text-transform:none;font-family:var(--sans);font-weight:500;color:var(--ink)"><input type="checkbox" id="set_demo" '+(s.demoSpeed?"checked":"")+' style="width:auto"> Demo speed (compress delays so you can watch a run)</label></div>';
@@ -829,13 +852,16 @@ VIEWS.settings=function(m){
     '<div class="field"><label>Email footer</label><textarea id="set_footer" rows="4">'+esc(s.footer)+'</textarea></div></div>';
   html+='<div class="card"><h3>Data</h3><div class="desc">Everything is stored locally in your browser.</div><div class="btn-row"><button class="btn btn-ghost" id="dExport">Export all (JSON)</button><button class="btn btn-ghost" id="dImport">Import JSON</button><input type="file" id="dFile" accept=".json" class="hidden"><button class="btn btn-ghost" id="dReset" style="color:var(--bad)">Reset everything</button></div></div>';
   m.innerHTML=html;
-  document.getElementById("setSave").onclick=()=>{s.apiKey=document.getElementById("set_key").value.trim();s.model=document.getElementById("set_model").value;
+  const provSel=document.getElementById("set_provider");
+  provSel.onchange=()=>{const g=provSel.value==="gemini";document.getElementById("gmBlock").classList.toggle("hidden",!g);document.getElementById("apBlock").classList.toggle("hidden",g);};
+  function readProvider(){s.provider=provSel.value;s.apiKey=document.getElementById("set_key").value.trim();s.model=document.getElementById("set_model").value;s.geminiKey=document.getElementById("set_gkey").value.trim();s.geminiModel=document.getElementById("set_gmodel").value;}
+  document.getElementById("setSave").onclick=()=>{readProvider();
     s.senderName=document.getElementById("set_sName").value.trim();s.senderEmail=document.getElementById("set_sEmail").value.trim();s.replyTo=document.getElementById("set_reply").value.trim();
     s.dailyCap=parseInt(document.getElementById("set_cap").value)||200;s.delayMin=parseInt(document.getElementById("set_dmin").value)||30;s.delayMax=parseInt(document.getElementById("set_dmax").value)||90;
     s.demoSpeed=document.getElementById("set_demo").checked;s.footer=document.getElementById("set_footer").value;
     save();toast("Settings saved");};
-  document.getElementById("setTest").onclick=async()=>{const out=document.getElementById("setTestOut");S.settings.apiKey=document.getElementById("set_key").value.trim();S.settings.model=document.getElementById("set_model").value;
-    out.textContent="Testing…";try{await callClaude("You are a test.","Reply with the single word OK.",20);out.innerHTML='<span style="color:var(--good)">✓ key works</span>';save();refreshBadges();}catch(e){out.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';}};
+  document.getElementById("setTest").onclick=async()=>{const out=document.getElementById("setTestOut");readProvider();
+    out.textContent="Testing…";try{await callClaude("You are a test.","Reply with the single word OK.",20);out.innerHTML='<span style="color:var(--good)">✓ '+esc(s.provider==="gemini"?"Gemini":"Claude")+' key works</span>';save();refreshBadges();}catch(e){out.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';}};
   document.getElementById("dExport").onclick=()=>download("vantage-data-"+new Date().toISOString().slice(0,10)+".json","application/json",JSON.stringify(S,null,2));
   document.getElementById("dImport").onclick=()=>document.getElementById("dFile").click();
   document.getElementById("dFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=Object.assign({},DEFAULTS,JSON.parse(r.result));save();toast("Data imported");render();}catch(err){toast("Invalid file");}};r.readAsText(f);};
