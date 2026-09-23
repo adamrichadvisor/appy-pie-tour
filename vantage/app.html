@@ -203,7 +203,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
    ============================================================ */
 const KEY="vantage.tool.v1";
 const DEFAULTS={
-  settings:{provider:"anthropic",apiKey:"",model:"claude-opus-5",geminiKey:"",geminiModel:"gemini-2.0-flash",
+  settings:{provider:"anthropic",apiKey:"",model:"claude-opus-5",geminiKey:"",geminiModel:"gemini-3.6-flash",
     senderName:"",senderEmail:"",replyTo:"",
     dailyCap:200,delayMin:30,delayMax:90,demoSpeed:true,
     footer:"You are receiving this because we believe our solution is relevant to your team.\nVantage Demo Inc · 123 Market St, San Francisco, CA 94105\nReply STOP or click unsubscribe to opt out.",
@@ -211,7 +211,10 @@ const DEFAULTS={
   leads:[],templates:[],mailboxes:[],campaigns:[],events:[],suppression:[]
 };
 let S=load();
-function load(){try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);return Object.assign({},DEFAULTS,p,{settings:Object.assign({},DEFAULTS.settings,p.settings||{})});}}catch(e){}return JSON.parse(JSON.stringify(DEFAULTS));}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);const merged=Object.assign({},DEFAULTS,p,{settings:Object.assign({},DEFAULTS.settings,p.settings||{})});
+  const OLD=["gemini-2.0-flash","gemini-2.5-flash","gemini-1.5-flash","gemini-1.5-pro","gemini-pro"];
+  if(OLD.indexOf(merged.settings.geminiModel)>=0)merged.settings.geminiModel="gemini-3.6-flash";
+  return merged;}}catch(e){}return JSON.parse(JSON.stringify(DEFAULTS));}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast("Storage full — export your data.");}refreshBadges();}
 function uid(){return Math.random().toString(36).slice(2,10);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -262,7 +265,7 @@ async function callClaude(system,user,maxTokens){
   const s=S.settings;
   if(s.provider==="gemini"){
     if(!s.geminiKey)throw new Error("Add your free Google Gemini key in Settings first.");
-    const model=s.geminiModel||"gemini-2.0-flash";
+    const model=s.geminiModel||"gemini-3.6-flash";
     const res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(s.geminiKey),{
       method:"POST",headers:{"content-type":"application/json"},
       body:JSON.stringify({system_instruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],generationConfig:{maxOutputTokens:maxTokens||2048,temperature:0.7}})
@@ -842,7 +845,7 @@ VIEWS.settings=function(m){
       '<div class="small">Get a key at console.anthropic.com → API Keys (new accounts often get free starter credit).</div></div>'+
     // Gemini block
     '<div id="gmBlock"'+(s.provider==="gemini"?'':' class="hidden"')+'><div class="field"><label>Google Gemini API key (free)</label><input id="set_gkey" type="password" placeholder="AIza..." value="'+esc(s.geminiKey)+'"></div>'+
-      '<div class="field"><label>Model</label><select id="set_gmodel">'+[["gemini-2.0-flash","Gemini 2.0 Flash — free, fast"],["gemini-2.5-flash","Gemini 2.5 Flash — free"],["gemini-1.5-flash","Gemini 1.5 Flash — free"]].map(o=>'<option value="'+o[0]+'"'+(s.geminiModel===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
+      '<div class="field"><label>Model</label><select id="set_gmodel">'+[["gemini-3.6-flash","Gemini 3.6 Flash — free, current"],["gemini-flash-latest","Gemini Flash (latest) — auto-updates"],["gemini-3.6-pro","Gemini 3.6 Pro — higher quality"]].map(o=>'<option value="'+o[0]+'"'+(s.geminiModel===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
       '<div class="small">Get a <b>free</b> key at aistudio.google.com/app/apikey — no credit card required.</div></div>'+
     '<div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="setSave">Save</button><button class="btn btn-ghost" id="setTest">Test key</button><span id="setTestOut" class="small"></span></div></div>';
   html+='<div class="card"><h3>Sender identity (defaults)</h3><div class="form-grid">'+ff("set_sName","Sender name",s.senderName)+ff("set_sEmail","Sender email",s.senderEmail)+ff("set_reply","Reply-to",s.replyTo)+'</div></div>';
