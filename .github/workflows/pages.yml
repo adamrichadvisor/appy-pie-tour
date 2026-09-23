@@ -9,6 +9,9 @@ on:
     branches: [main]
     paths:
       - "vantage/**"
+      - "app.html"
+      - "*.csv"
+      - "index.html"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -34,10 +37,10 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Upload site (vantage/)
+      - name: Upload site (repo root — serves /app.html and /vantage/*)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: vantage
+          path: .
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
