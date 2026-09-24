@@ -207,7 +207,7 @@ const KEY="vantage.tool.v1";
 const DEFAULTS={
   settings:{provider:"anthropic",apiKey:"",model:"claude-opus-5",geminiKey:"",geminiModel:"gemini-3.6-flash",
     senderName:"",senderEmail:"",replyTo:"",
-    dailyCap:200,delayMin:30,delayMax:90,demoSpeed:true,
+    dailyCap:200,delayMin:30,delayMax:90,demoSpeed:true,notifyKey:"",
     footer:"You are receiving this because we believe our solution is relevant to your team.\nVantage Demo Inc · 123 Market St, San Francisco, CA 94105\nReply STOP or click unsubscribe to opt out.",
     unsubText:"Unsubscribe"},
   leads:[],templates:[],mailboxes:[],campaigns:[],events:[],suppression:[]
@@ -1163,6 +1163,22 @@ async function hashPass(p){
   try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("vtg::"+p));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
   catch(e){let h=5381;for(let i=0;i<p.length;i++)h=((h<<5)+h+p.charCodeAt(i))>>>0;return "f"+h.toString(16);}
 }
+// Email the admin when someone signs up — uses Web3Forms (free form-to-email),
+// since a static page has no server of its own. Needs an access key created for ADMIN_EMAIL.
+async function notifyAdmin(email,name){
+  const key=((S.settings&&S.settings.notifyKey)||"").trim();
+  if(!key)return false;
+  try{
+    const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({
+      access_key:key,
+      subject:"New Vantage signup awaiting approval: "+email,
+      from_name:"Vantage Portal",
+      email:email,
+      message:"A new user is requesting access to the Vantage portal:\n\nName: "+(name||"—")+"\nEmail: "+email+"\nWhen: "+new Date().toString()+"\n\nApprove or reject them in the Admin panel of the app."
+    })});
+    return r.ok;
+  }catch(e){return false;}
+}
 function curUser(){return A.session?A.users.find(u=>u.email===A.session):null;}
 function isAdminEmail(e){return (e||"").toLowerCase()===ADMIN_EMAIL;}
 function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
@@ -1184,7 +1200,8 @@ const AUTH_BRAND='<div style="display:flex;align-items:center;gap:10px;justify-c
 function renderAuth(ov){
   const u=curUser();
   if(u&&u.status==="pending"&&!isAdminEmail(u.email)){
-    ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:40px">'+AUTH_BRAND+'<h3>Awaiting approval</h3><div class="desc">Your account <b>'+esc(u.email)+'</b> is pending approval from the administrator ('+esc(ADMIN_EMAIL)+'). You will get access once approved.</div><button class="btn btn-ghost" id="auLogout" style="margin-top:10px">Log out</button></div>';
+    const noteLine=u.notified?'<div class="desc" style="margin-top:6px;color:var(--good)">✓ The administrator has been emailed about your request.</div>':'';
+    ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:40px">'+AUTH_BRAND+'<h3>Awaiting approval</h3><div class="desc">Your account <b>'+esc(u.email)+'</b> is pending approval from the administrator ('+esc(ADMIN_EMAIL)+'). You will get access once approved.</div>'+noteLine+'<button class="btn btn-ghost" id="auLogout" style="margin-top:10px">Log out</button></div>';
     document.getElementById("auLogout").onclick=()=>{A.session=null;saveAuth();authGate();};
     return;
   }
@@ -1229,8 +1246,9 @@ async function authSubmit(){
     if(A.users.some(x=>x.email===email))return fail("An account with that email already exists — log in instead.");
     const admin=isAdminEmail(email);
     A.users.push({email:email,name:name||email.split("@")[0],pass:await hashPass(pass),status:admin?"approved":"pending",createdAt:Date.now()});
-    A.session=email;saveAuth();authMsg="";authGate();
-    if(admin)toast("Admin account created");
+    A.session=email;saveAuth();authMsg="";
+    if(admin){authGate();toast("Admin account created");}
+    else{const sent=await notifyAdmin(email,name);A.users.find(u=>u.email===email).notified=sent;saveAuth();authGate();}
   }else{
     if(pass.length<6)return fail("New password must be at least 6 characters.");
     const u=A.users.find(x=>x.email===email);
@@ -1254,6 +1272,11 @@ VIEWS.admin=function(m){
   const appr=A.users.filter(x=>x.status==="approved");
   let html=viewTop("Admin — user access","approve or remove accounts for this portal");
   html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>Accounts live in <b>this browser only</b> (front-end prototype). A person signing up on another device/browser won\'t appear here — real cross-device sign-up &amp; approval needs a backend (Firebase/Supabase). Ask me to wire it when you\'re ready.</div></div>';
+  // email notification setup
+  const nk=(S.settings.notifyKey||"");
+  html+='<div class="card"><h3>Email me when someone signs up</h3><div class="desc">A static page can\'t send email on its own, so this uses <b>Web3Forms</b> (free). One-time setup: go to <b>web3forms.com</b>, enter <b>'+esc(ADMIN_EMAIL)+'</b>, and it emails you an <b>Access Key</b> — paste it below. After that, every new signup emails you automatically.</div>'+
+    '<div class="form-grid"><div class="field" style="grid-column:1/-1"><label>Web3Forms Access Key</label><input id="nkey" value="'+esc(nk)+'" placeholder="paste the access key from web3forms.com"></div></div>'+
+    '<div class="btn-row"><button class="btn btn-primary" id="nkSave">Save key</button><button class="btn btn-ghost" id="nkTest">Send test email</button><span id="nkStatus" class="small" style="margin-left:8px">'+(nk?'<span style="color:var(--good)">✓ notifications on</span>':'not set — you won\'t get signup emails')+'</span></div></div>';
   html+='<div class="card"><h3>Pending approval ('+pend.length+')</h3>';
   if(!pend.length)html+='<div class="empty">No pending requests.</div>';
   else pend.forEach(x=>html+=admRow(x,'<button class="btn btn-primary aApprove" data-e="'+esc(x.email)+'" style="padding:6px 13px">Approve</button> <button class="btn btn-ghost aReject" data-e="'+esc(x.email)+'" style="padding:6px 13px">Reject</button>'));
@@ -1263,6 +1286,8 @@ VIEWS.admin=function(m){
   else appr.forEach(x=>html+=admRow(x,'<span class="chip '+(isAdminEmail(x.email)?"c-info":"c-good")+'"><i></i>'+(isAdminEmail(x.email)?"Admin":"User")+'</span>'+(isAdminEmail(x.email)?"":' <button class="btn btn-ghost aRevoke" data-e="'+esc(x.email)+'" style="padding:6px 13px">Revoke</button>')));
   html+='</div>';
   m.innerHTML=html;
+  const nkSave=document.getElementById("nkSave");if(nkSave)nkSave.onclick=()=>{S.settings.notifyKey=document.getElementById("nkey").value.trim();save();toast(S.settings.notifyKey?"Notification key saved":"Key cleared");render();};
+  const nkTest=document.getElementById("nkTest");if(nkTest)nkTest.onclick=async()=>{S.settings.notifyKey=document.getElementById("nkey").value.trim();save();const st=document.getElementById("nkStatus");if(!S.settings.notifyKey){st.innerHTML='<span style="color:var(--bad)">Enter a key first.</span>';return;}st.textContent="Sending test…";const ok=await notifyAdmin("test@vantage.demo","Test User");st.innerHTML=ok?'<span style="color:var(--good)">✓ Sent — check '+esc(ADMIN_EMAIL)+' (and spam).</span>':'<span style="color:var(--bad)">Failed — check the key is correct.</span>';};
   m.querySelectorAll(".aApprove").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="approved";saveAuth();toast("Approved "+x.email);render();}});
   m.querySelectorAll(".aReject").forEach(b=>b.onclick=()=>{A.users=A.users.filter(y=>y.email!==b.dataset.e);saveAuth();toast("Rejected");render();});
   m.querySelectorAll(".aRevoke").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="pending";saveAuth();toast("Access revoked");render();}});
