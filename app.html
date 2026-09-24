@@ -1130,6 +1130,8 @@ function distCard(title,field){
 VIEWS.settings=function(m){
   const s=S.settings;
   let html=viewTop("Settings","API key, sending defaults, compliance & data");
+  const cu=curUser();
+  if(cu)html+='<div class="card"><h3>Account</h3><div class="desc">Signed in as <b>'+esc(cu.email)+'</b>'+(isAdminEmail(cu.email)?" (admin)":"")+'.</div><button class="btn btn-ghost" id="setLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Log out</button></div>';
   html+='<div class="card"><h3>AI provider (optional)</h3><div class="desc">Only needed for the AI-generate buttons — the rest of the tool works without a key. Keys are stored only in this browser and sent directly to the provider.</div>'+
     '<div class="field"><label>Provider</label><select id="set_provider">'+
       [["anthropic","Anthropic (Claude) — paid / free trial credit"],["gemini","Google Gemini — free tier, no card"]].map(o=>'<option value="'+o[0]+'"'+(s.provider===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></div>'+
@@ -1149,6 +1151,7 @@ VIEWS.settings=function(m){
     '<div class="field"><label>Email footer</label><textarea id="set_footer" rows="4">'+esc(s.footer)+'</textarea></div></div>';
   html+='<div class="card"><h3>Data</h3><div class="desc">Everything is stored locally in your browser.</div><div class="btn-row"><button class="btn btn-ghost" id="dExport">Export all (JSON)</button><button class="btn btn-ghost" id="dImport">Import JSON</button><input type="file" id="dFile" accept=".json" class="hidden"><button class="btn btn-ghost" id="dReset" style="color:var(--bad)">Reset everything</button></div></div>';
   m.innerHTML=html;
+  const setLogout=document.getElementById("setLogout");if(setLogout)setLogout.onclick=doLogout;
   const provSel=document.getElementById("set_provider");
   provSel.onchange=()=>{const g=provSel.value==="gemini";document.getElementById("gmBlock").classList.toggle("hidden",!g);document.getElementById("apBlock").classList.toggle("hidden",g);};
   function readProvider(){s.provider=provSel.value;s.apiKey=document.getElementById("set_key").value.trim();s.model=document.getElementById("set_model").value;s.geminiKey=document.getElementById("set_gkey").value.trim();s.geminiModel=document.getElementById("set_gmodel").value;}
@@ -1277,12 +1280,15 @@ async function authSubmit(){
     u.pass=await hashPass(pass);saveAuth();authTab="login";authMsg="Password reset — log in with your new password.";renderAuth(ov);
   }
 }
+function doLogout(){A.session=null;saveAuth();appStarted=false;const c=document.getElementById("userChip");if(c)c.remove();location.hash="";authGate();}
 function mountUserChip(u){
-  const foot=document.querySelector(".side-foot");if(!foot||document.getElementById("userChip"))return;
-  const chip=document.createElement("div");chip.id="userChip";chip.style.cssText="display:flex;align-items:center;gap:8px;width:100%;font-size:12px;margin-top:8px;flex-wrap:wrap";
-  chip.innerHTML='<span style="opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0" title="'+esc(u.email)+'">'+esc(u.email)+(isAdminEmail(u.email)?" · admin":"")+'</span><button class="btn btn-ghost" id="auOut" style="padding:4px 10px;font-size:12px">Log out</button>';
-  foot.appendChild(chip);
-  document.getElementById("auOut").onclick=()=>{A.session=null;saveAuth();appStarted=false;const c=document.getElementById("userChip");if(c)c.remove();location.hash="";authGate();};
+  const side=document.querySelector(".side");if(!side||document.getElementById("userChip"))return;
+  const brand=side.querySelector(".brand");
+  const chip=document.createElement("div");chip.id="userChip";
+  chip.style.cssText="margin:6px 0 10px;padding:10px 12px;background:rgba(128,128,128,.10);border-radius:10px;display:flex;flex-direction:column;gap:8px";
+  chip.innerHTML='<div style="font-size:11.5px;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(u.email)+'">Signed in as<br><b style="opacity:1">'+esc(u.email)+'</b>'+(isAdminEmail(u.email)?" · admin":"")+'</div><button class="btn btn-ghost" id="auOut" style="width:100%;justify-content:center;padding:7px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Log out</button>';
+  if(brand&&brand.nextSibling)side.insertBefore(chip,brand.nextSibling);else side.insertBefore(chip,side.firstChild);
+  document.getElementById("auOut").onclick=doLogout;
 }
 function updateAdminNav(){const u=curUser();const nav=document.getElementById("navAdmin");if(!nav)return;if(u&&isAdminEmail(u.email))nav.classList.remove("hidden");else nav.classList.add("hidden");}
 function admRow(x,btns){return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid rgba(128,128,128,.18);flex-wrap:wrap"><div style="flex:1;min-width:170px"><b>'+esc(x.name||"—")+'</b><div class="desc" style="margin:2px 0 0">'+esc(x.email)+'</div></div>'+btns+'</div>';}
