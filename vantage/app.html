@@ -422,7 +422,7 @@ VIEWS.leads=function(m){
   let html=viewTop("Lead Finder","import, add, and organize B2B prospects across 13 fields",
     '<button class="btn btn-ghost" id="lImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 7l4-4 4 4M4 21h16"/></svg>Import CSV</button>'+
     '<button class="btn btn-ghost" id="lGen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg>Sample leads</button>'+
-    '<button class="btn btn-ghost" id="lEnrich" title="Fill info@domain for leads that have a website but no email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="m4 7 8 6 8-6"/></svg>Guess emails</button>'+
+    '<button class="btn btn-ghost" id="lFind" title="Fetch each lead\'s website and extract the real published email address"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find emails</button>'+
     '<button class="btn btn-primary" id="lAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add lead</button>');
   html+='<input type="file" id="lFile" accept=".csv,text/csv" class="hidden">';
   html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>Directory search</b> below pulls <b>real businesses</b> by category + location (free, via OpenStreetMap). Person-level data (named decision-makers with verified personal emails) is the licensed Apollo/ZoomInfo piece a browser tool can\'t provide — import a CSV for that, or generate synthetic samples to test the flow.</div></div>';
@@ -462,7 +462,7 @@ VIEWS.leads=function(m){
     const lead={id:uid(),source:"manual",verify:null,name:g("l_name"),email:g("l_email"),phone:g("l_phone"),linkedin:g("l_linkedin"),company:g("l_company"),position:g("l_position"),industry:g("l_industry"),size:g("l_size"),revenue:g("l_revenue"),country:g("l_country"),website:g("l_website"),notes:g("l_notes")};
     if(!lead.name&&!lead.email){toast("Enter a name or email");return;}S.leads.push(lead);save();toast("Lead added");render();};
   document.getElementById("lGenRun").onclick=genLeads;
-  document.getElementById("lEnrich").onclick=enrichEmails;
+  document.getElementById("lFind").onclick=findEmails;
   document.getElementById("d_country").onchange=e=>{const dl=document.getElementById("d_cities");if(dl){dl.innerHTML=cityOptionsFor(e.target.value);}document.getElementById("d_city").value="";};
   document.getElementById("dRun").onclick=dirSearch;
   document.getElementById("lSearch").oninput=e=>{leadSearch=e.target.value;document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();};
@@ -690,21 +690,18 @@ async function dirSearch(){
     }
     const seen=new Set(S.leads.map(l=>((l.website||l.name||"")+"").toLowerCase()));
     let n=0,withEmail=0;
-    let guessedN=0;
     els.forEach(el=>{const t=el.tags||{};const name=t.name;if(!name)return;
       const site=t.website||t["contact:website"]||"";
       const key=((site||name)+"").toLowerCase();
       if(seen.has(key))return;seen.add(key);
-      let email=(t.email||t["contact:email"]||"").toLowerCase();let guessed=false;
-      if(!email&&site){const d=domainFromUrl(site);if(d){email="info@"+d;guessed=true;guessedN++;}}
-      if(email)withEmail++;
+      const email=(t.email||t["contact:email"]||"").toLowerCase();if(email)withEmail++;
       S.leads.push({id:uid(),source:"directory",verify:null,name:name,company:name,position:role||"",
         email:email,phone:t.phone||t["contact:phone"]||"",website:site,linkedin:"",
-        country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(t["addr:city"]?" · "+t["addr:city"]:"")+(guessed?" · email guessed (info@domain) — verify":"")});
+        country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(t["addr:city"]?" · "+t["addr:city"]:"")});
       n++;});
     save();
     if(n===0)toast("No listed businesses found there — try a bigger city or another category.");
-    else toast("Added "+n+" real businesses · "+withEmail+" with an email ("+guessedN+" guessed info@domain — verify before sending).");
+    else toast("Added "+n+" real businesses ("+withEmail+" already list an email). Click 'Find emails' to fetch valid addresses from their websites.");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
   finally{opStatus=null;}
@@ -713,22 +710,51 @@ function domainFromUrl(u){
   if(!u)return "";
   try{const h=new URL(/^https?:\/\//i.test(u)?u:("https://"+u)).hostname;return h.replace(/^www\./i,"").toLowerCase();}catch(e){return "";}
 }
-// Fill a generic info@<domain> address for any lead that has a website but no email,
-// so directory results (OSM rarely lists emails) become verifiable / usable.
-function enrichEmails(){
-  let filled=0,noSite=0,already=0;
-  S.leads.forEach(l=>{
-    if(l.email){already++;return;}
-    const d=domainFromUrl(l.website);
-    if(!d){noSite++;return;}
-    l.email="info@"+d;
-    l.verify=null; // clear so Verification re-checks
-    l.notes=(l.notes?l.notes+" · ":"")+"Generic inbox guessed from website — verify before sending";
-    filled++;
-  });
+// --- Real email discovery: fetch each lead's website and extract published addresses ---
+const EMAIL_SCRAPE_RE=/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+function pickEmail(html,domain){
+  // decode common obfuscations, then match
+  let text=(html||"").replace(/\s*\[at\]\s*|\s*\(at\)\s*/gi,"@").replace(/\s*\[dot\]\s*|\s*\(dot\)\s*/gi,".");
+  let found=(text.match(EMAIL_SCRAPE_RE)||[]).map(e=>e.toLowerCase());
+  found=found.filter(e=>
+    e.length<64 &&
+    !/\.(png|jpe?g|gif|svg|webp|css|js|ico|woff2?|ttf)$/i.test(e) &&
+    !/(example\.|sentry|wixpress|\.wix|\.png|\.jpg|@sentry|@2x|yourdomain|domain\.com|email\.com|sentry\.io|godaddy|cloudflare|schema\.org|@example|no-?reply@|core-?js)/i.test(e)
+  );
+  if(!found.length)return "";
+  const uniq=[...new Set(found)];
+  const own=domain?uniq.filter(e=>e.split("@")[1]===domain||e.endsWith("."+domain)):[];
+  const pool=own.length?own:uniq;
+  const pref=pool.find(e=>/^(info|contact|hello|hi|enquir|sales|admin|office|mail|team|studio|press|marketing)@/i.test(e));
+  return pref||pool[0];
+}
+async function scrapeEmail(website){
+  const d=domainFromUrl(website);if(!d)return "";
+  const base="https://"+d;
+  const urls=[base, base+"/contact", base+"/contact-us", base+"/about"];
+  for(const u of urls){
+    try{const html=await robustGet(u,12000);const e=pickEmail(html,d);if(e)return e;}catch(err){}
+  }
+  return "";
+}
+async function findEmails(){
+  const targets=S.leads.filter(l=>!l.email&&l.website);
+  const btn=document.getElementById("lFind");
+  if(!targets.length){toast(S.leads.some(l=>l.website)?"Every lead with a website already has an email.":"No leads have a website to scan. Run a directory search or import leads with websites first.");return;}
+  if(btn){btn.disabled=true;}
+  let done=0,found=0;const BATCH=4;
+  for(let i=0;i<targets.length;i+=BATCH){
+    const chunk=targets.slice(i,i+BATCH);
+    await Promise.all(chunk.map(async l=>{
+      const e=await scrapeEmail(l.website);
+      if(e){l.email=e;l.verify=null;l.notes=(l.notes?l.notes+" · ":"")+"Email found on website";found++;}
+      done++;
+      if(btn)btn.innerHTML='<span class="spin"></span> Scanning '+done+'/'+targets.length+'…';
+    }));
+    save();
+  }
   save();render();
-  if(filled)toast("Filled "+filled+" generic emails (info@domain). Now open Verification to MX-check them"+(noSite?" · "+noSite+" had no website":"")+".");
-  else toast(noSite?("None filled — "+noSite+" leads have no website to guess from."):"All leads already have an email.");
+  toast("Scanned "+targets.length+" websites — found "+found+" real published emails. "+(targets.length-found)+" list no email (contact form only).");
 }
 async function genLeads(){
   const btn=document.getElementById("lGenRun");const g=id=>document.getElementById(id).value.trim();
