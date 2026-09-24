@@ -185,6 +185,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
     <button class="nav" data-view="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Reports</button>
     <div class="navsec">Setup</div>
     <button class="nav" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5 8"/></svg>Settings</button>
+    <button class="nav hidden" id="navAdmin" data-view="admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/></svg>Admin</button>
     <div class="side-foot">
       <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
       <div class="key-dot" id="keyDot"><i></i><span>API key</span></div>
@@ -433,7 +434,8 @@ VIEWS.leads=function(m){
     '<div class="form-grid">'+
     '<div class="field"><label>Category</label><select id="d_cat">'+DIRCATS.map((c,i)=>'<option value="'+i+'"'+(i===dcatSel?" selected":"")+'>'+esc(c.label)+'</option>').join("")+'</select></div>'+
     '<div class="field"><label>Country</label><select id="d_country">'+COUNTRIES.map(c=>'<option'+(c===dCountry?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></div>'+
-    '<div class="field"><label>City / region <b style="color:var(--accent)">(required)</b></label><input id="d_city" list="d_cities" value="'+esc(dCity)+'" placeholder="pick or type a city"><datalist id="d_cities">'+cityOptionsFor(dCountry)+'</datalist></div>'+
+    '<div class="field"><label>City / region <b style="color:var(--accent)">(required)</b></label><select id="d_city">'+citySelectOptions(dCountry,dCity)+'</select>'+
+    '<input id="d_city_other" class="'+((dCity&&!(CITIES[dCountry]||[]).includes(dCity))?'':'hidden')+'" style="margin-top:6px" value="'+esc((dCity&&!(CITIES[dCountry]||[]).includes(dCity))?dCity:'')+'" placeholder="type a city name"></div>'+
     '<div class="field"><label>Target role (for outreach)</label><select id="d_role">'+ROLES.map(r=>{const val=(r==="— any —"?"":r);return '<option value="'+esc(val)+'"'+(val===dRole?" selected":"")+'>'+esc(r)+'</option>';}).join("")+'</select></div>'+
     '<div class="field"><label>Max results</label><select id="d_limit">'+[10,25,50,100].map(n=>'<option'+(n===dLimit?" selected":"")+'>'+n+'</option>').join("")+'</select></div>'+
     '</div><div class="btn-row"><button class="btn btn-primary" id="dRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find businesses</button><span id="dStatus" class="small"></span></div></div>';
@@ -463,7 +465,8 @@ VIEWS.leads=function(m){
     if(!lead.name&&!lead.email){toast("Enter a name or email");return;}S.leads.push(lead);save();toast("Lead added");render();};
   document.getElementById("lGenRun").onclick=genLeads;
   document.getElementById("lFind").onclick=findEmails;
-  document.getElementById("d_country").onchange=e=>{const dl=document.getElementById("d_cities");if(dl){dl.innerHTML=cityOptionsFor(e.target.value);}document.getElementById("d_city").value="";};
+  document.getElementById("d_country").onchange=e=>{const sel=document.getElementById("d_city");if(sel){sel.innerHTML=citySelectOptions(e.target.value,"");}const oth=document.getElementById("d_city_other");if(oth){oth.value="";oth.classList.add("hidden");}};
+  document.getElementById("d_city").onchange=e=>{const oth=document.getElementById("d_city_other");if(!oth)return;if(e.target.value==="__other"){oth.classList.remove("hidden");oth.focus();}else{oth.classList.add("hidden");}};
   document.getElementById("dRun").onclick=dirSearch;
   document.getElementById("lSearch").oninput=e=>{leadSearch=e.target.value;document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();};
   m.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{leadFilter=b.dataset.f;render();});
@@ -588,7 +591,13 @@ const CITIES={
 "Sri Lanka":["Colombo","Kandy","Galle","Jaffna"],
 "Nepal":["Kathmandu","Pokhara","Lalitpur","Biratnagar"]
 };
-function cityOptionsFor(country){return (CITIES[country]||[]).map(c=>'<option value="'+esc(c)+'"></option>').join("");}
+function citySelectOptions(country,sel){
+  const list=CITIES[country]||[];
+  const other=sel&&!list.includes(sel);
+  return '<option value="">— select city —</option>'+
+    list.map(c=>'<option'+(c===sel?" selected":"")+'>'+esc(c)+'</option>').join("")+
+    '<option value="__other"'+(other?" selected":"")+'>Other (type manually)…</option>';
+}
 const ROLES=["— any —","Owner","Founder","Co-Founder","CEO","Managing Director","Director","VP of Sales","Head of Sales","Sales Manager","CMO","Head of Marketing","Marketing Manager","Business Development","Operations Manager","General Manager","Partner","Procurement Manager","Office Manager","IT Manager","HR Manager"];
 const COUNTRIES=["United States","United Kingdom","Canada","Australia","India","Ireland","New Zealand","Singapore","United Arab Emirates","Saudi Arabia","Qatar","Germany","France","Spain","Italy","Netherlands","Belgium","Switzerland","Austria","Sweden","Norway","Denmark","Finland","Poland","Portugal","Greece","Czech Republic","Romania","Hungary","Ukraine","Turkey","Russia","Israel","South Africa","Nigeria","Kenya","Egypt","Morocco","Ghana","Brazil","Mexico","Argentina","Chile","Colombia","Peru","Japan","China","Hong Kong","South Korea","Taiwan","Malaysia","Indonesia","Thailand","Vietnam","Philippines","Pakistan","Bangladesh","Sri Lanka","Nepal"];
 function isFileOrigin(){return location.protocol==="file:";}
@@ -670,7 +679,8 @@ async function overpassByArea(sel,city,limit){
 async function dirSearch(){
   const idx=+document.getElementById("d_cat").value;const cat=DIRCATS[idx]||DIRCATS[0];
   const country=document.getElementById("d_country").value.trim();
-  const city=document.getElementById("d_city").value.trim();
+  let city=document.getElementById("d_city").value.trim();
+  if(city==="__other"){const o=document.getElementById("d_city_other");city=o?o.value.trim():"";}
   const role=document.getElementById("d_role").value.trim();
   const limit=Math.max(1,Math.min(60,parseInt(document.getElementById("d_limit").value)||25));
   lastDir={cat:idx,country:country,city:city,role:role,limit:limit};
@@ -1144,6 +1154,120 @@ VIEWS.settings=function(m){
   document.getElementById("dReset").onclick=()=>{if(confirm("Delete all leads, templates, campaigns, and settings from this browser?")){S=JSON.parse(JSON.stringify(DEFAULTS));save();toast("Reset");render();}};
 };
 
+/* ---------- Auth (front-end prototype: browser-only, not real security) ---------- */
+const ADMIN_EMAIL="kasibkhan13@gmail.com";
+const AKEY="vantage.auth.v1";
+let A=(function(){try{const r=localStorage.getItem(AKEY);if(r)return JSON.parse(r);}catch(e){}return {users:[],session:null};})();
+function saveAuth(){try{localStorage.setItem(AKEY,JSON.stringify(A));}catch(e){}}
+async function hashPass(p){
+  try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("vtg::"+p));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+  catch(e){let h=5381;for(let i=0;i<p.length;i++)h=((h<<5)+h+p.charCodeAt(i))>>>0;return "f"+h.toString(16);}
+}
+function curUser(){return A.session?A.users.find(u=>u.email===A.session):null;}
+function isAdminEmail(e){return (e||"").toLowerCase()===ADMIN_EMAIL;}
+function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+let authTab="login",authMsg="",appStarted=false;
+function authGate(){
+  const u=curUser();
+  const ok=u&&(u.status==="approved"||isAdminEmail(u.email));
+  const shell=document.querySelector(".shell");
+  let ov=document.getElementById("authScreen");
+  if(ok){if(ov)ov.remove();if(shell)shell.style.display="";mountUserChip(u);updateAdminNav();if(!appStarted)startApp();return true;}
+  if(shell)shell.style.display="none";
+  if(!ov){ov=document.createElement("div");ov.id="authScreen";ov.style.cssText="position:fixed;inset:0;z-index:5000;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;padding:40px 18px;overflow:auto";document.body.appendChild(ov);}
+  renderAuth(ov);
+  return false;
+}
+function startApp(){const h=location.hash.slice(1);CURRENT=(h&&VIEWS[h])?h:"dashboard";document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("on",n.dataset.view===CURRENT));render();appStarted=true;}
+function authField(id,label,type,val){return '<div class="field" style="margin-bottom:10px"><label>'+label+'</label><input id="'+id+'" type="'+(type||"text")+'" value="'+esc(val||"")+'"></div>';}
+const AUTH_BRAND='<div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:4px"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 20.5 13.2 11 16 16l2.8-5 5.2 9.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.2" fill="#fff"/></svg><b style="font-size:20px">Vantage</b></div>';
+function renderAuth(ov){
+  const u=curUser();
+  if(u&&u.status==="pending"&&!isAdminEmail(u.email)){
+    ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:40px">'+AUTH_BRAND+'<h3>Awaiting approval</h3><div class="desc">Your account <b>'+esc(u.email)+'</b> is pending approval from the administrator ('+esc(ADMIN_EMAIL)+'). You will get access once approved.</div><button class="btn btn-ghost" id="auLogout" style="margin-top:10px">Log out</button></div>';
+    document.getElementById("auLogout").onclick=()=>{A.session=null;saveAuth();authGate();};
+    return;
+  }
+  const tabBtn=(id,lbl)=>'<button class="pill'+(authTab===id?" on":"")+'" data-tab="'+id+'">'+lbl+'</button>';
+  let form="";
+  if(authTab==="login"){
+    form=authField("au_email","Email","email")+authField("au_pass","Password","password")+
+      '<button class="btn btn-primary" id="auDo" style="width:100%;margin-top:4px">Log in</button>';
+  }else if(authTab==="signup"){
+    form=authField("au_name","Full name")+authField("au_email","Email","email")+authField("au_pass","Password (min 6 chars)","password")+
+      '<button class="btn btn-primary" id="auDo" style="width:100%;margin-top:4px">Create account</button>';
+  }else{
+    form=authField("au_email","Email","email")+authField("au_pass","New password (min 6 chars)","password")+
+      '<button class="btn btn-primary" id="auDo" style="width:100%;margin-top:4px">Reset password</button>'+
+      '<div class="desc" style="margin-top:8px">No email server here, so this resets your password directly in this browser (prototype).</div>';
+  }
+  const msg=authMsg?'<div class="banner '+(authMsg[0]==="!"?"warn":"info")+'" style="margin:10px 0"><div>'+esc(authMsg.replace(/^!/,""))+'</div></div>':"";
+  ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:30px">'+AUTH_BRAND+
+    '<div class="desc" style="text-align:center;margin-bottom:14px">AI lead-gen &amp; cold outreach portal</div>'+
+    '<div class="pills" style="justify-content:center;margin-bottom:14px">'+tabBtn("login","Log in")+tabBtn("signup","Sign up")+tabBtn("forgot","Forgot")+'</div>'+
+    msg+form+
+    '<div class="desc" style="margin-top:14px;font-size:11.5px;line-height:1.5;opacity:.8">Prototype sign-in — accounts are stored only in this browser, so this is not real security. New sign-ups need approval from the admin ('+esc(ADMIN_EMAIL)+').</div></div>';
+  ov.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{authTab=b.dataset.tab;authMsg="";renderAuth(ov);});
+  document.getElementById("auDo").onclick=authSubmit;
+  const pass=document.getElementById("au_pass");if(pass)pass.onkeydown=e=>{if(e.key==="Enter")authSubmit();};
+}
+async function authSubmit(){
+  const ov=document.getElementById("authScreen");
+  const g=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
+  const email=g("au_email").toLowerCase(),pass=g("au_pass");
+  const fail=m=>{authMsg="!"+m;renderAuth(ov);};
+  if(!validEmail(email))return fail("Enter a valid email address.");
+  if(authTab==="login"){
+    const u=A.users.find(x=>x.email===email);
+    if(!u)return fail("No account for that email — sign up first.");
+    if(u.pass!==await hashPass(pass))return fail("Wrong password.");
+    A.session=u.email;saveAuth();authMsg="";authGate();
+    if(u.status==="approved"||isAdminEmail(u.email))toast("Welcome back, "+(u.name||u.email));
+  }else if(authTab==="signup"){
+    const name=g("au_name");
+    if(pass.length<6)return fail("Password must be at least 6 characters.");
+    if(A.users.some(x=>x.email===email))return fail("An account with that email already exists — log in instead.");
+    const admin=isAdminEmail(email);
+    A.users.push({email:email,name:name||email.split("@")[0],pass:await hashPass(pass),status:admin?"approved":"pending",createdAt:Date.now()});
+    A.session=email;saveAuth();authMsg="";authGate();
+    if(admin)toast("Admin account created");
+  }else{
+    if(pass.length<6)return fail("New password must be at least 6 characters.");
+    const u=A.users.find(x=>x.email===email);
+    if(!u)return fail("No account for that email.");
+    u.pass=await hashPass(pass);saveAuth();authTab="login";authMsg="Password reset — log in with your new password.";renderAuth(ov);
+  }
+}
+function mountUserChip(u){
+  const foot=document.querySelector(".side-foot");if(!foot||document.getElementById("userChip"))return;
+  const chip=document.createElement("div");chip.id="userChip";chip.style.cssText="display:flex;align-items:center;gap:8px;width:100%;font-size:12px;margin-top:8px;flex-wrap:wrap";
+  chip.innerHTML='<span style="opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0" title="'+esc(u.email)+'">'+esc(u.email)+(isAdminEmail(u.email)?" · admin":"")+'</span><button class="btn btn-ghost" id="auOut" style="padding:4px 10px;font-size:12px">Log out</button>';
+  foot.appendChild(chip);
+  document.getElementById("auOut").onclick=()=>{A.session=null;saveAuth();appStarted=false;const c=document.getElementById("userChip");if(c)c.remove();location.hash="";authGate();};
+}
+function updateAdminNav(){const u=curUser();const nav=document.getElementById("navAdmin");if(!nav)return;if(u&&isAdminEmail(u.email))nav.classList.remove("hidden");else nav.classList.add("hidden");}
+function admRow(x,btns){return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid rgba(128,128,128,.18);flex-wrap:wrap"><div style="flex:1;min-width:170px"><b>'+esc(x.name||"—")+'</b><div class="desc" style="margin:2px 0 0">'+esc(x.email)+'</div></div>'+btns+'</div>';}
+VIEWS.admin=function(m){
+  const u=curUser();
+  if(!u||!isAdminEmail(u.email)){m.innerHTML=viewTop("Admin","")+'<div class="empty">Admins only.</div>';return;}
+  const pend=A.users.filter(x=>x.status==="pending");
+  const appr=A.users.filter(x=>x.status==="approved");
+  let html=viewTop("Admin — user access","approve or remove accounts for this portal");
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>Accounts live in <b>this browser only</b> (front-end prototype). A person signing up on another device/browser won\'t appear here — real cross-device sign-up &amp; approval needs a backend (Firebase/Supabase). Ask me to wire it when you\'re ready.</div></div>';
+  html+='<div class="card"><h3>Pending approval ('+pend.length+')</h3>';
+  if(!pend.length)html+='<div class="empty">No pending requests.</div>';
+  else pend.forEach(x=>html+=admRow(x,'<button class="btn btn-primary aApprove" data-e="'+esc(x.email)+'" style="padding:6px 13px">Approve</button> <button class="btn btn-ghost aReject" data-e="'+esc(x.email)+'" style="padding:6px 13px">Reject</button>'));
+  html+='</div>';
+  html+='<div class="card"><h3>Approved users ('+appr.length+')</h3>';
+  if(!appr.length)html+='<div class="empty">None yet.</div>';
+  else appr.forEach(x=>html+=admRow(x,'<span class="chip '+(isAdminEmail(x.email)?"c-info":"c-good")+'"><i></i>'+(isAdminEmail(x.email)?"Admin":"User")+'</span>'+(isAdminEmail(x.email)?"":' <button class="btn btn-ghost aRevoke" data-e="'+esc(x.email)+'" style="padding:6px 13px">Revoke</button>')));
+  html+='</div>';
+  m.innerHTML=html;
+  m.querySelectorAll(".aApprove").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="approved";saveAuth();toast("Approved "+x.email);render();}});
+  m.querySelectorAll(".aReject").forEach(b=>b.onclick=()=>{A.users=A.users.filter(y=>y.email!==b.dataset.e);saveAuth();toast("Rejected");render();});
+  m.querySelectorAll(".aRevoke").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="pending";saveAuth();toast("Access revoked");render();}});
+};
+
 /* ---------- boot ---------- */
 function render(){const m=document.getElementById("main");const fn=VIEWS[CURRENT]||VIEWS.dashboard;fn(m);
   m.querySelectorAll("[data-go]").forEach(b=>{if(!b._b){b._b=1;b.onclick=()=>go(b.dataset.go);}});}
@@ -1155,7 +1279,7 @@ refreshBadges();
     w.innerHTML='<span>⚠️ You opened the <b>downloaded file</b>. Browsers block internet access from local files, so live search, verification &amp; AI won\'t run. Use the hosted link → <a href="https://adamrichadvisor.github.io/appy-pie-tour/app.html" style="color:#fff;text-decoration:underline;font-weight:600">adamrichadvisor.github.io/appy-pie-tour/app.html</a>. (Offline features like <b>Import CSV</b>, templates &amp; export still work here.)</span><button onclick="this.parentNode.remove()" style="background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:13px">Dismiss</button>';
   }
 })();
-(function(){const h=location.hash.slice(1);CURRENT=(h&&VIEWS[h])?h:"dashboard";document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("on",n.dataset.view===CURRENT));render();})();
+authGate();
 </script>
 </body>
 </html>
