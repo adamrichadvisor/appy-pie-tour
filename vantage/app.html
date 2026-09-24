@@ -1180,8 +1180,11 @@ async function hashPass(p){
 }
 // Email the admin when someone signs up — uses Web3Forms (free form-to-email),
 // since a static page has no server of its own. Needs an access key created for ADMIN_EMAIL.
+// WEB3FORMS_KEY is baked into the app so signups from ANY device notify the admin
+// (the per-browser Settings key is only a fallback for local testing).
+const WEB3FORMS_KEY=""; // <-- paste the Web3Forms access key here to enable cross-device signup emails
 async function notifyAdmin(email,name){
-  const key=((S.settings&&S.settings.notifyKey)||"").trim();
+  const key=(WEB3FORMS_KEY||(S.settings&&S.settings.notifyKey)||"").trim();
   if(!key)return false;
   try{
     const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({
