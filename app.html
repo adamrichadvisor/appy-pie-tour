@@ -561,28 +561,37 @@ function opQuery(sel,limit,areaClause,bb){
   const body=areaClause?(areaClause+"(node"+filt+";way"+filt+";);out center "+limit+";"):("(node"+filt+";way"+filt+";);out center "+limit+";");
   return "[out:json][timeout:25];"+body;
 }
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+let opStatus=null; // optional status callback set by the caller
 async function opRun(q){
-  const eps=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
-  let busy=false,reached=false,lastErr;
-  // 1) try each Overpass endpoint directly, watching the HTTP status
-  for(const ep of eps){
-    try{
-      const r=await fetchT(ep+"?data="+encodeURIComponent(q),{},25000);
-      reached=true;
-      if(r.status===429||r.status===503||r.status===504){busy=true;continue;}
-      if(r.ok){const t=await r.text();try{const j=JSON.parse(t);return j.elements||[];}catch(e){busy=true;continue;}}
-    }catch(e){lastErr=e;} // network error / CORS / timeout — try next
+  // Multiple public Overpass instances — the main one is often overloaded, the
+  // others usually aren't; we cycle through them and auto-retry with backoff.
+  const eps=["https://overpass-api.de/api/interpreter","https://overpass.openstreetmap.fr/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
+  const proxies=["https://api.allorigins.win/raw?url=","https://corsproxy.io/?url="];
+  let busy=false,lastErr;
+  const ATTEMPTS=4;
+  for(let attempt=0;attempt<ATTEMPTS;attempt++){
+    if(attempt>0&&opStatus)opStatus("Map servers busy — auto-retry "+attempt+"/"+(ATTEMPTS-1)+"…");
+    // try each Overpass endpoint directly, watching the HTTP status
+    for(const ep of eps){
+      try{
+        const r=await fetchT(ep+"?data="+encodeURIComponent(q),{},25000);
+        if(r.status===429||r.status===503||r.status===504){busy=true;continue;}
+        if(r.ok){const t=await r.text();try{const j=JSON.parse(t);return j.elements||[];}catch(e){busy=true;continue;}}
+      }catch(e){lastErr=e;} // network error / CORS / timeout — try next
+    }
+    // route the primary endpoint through public CORS proxies
+    for(const px of proxies){
+      try{
+        const r=await fetchT(px+encodeURIComponent(eps[0]+"?data="+encodeURIComponent(q)),{},25000);
+        if(r.ok){const t=await r.text();try{const j=JSON.parse(t);return j.elements||[];}catch(e){}}
+      }catch(e){lastErr=e;}
+    }
+    if(attempt<ATTEMPTS-1)await sleep(3000+attempt*2000); // 3s, 5s, 7s backoff
   }
-  // 2) last resort: route the first endpoint through public CORS proxies
-  for(const px of ["https://api.allorigins.win/raw?url=","https://corsproxy.io/?url="]){
-    try{
-      const r=await fetchT(px+encodeURIComponent(eps[0]+"?data="+encodeURIComponent(q)),{},25000);
-      if(r.ok){const t=await r.text();try{const j=JSON.parse(t);return j.elements||[];}catch(e){}}
-    }catch(e){lastErr=e;}
-  }
-  if(busy)throw new Error("OpenStreetMap's free server is busy or the area is too large. Enter a specific City (e.g. London), then wait ~20s and click Find businesses again.");
+  if(busy)throw new Error("OpenStreetMap's free servers stayed overloaded through several auto-retries — they throttle free use heavily at peak times. Try again in a few minutes, or use the UK agencies CSV via Import CSV for instant data.");
   if(isFileOrigin())throw new Error("Opened as a local file (file://) — live search can't run. Use the hosted link, or Import CSV.");
-  throw new Error("Couldn't reach OpenStreetMap. It's likely your browser or network blocking it — try an incognito window with ad/privacy blockers off, or a different network (e.g. phone hotspot). Or use Import CSV / Guess emails, which work offline.");
+  throw new Error("Couldn't reach OpenStreetMap — likely your browser or network is blocking it. Try an incognito window with ad/privacy blockers off, or a different network (phone hotspot). Or use Import CSV / Guess emails, which work offline.");
 }
 async function overpass(sel,bb,limit){
   if(bb)return opRun(opQuery(sel,limit,null,bb));
@@ -605,6 +614,7 @@ async function dirSearch(){
   const where=[city,country].filter(Boolean).join(", ");
   if(!city){st.innerHTML='<span style="color:var(--bad)">Enter a City (e.g. London) — searching a whole country times out on the free map server.</span>';return;}
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Searching…';st.textContent="Locating "+where+"…";
+  opStatus=(msg)=>{st.textContent=msg;};
   try{
     const bb=await geocode(where);
     st.textContent="Searching "+cat.label+" in "+where+"…";
@@ -629,6 +639,7 @@ async function dirSearch(){
     else toast("Added "+n+" real businesses ("+withEmail+" with an email).");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
+  finally{opStatus=null;}
 }
 function domainFromUrl(u){
   if(!u)return "";
