@@ -183,8 +183,8 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
     <button class="nav" data-view="mailboxes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>Mailboxes<span class="badge" id="b-mbx">0</span></button>
     <button class="nav" data-view="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>Smart Send</button>
     <button class="nav" data-view="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Reports</button>
-    <div class="navsec">Setup</div>
-    <button class="nav" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5 8"/></svg>Settings</button>
+    <div class="navsec hidden" id="navsecSetup">Setup</div>
+    <button class="nav hidden" id="navSettings" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 5 8"/></svg>Settings</button>
     <button class="nav hidden" id="navAdmin" data-view="admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/></svg>Admin<span class="badge" id="b-admin">0</span></button>
     <div class="side-foot">
       <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
@@ -1129,8 +1129,9 @@ function distCard(title,field){
 /* ---------- Settings ---------- */
 VIEWS.settings=function(m){
   const s=S.settings;
-  let html=viewTop("Settings","API key, sending defaults, compliance & data");
   const cu=curUser();
+  if(!cu||!isAdminEmail(cu.email)){m.innerHTML=viewTop("Settings","")+'<div class="empty">Settings are available to administrators only.</div>';return;}
+  let html=viewTop("Settings","API key, sending defaults, compliance & data");
   if(cu)html+='<div class="card"><h3>Account</h3><div class="desc">Signed in as <b>'+esc(cu.email)+'</b>'+(isAdminEmail(cu.email)?" (admin)":"")+'.</div><button class="btn btn-ghost" id="setLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Log out</button></div>';
   html+='<div class="card"><h3>AI provider (optional)</h3><div class="desc">Only needed for the AI-generate buttons — the rest of the tool works without a key. Keys are stored only in this browser and sent directly to the provider.</div>'+
     '<div class="field"><label>Provider</label><select id="set_provider">'+
@@ -1304,7 +1305,9 @@ function mountUserChip(u){
   if(brand&&brand.nextSibling)side.insertBefore(chip,brand.nextSibling);else side.insertBefore(chip,side.firstChild);
   document.getElementById("auOut").onclick=doLogout;
 }
-function updateAdminNav(){const u=curUser();const nav=document.getElementById("navAdmin");if(!nav)return;if(u&&isAdminEmail(u.email))nav.classList.remove("hidden");else nav.classList.add("hidden");
+function updateAdminNav(){const u=curUser();const admin=!!(u&&isAdminEmail(u.email));
+  const show=(id,on)=>{const el=document.getElementById(id);if(el)el.classList.toggle("hidden",!on);};
+  show("navAdmin",admin);show("navSettings",admin);show("navsecSetup",admin); // Settings & Admin are admin-only
   const b=document.getElementById("b-admin");if(b){const pend=A.users.filter(x=>x.status==="pending").length;b.textContent=pend;b.style.background=pend?"var(--bad)":"";b.style.color=pend?"#fff":"";}}
 function admRow(x,btns){return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid rgba(128,128,128,.18);flex-wrap:wrap"><div style="flex:1;min-width:170px"><b>'+esc(x.name||"—")+'</b><div class="desc" style="margin:2px 0 0">'+esc(x.email)+'</div></div>'+btns+'</div>';}
 VIEWS.admin=function(m){
