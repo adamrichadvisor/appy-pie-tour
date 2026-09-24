@@ -422,6 +422,7 @@ VIEWS.leads=function(m){
   let html=viewTop("Lead Finder","import, add, and organize B2B prospects across 13 fields",
     '<button class="btn btn-ghost" id="lImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 7l4-4 4 4M4 21h16"/></svg>Import CSV</button>'+
     '<button class="btn btn-ghost" id="lGen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M12 18v3"/><circle cx="12" cy="12" r="3.2"/></svg>Sample leads</button>'+
+    '<button class="btn btn-ghost" id="lEnrich" title="Fill info@domain for leads that have a website but no email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="m4 7 8 6 8-6"/></svg>Guess emails</button>'+
     '<button class="btn btn-primary" id="lAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add lead</button>');
   html+='<input type="file" id="lFile" accept=".csv,text/csv" class="hidden">';
   html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>Directory search</b> below pulls <b>real businesses</b> by category + location (free, via OpenStreetMap). Person-level data (named decision-makers with verified personal emails) is the licensed Apollo/ZoomInfo piece a browser tool can\'t provide — import a CSV for that, or generate synthetic samples to test the flow.</div></div>';
@@ -461,6 +462,7 @@ VIEWS.leads=function(m){
     const lead={id:uid(),source:"manual",verify:null,name:g("l_name"),email:g("l_email"),phone:g("l_phone"),linkedin:g("l_linkedin"),company:g("l_company"),position:g("l_position"),industry:g("l_industry"),size:g("l_size"),revenue:g("l_revenue"),country:g("l_country"),website:g("l_website"),notes:g("l_notes")};
     if(!lead.name&&!lead.email){toast("Enter a name or email");return;}S.leads.push(lead);save();toast("Lead added");render();};
   document.getElementById("lGenRun").onclick=genLeads;
+  document.getElementById("lEnrich").onclick=enrichEmails;
   document.getElementById("dRun").onclick=dirSearch;
   document.getElementById("lSearch").oninput=e=>{leadSearch=e.target.value;document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();};
   m.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{leadFilter=b.dataset.f;render();});
@@ -613,6 +615,27 @@ async function dirSearch(){
     else toast("Added "+n+" real businesses ("+withEmail+" with an email).");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
+}
+function domainFromUrl(u){
+  if(!u)return "";
+  try{const h=new URL(/^https?:\/\//i.test(u)?u:("https://"+u)).hostname;return h.replace(/^www\./i,"").toLowerCase();}catch(e){return "";}
+}
+// Fill a generic info@<domain> address for any lead that has a website but no email,
+// so directory results (OSM rarely lists emails) become verifiable / usable.
+function enrichEmails(){
+  let filled=0,noSite=0,already=0;
+  S.leads.forEach(l=>{
+    if(l.email){already++;return;}
+    const d=domainFromUrl(l.website);
+    if(!d){noSite++;return;}
+    l.email="info@"+d;
+    l.verify=null; // clear so Verification re-checks
+    l.notes=(l.notes?l.notes+" · ":"")+"Generic inbox guessed from website — verify before sending";
+    filled++;
+  });
+  save();render();
+  if(filled)toast("Filled "+filled+" generic emails (info@domain). Now open Verification to MX-check them"+(noSite?" · "+noSite+" had no website":"")+".");
+  else toast(noSite?("None filled — "+noSite+" leads have no website to guess from."):"All leads already have an email.");
 }
 async function genLeads(){
   const btn=document.getElementById("lGenRun");const g=id=>document.getElementById(id).value.trim();
