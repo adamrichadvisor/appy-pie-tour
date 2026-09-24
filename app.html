@@ -433,7 +433,7 @@ VIEWS.leads=function(m){
     '<div class="form-grid">'+
     '<div class="field"><label>Category</label><select id="d_cat">'+DIRCATS.map((c,i)=>'<option value="'+i+'"'+(i===dcatSel?" selected":"")+'>'+esc(c.label)+'</option>').join("")+'</select></div>'+
     '<div class="field"><label>Country</label><select id="d_country">'+COUNTRIES.map(c=>'<option'+(c===dCountry?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></div>'+
-    '<div class="field"><label>City / region</label><input id="d_city" value="'+esc(dCity)+'" placeholder="e.g. Los Angeles"></div>'+
+    '<div class="field"><label>City / region <b style="color:var(--accent)">(required)</b></label><input id="d_city" value="'+esc(dCity)+'" placeholder="e.g. London — needed, not a whole country"></div>'+
     '<div class="field"><label>Target role (for outreach)</label><select id="d_role">'+ROLES.map(r=>{const val=(r==="— any —"?"":r);return '<option value="'+esc(val)+'"'+(val===dRole?" selected":"")+'>'+esc(r)+'</option>';}).join("")+'</select></div>'+
     '<div class="field"><label>Max results</label><select id="d_limit">'+[10,25,50,100].map(n=>'<option'+(n===dLimit?" selected":"")+'>'+n+'</option>').join("")+'</select></div>'+
     '</div><div class="btn-row"><button class="btn btn-primary" id="dRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find businesses</button><span id="dStatus" class="small"></span></div></div>';
@@ -563,12 +563,26 @@ function opQuery(sel,limit,areaClause,bb){
 }
 async function opRun(q){
   const eps=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
-  let lastErr;
+  let busy=false,reached=false,lastErr;
+  // 1) try each Overpass endpoint directly, watching the HTTP status
   for(const ep of eps){
-    try{const txt=await robustGet(ep+"?data="+encodeURIComponent(q),25000);const j=JSON.parse(txt);return j.elements||[];}
-    catch(e){lastErr=e;}
+    try{
+      const r=await fetchT(ep+"?data="+encodeURIComponent(q),{},25000);
+      reached=true;
+      if(r.status===429||r.status===503||r.status===504){busy=true;continue;}
+      if(r.ok){const t=await r.text();try{const j=JSON.parse(t);return j.elements||[];}catch(e){busy=true;continue;}}
+    }catch(e){lastErr=e;} // network error / CORS / timeout — try next
   }
-  throw lastErr||new Error("Couldn't reach the directory service.");
+  // 2) last resort: route the first endpoint through public CORS proxies
+  for(const px of ["https://api.allorigins.win/raw?url=","https://corsproxy.io/?url="]){
+    try{
+      const r=await fetchT(px+encodeURIComponent(eps[0]+"?data="+encodeURIComponent(q)),{},25000);
+      if(r.ok){const t=await r.text();try{const j=JSON.parse(t);return j.elements||[];}catch(e){}}
+    }catch(e){lastErr=e;}
+  }
+  if(busy)throw new Error("OpenStreetMap's free server is busy or the area is too large. Enter a specific City (e.g. London), then wait ~20s and click Find businesses again.");
+  if(isFileOrigin())throw new Error("Opened as a local file (file://) — live search can't run. Use the hosted link, or Import CSV.");
+  throw new Error("Couldn't reach OpenStreetMap. It's likely your browser or network blocking it — try an incognito window with ad/privacy blockers off, or a different network (e.g. phone hotspot). Or use Import CSV / Guess emails, which work offline.");
 }
 async function overpass(sel,bb,limit){
   if(bb)return opRun(opQuery(sel,limit,null,bb));
@@ -589,7 +603,7 @@ async function dirSearch(){
   lastDir={cat:idx,country:country,city:city,role:role,limit:limit};
   const st=document.getElementById("dStatus");const btn=document.getElementById("dRun");
   const where=[city,country].filter(Boolean).join(", ");
-  if(!where){st.innerHTML='<span style="color:var(--bad)">Enter a city and/or country.</span>';return;}
+  if(!city){st.innerHTML='<span style="color:var(--bad)">Enter a City (e.g. London) — searching a whole country times out on the free map server.</span>';return;}
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Searching…';st.textContent="Locating "+where+"…";
   try{
     const bb=await geocode(where);
