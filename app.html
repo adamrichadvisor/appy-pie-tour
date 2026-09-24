@@ -430,7 +430,7 @@ VIEWS.leads=function(m){
   // Directory search (real businesses, free)
   const dcatSel=(lastDir?lastDir.cat:0),dCountry=(lastDir?lastDir.country:"United States"),dCity=(lastDir?lastDir.city:""),dRole=(lastDir?lastDir.role:""),dLimit=(lastDir?lastDir.limit:25);
   html+='<div class="card"><div class="card-head"><h3>Directory search — find real businesses</h3><span class="chip c-info"><i></i>free · OpenStreetMap</span></div>'+
-    '<div class="desc">Pick a category and location to auto-pull real companies (name, website, phone, and email where listed). Filter machine for local &amp; agency outreach.</div>'+
+    '<div class="desc">Pick a category and location to auto-pull real companies. Each result\'s website is checked for a real published email, and <b>only businesses that have a valid email are added</b> to your leads.</div>'+
     '<div class="form-grid">'+
     '<div class="field"><label>Category</label><select id="d_cat">'+DIRCATS.map((c,i)=>'<option value="'+i+'"'+(i===dcatSel?" selected":"")+'>'+esc(c.label)+'</option>').join("")+'</select></div>'+
     '<div class="field"><label>Country</label><select id="d_country">'+COUNTRIES.map(c=>'<option'+(c===dCountry?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></div>'+
@@ -699,19 +699,30 @@ async function dirSearch(){
       els=await overpassByArea(cat.sel,city||country,limit);
     }
     const seen=new Set(S.leads.map(l=>((l.website||l.name||"")+"").toLowerCase()));
-    let n=0,withEmail=0;
+    // collect unique candidates from the directory
+    const cands=[];
     els.forEach(el=>{const t=el.tags||{};const name=t.name;if(!name)return;
       const site=t.website||t["contact:website"]||"";
       const key=((site||name)+"").toLowerCase();
       if(seen.has(key))return;seen.add(key);
-      const email=(t.email||t["contact:email"]||"").toLowerCase();if(email)withEmail++;
-      S.leads.push({id:uid(),source:"directory",verify:null,name:name,company:name,position:role||"",
-        email:email,phone:t.phone||t["contact:phone"]||"",website:site,linkedin:"",
-        country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(t["addr:city"]?" · "+t["addr:city"]:"")});
-      n++;});
+      cands.push({name:name,site:site,phone:t.phone||t["contact:phone"]||"",email:(t.email||t["contact:email"]||"").toLowerCase(),city:t["addr:city"]||""});
+    });
+    if(!cands.length){toast("No listed businesses found there — try a bigger city or another category.");btn.disabled=false;btn.innerHTML="Find businesses";return;}
+    // find real emails on each website; only businesses with an email are kept
+    const toScrape=cands.filter(c=>!c.email&&c.site);
+    let sc=0;const BATCH=5;
+    for(let i=0;i<toScrape.length;i+=BATCH){
+      const chunk=toScrape.slice(i,i+BATCH);
+      await Promise.all(chunk.map(async c=>{c.email=await scrapeEmail(c.site);sc++;st.textContent="Finding valid emails on websites… "+sc+"/"+toScrape.length;}));
+    }
+    const keep=cands.filter(c=>c.email);
+    keep.forEach(c=>{S.leads.push({id:uid(),source:"directory",verify:null,name:c.name,company:c.name,position:role||"",
+      email:c.email,phone:c.phone,website:c.site,linkedin:"",
+      country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(c.city?" · "+c.city:"")+" · email from website"});});
     save();
-    if(n===0)toast("No listed businesses found there — try a bigger city or another category.");
-    else toast("Added "+n+" real businesses ("+withEmail+" already list an email). Click 'Find emails' to fetch valid addresses from their websites.");
+    const skipped=cands.length-keep.length;
+    if(!keep.length)toast("Found "+cands.length+" businesses, but none publish an email on their site — try another city/category, or import a CSV.");
+    else toast("Added "+keep.length+" leads with a valid email"+(skipped?" · skipped "+skipped+" with no email published":"")+".");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
   finally{opStatus=null;}
