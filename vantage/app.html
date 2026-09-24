@@ -1171,6 +1171,7 @@ VIEWS.settings=function(m){
 /* ---------- Auth (front-end prototype: browser-only, not real security) ---------- */
 const ADMIN_EMAIL="kasibkhan13@gmail.com"; // primary admin (notification recipient)
 const ADMIN_EMAILS=["kasibkhan13@gmail.com","adam@appypiellp.com"]; // all admins (auto-approved)
+const APPROVED_EMAILS=["martin@appypiellp.com"]; // pre-approved normal users (auto-approved, not admin)
 const AKEY="vantage.auth.v1";
 let A=(function(){try{const r=localStorage.getItem(AKEY);if(r)return JSON.parse(r);}catch(e){}return {users:[],session:null};})();
 function saveAuth(){try{localStorage.setItem(AKEY,JSON.stringify(A));}catch(e){}}
@@ -1199,6 +1200,8 @@ async function notifyAdmin(email,name){
 }
 function curUser(){return A.session?A.users.find(u=>u.email===A.session):null;}
 function isAdminEmail(e){return ADMIN_EMAILS.indexOf((e||"").toLowerCase())>=0;}
+function isPreApproved(e){return APPROVED_EMAILS.indexOf((e||"").toLowerCase())>=0;}
+function autoApproved(e){return isAdminEmail(e)||isPreApproved(e);}
 function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
 let authTab="login",authMsg="",appStarted=false;
 function authGate(){
@@ -1256,26 +1259,26 @@ async function authSubmit(){
     const u=A.users.find(x=>x.email===email);
     if(!u)return fail("No account for that email — sign up first.");
     if(u.pass!==await hashPass(pass))return fail("Wrong password.");
-    if(isAdminEmail(u.email))u.status="approved"; // admins are always approved
+    if(autoApproved(u.email))u.status="approved"; // admins & pre-approved users are always approved
     A.session=u.email;saveAuth();authMsg="";authGate();
     if(u.status==="approved")toast("Welcome back, "+(u.name||u.email));
   }else if(authTab==="signup"){
     const name=g("au_name");
     if(pass.length<6)return fail("Password must be at least 6 characters.");
     const existing=A.users.find(x=>x.email===email);
-    const admin=isAdminEmail(email);
+    const auto=autoApproved(email);
     if(existing){
-      if(admin){ // allow re-signup for admin emails: overwrite password & approve
+      if(auto){ // admin or pre-approved: allow re-signup — overwrite password & approve
         existing.pass=await hashPass(pass);existing.status="approved";if(name)existing.name=name;
-        A.session=email;saveAuth();authMsg="";authGate();toast("Admin account updated — logged in");
+        A.session=email;saveAuth();authMsg="";authGate();toast("Account updated — you're logged in");
         return;
       }
       if(existing.status==="pending")return fail("You've already signed up — your request is waiting for admin approval. You'll get access once an admin approves you.");
       return fail("An account with that email already exists — log in, or use Forgot to reset the password.");
     }
-    A.users.push({email:email,name:name||email.split("@")[0],pass:await hashPass(pass),status:admin?"approved":"pending",createdAt:Date.now()});
+    A.users.push({email:email,name:name||email.split("@")[0],pass:await hashPass(pass),status:auto?"approved":"pending",createdAt:Date.now()});
     A.session=email;saveAuth();authMsg="";
-    if(admin){authGate();toast("Admin account created");}
+    if(auto){authGate();toast("Account created — you're in");}
     else{const sent=await notifyAdmin(email,name);A.users.find(u=>u.email===email).notified=sent;saveAuth();authGate();}
   }else{
     if(pass.length<6)return fail("New password must be at least 6 characters.");
