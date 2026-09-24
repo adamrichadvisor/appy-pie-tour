@@ -433,7 +433,7 @@ VIEWS.leads=function(m){
     '<div class="form-grid">'+
     '<div class="field"><label>Category</label><select id="d_cat">'+DIRCATS.map((c,i)=>'<option value="'+i+'"'+(i===dcatSel?" selected":"")+'>'+esc(c.label)+'</option>').join("")+'</select></div>'+
     '<div class="field"><label>Country</label><select id="d_country">'+COUNTRIES.map(c=>'<option'+(c===dCountry?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></div>'+
-    '<div class="field"><label>City / region <b style="color:var(--accent)">(required)</b></label><input id="d_city" value="'+esc(dCity)+'" placeholder="e.g. London — needed, not a whole country"></div>'+
+    '<div class="field"><label>City / region <b style="color:var(--accent)">(required)</b></label><input id="d_city" list="d_cities" value="'+esc(dCity)+'" placeholder="pick or type a city"><datalist id="d_cities">'+cityOptionsFor(dCountry)+'</datalist></div>'+
     '<div class="field"><label>Target role (for outreach)</label><select id="d_role">'+ROLES.map(r=>{const val=(r==="— any —"?"":r);return '<option value="'+esc(val)+'"'+(val===dRole?" selected":"")+'>'+esc(r)+'</option>';}).join("")+'</select></div>'+
     '<div class="field"><label>Max results</label><select id="d_limit">'+[10,25,50,100].map(n=>'<option'+(n===dLimit?" selected":"")+'>'+n+'</option>').join("")+'</select></div>'+
     '</div><div class="btn-row"><button class="btn btn-primary" id="dRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find businesses</button><span id="dStatus" class="small"></span></div></div>';
@@ -463,6 +463,7 @@ VIEWS.leads=function(m){
     if(!lead.name&&!lead.email){toast("Enter a name or email");return;}S.leads.push(lead);save();toast("Lead added");render();};
   document.getElementById("lGenRun").onclick=genLeads;
   document.getElementById("lEnrich").onclick=enrichEmails;
+  document.getElementById("d_country").onchange=e=>{const dl=document.getElementById("d_cities");if(dl){dl.innerHTML=cityOptionsFor(e.target.value);}document.getElementById("d_city").value="";};
   document.getElementById("dRun").onclick=dirSearch;
   document.getElementById("lSearch").oninput=e=>{leadSearch=e.target.value;document.getElementById("leadTbody").innerHTML=leadRows();bindLeadRows();};
   m.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{leadFilter=b.dataset.f;render();});
@@ -525,6 +526,69 @@ const DIRCATS=[
  {label:"Photographer",sel:"craft=photographer",industry:"Photography"}
 ];
 let lastDir=null;
+// Major cities per country — powers the City suggestion dropdown (users can still type any city).
+const CITIES={
+"United States":["New York","Los Angeles","Chicago","Houston","Phoenix","Philadelphia","San Antonio","San Diego","Dallas","Austin","San Jose","San Francisco","Seattle","Denver","Boston","Atlanta","Miami","Las Vegas","Portland","Washington"],
+"United Kingdom":["London","Manchester","Birmingham","Leeds","Glasgow","Liverpool","Bristol","Sheffield","Edinburgh","Cardiff","Nottingham","Newcastle","Leicester","Brighton","Belfast"],
+"Canada":["Toronto","Montreal","Vancouver","Calgary","Ottawa","Edmonton","Winnipeg","Quebec City","Hamilton","Halifax"],
+"Australia":["Sydney","Melbourne","Brisbane","Perth","Adelaide","Gold Coast","Canberra","Newcastle","Wollongong","Hobart"],
+"India":["Mumbai","Delhi","Bangalore","Hyderabad","Chennai","Kolkata","Pune","Ahmedabad","Jaipur","Surat","Noida","Gurgaon","Chandigarh"],
+"Ireland":["Dublin","Cork","Galway","Limerick","Waterford"],
+"New Zealand":["Auckland","Wellington","Christchurch","Hamilton","Tauranga"],
+"Singapore":["Singapore"],
+"United Arab Emirates":["Dubai","Abu Dhabi","Sharjah","Ajman","Al Ain"],
+"Saudi Arabia":["Riyadh","Jeddah","Mecca","Medina","Dammam","Khobar"],
+"Qatar":["Doha","Al Rayyan","Al Wakrah"],
+"Germany":["Berlin","Munich","Hamburg","Frankfurt","Cologne","Stuttgart","Düsseldorf","Leipzig","Dortmund"],
+"France":["Paris","Marseille","Lyon","Toulouse","Nice","Nantes","Strasbourg","Bordeaux","Lille"],
+"Spain":["Madrid","Barcelona","Valencia","Seville","Bilbao","Málaga","Zaragoza"],
+"Italy":["Rome","Milan","Naples","Turin","Florence","Bologna","Venice"],
+"Netherlands":["Amsterdam","Rotterdam","The Hague","Utrecht","Eindhoven"],
+"Belgium":["Brussels","Antwerp","Ghent","Bruges","Liège"],
+"Switzerland":["Zurich","Geneva","Basel","Bern","Lausanne"],
+"Austria":["Vienna","Graz","Linz","Salzburg","Innsbruck"],
+"Sweden":["Stockholm","Gothenburg","Malmö","Uppsala"],
+"Norway":["Oslo","Bergen","Trondheim","Stavanger"],
+"Denmark":["Copenhagen","Aarhus","Odense","Aalborg"],
+"Finland":["Helsinki","Espoo","Tampere","Turku"],
+"Poland":["Warsaw","Kraków","Łódź","Wrocław","Poznań","Gdańsk"],
+"Portugal":["Lisbon","Porto","Braga","Coimbra","Faro"],
+"Greece":["Athens","Thessaloniki","Patras","Heraklion"],
+"Czech Republic":["Prague","Brno","Ostrava","Plzeň"],
+"Romania":["Bucharest","Cluj-Napoca","Timișoara","Iași"],
+"Hungary":["Budapest","Debrecen","Szeged","Miskolc"],
+"Ukraine":["Kyiv","Kharkiv","Odesa","Dnipro","Lviv"],
+"Turkey":["Istanbul","Ankara","Izmir","Bursa","Antalya"],
+"Russia":["Moscow","Saint Petersburg","Novosibirsk","Yekaterinburg","Kazan"],
+"Israel":["Tel Aviv","Jerusalem","Haifa","Rishon LeZion","Beersheba"],
+"South Africa":["Johannesburg","Cape Town","Durban","Pretoria","Port Elizabeth"],
+"Nigeria":["Lagos","Abuja","Kano","Ibadan","Port Harcourt"],
+"Kenya":["Nairobi","Mombasa","Kisumu","Nakuru"],
+"Egypt":["Cairo","Alexandria","Giza","Sharm El Sheikh"],
+"Morocco":["Casablanca","Rabat","Marrakesh","Fes","Tangier"],
+"Ghana":["Accra","Kumasi","Tamale","Takoradi"],
+"Brazil":["São Paulo","Rio de Janeiro","Brasília","Salvador","Belo Horizonte","Curitiba","Porto Alegre"],
+"Mexico":["Mexico City","Guadalajara","Monterrey","Puebla","Cancún","Tijuana"],
+"Argentina":["Buenos Aires","Córdoba","Rosario","Mendoza"],
+"Chile":["Santiago","Valparaíso","Concepción"],
+"Colombia":["Bogotá","Medellín","Cali","Barranquilla","Cartagena"],
+"Peru":["Lima","Arequipa","Trujillo","Cusco"],
+"Japan":["Tokyo","Osaka","Yokohama","Nagoya","Kyoto","Fukuoka","Sapporo"],
+"China":["Shanghai","Beijing","Guangzhou","Shenzhen","Chengdu","Hangzhou","Wuhan"],
+"Hong Kong":["Hong Kong","Kowloon","Tsuen Wan"],
+"South Korea":["Seoul","Busan","Incheon","Daegu","Daejeon"],
+"Taiwan":["Taipei","Kaohsiung","Taichung","Tainan"],
+"Malaysia":["Kuala Lumpur","George Town","Johor Bahru","Ipoh"],
+"Indonesia":["Jakarta","Surabaya","Bandung","Medan","Bali (Denpasar)"],
+"Thailand":["Bangkok","Chiang Mai","Phuket","Pattaya"],
+"Vietnam":["Ho Chi Minh City","Hanoi","Da Nang","Hai Phong"],
+"Philippines":["Manila","Quezon City","Cebu City","Davao"],
+"Pakistan":["Karachi","Lahore","Islamabad","Rawalpindi","Faisalabad"],
+"Bangladesh":["Dhaka","Chittagong","Khulna","Sylhet"],
+"Sri Lanka":["Colombo","Kandy","Galle","Jaffna"],
+"Nepal":["Kathmandu","Pokhara","Lalitpur","Biratnagar"]
+};
+function cityOptionsFor(country){return (CITIES[country]||[]).map(c=>'<option value="'+esc(c)+'"></option>').join("");}
 const ROLES=["— any —","Owner","Founder","Co-Founder","CEO","Managing Director","Director","VP of Sales","Head of Sales","Sales Manager","CMO","Head of Marketing","Marketing Manager","Business Development","Operations Manager","General Manager","Partner","Procurement Manager","Office Manager","IT Manager","HR Manager"];
 const COUNTRIES=["United States","United Kingdom","Canada","Australia","India","Ireland","New Zealand","Singapore","United Arab Emirates","Saudi Arabia","Qatar","Germany","France","Spain","Italy","Netherlands","Belgium","Switzerland","Austria","Sweden","Norway","Denmark","Finland","Poland","Portugal","Greece","Czech Republic","Romania","Hungary","Ukraine","Turkey","Russia","Israel","South Africa","Nigeria","Kenya","Egypt","Morocco","Ghana","Brazil","Mexico","Argentina","Chile","Colombia","Peru","Japan","China","Hong Kong","South Korea","Taiwan","Malaysia","Indonesia","Thailand","Vietnam","Philippines","Pakistan","Bangladesh","Sri Lanka","Nepal"];
 function isFileOrigin(){return location.protocol==="file:";}
@@ -626,17 +690,21 @@ async function dirSearch(){
     }
     const seen=new Set(S.leads.map(l=>((l.website||l.name||"")+"").toLowerCase()));
     let n=0,withEmail=0;
+    let guessedN=0;
     els.forEach(el=>{const t=el.tags||{};const name=t.name;if(!name)return;
-      const key=((t.website||t["contact:website"]||name)+"").toLowerCase();
+      const site=t.website||t["contact:website"]||"";
+      const key=((site||name)+"").toLowerCase();
       if(seen.has(key))return;seen.add(key);
-      const email=(t.email||t["contact:email"]||"").toLowerCase();if(email)withEmail++;
+      let email=(t.email||t["contact:email"]||"").toLowerCase();let guessed=false;
+      if(!email&&site){const d=domainFromUrl(site);if(d){email="info@"+d;guessed=true;guessedN++;}}
+      if(email)withEmail++;
       S.leads.push({id:uid(),source:"directory",verify:null,name:name,company:name,position:role||"",
-        email:email,phone:t.phone||t["contact:phone"]||"",website:t.website||t["contact:website"]||"",linkedin:"",
-        country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(t["addr:city"]?" · "+t["addr:city"]:"")});
+        email:email,phone:t.phone||t["contact:phone"]||"",website:site,linkedin:"",
+        country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(t["addr:city"]?" · "+t["addr:city"]:"")+(guessed?" · email guessed (info@domain) — verify":"")});
       n++;});
     save();
     if(n===0)toast("No listed businesses found there — try a bigger city or another category.");
-    else toast("Added "+n+" real businesses ("+withEmail+" with an email).");
+    else toast("Added "+n+" real businesses · "+withEmail+" with an email ("+guessedN+" guessed info@domain — verify before sending).");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
   finally{opStatus=null;}
