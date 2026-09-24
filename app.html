@@ -682,7 +682,7 @@ async function dirSearch(){
   let city=document.getElementById("d_city").value.trim();
   if(city==="__other"){const o=document.getElementById("d_city_other");city=o?o.value.trim():"";}
   const role=document.getElementById("d_role").value.trim();
-  const limit=Math.max(1,Math.min(60,parseInt(document.getElementById("d_limit").value)||25));
+  const limit=Math.max(1,Math.min(100,parseInt(document.getElementById("d_limit").value)||25));
   lastDir={cat:idx,country:country,city:city,role:role,limit:limit};
   const st=document.getElementById("dStatus");const btn=document.getElementById("dRun");
   const where=[city,country].filter(Boolean).join(", ");
@@ -692,11 +692,13 @@ async function dirSearch(){
   try{
     const bb=await geocode(where);
     st.textContent="Searching "+cat.label+" in "+where+"…";
+    // Over-fetch a big pool so we can reach `limit` businesses that actually HAVE an email
+    const pool=Math.min(250,Math.max(limit*8,60));
     let els;
-    if(bb){els=await overpass(cat.sel,bb,limit);}
+    if(bb){els=await overpass(cat.sel,bb,pool);}
     else{ // geocoder blocked/unavailable → ask Overpass to resolve the city itself
       st.textContent="Searching "+cat.label+" in "+(city||where)+" (direct)…";
-      els=await overpassByArea(cat.sel,city||country,limit);
+      els=await overpassByArea(cat.sel,city||country,pool);
     }
     const seen=new Set(S.leads.map(l=>((l.website||l.name||"")+"").toLowerCase()));
     // collect unique candidates from the directory
@@ -708,21 +710,22 @@ async function dirSearch(){
       cands.push({name:name,site:site,phone:t.phone||t["contact:phone"]||"",email:(t.email||t["contact:email"]||"").toLowerCase(),city:t["addr:city"]||""});
     });
     if(!cands.length){toast("No listed businesses found there — try a bigger city or another category.");btn.disabled=false;btn.innerHTML="Find businesses";return;}
-    // find real emails on each website; only businesses with an email are kept
+    // keep the ones that already list an email; scrape the rest until we reach `limit`
+    const found=cands.filter(c=>c.email);
     const toScrape=cands.filter(c=>!c.email&&c.site);
-    let sc=0;const BATCH=5;
-    for(let i=0;i<toScrape.length;i+=BATCH){
+    let sc=0;const BATCH=6;
+    for(let i=0;i<toScrape.length && found.length<limit;i+=BATCH){
       const chunk=toScrape.slice(i,i+BATCH);
-      await Promise.all(chunk.map(async c=>{c.email=await scrapeEmail(c.site);sc++;st.textContent="Finding valid emails on websites… "+sc+"/"+toScrape.length;}));
+      await Promise.all(chunk.map(async c=>{if(found.length>=limit)return;const e=await scrapeEmail(c.site);sc++;if(e){c.email=e;found.push(c);}st.textContent="Finding valid emails… "+Math.min(found.length,limit)+"/"+limit+" (checked "+sc+" sites)";}));
     }
-    const keep=cands.filter(c=>c.email);
+    const keep=found.slice(0,limit);
     keep.forEach(c=>{S.leads.push({id:uid(),source:"directory",verify:null,name:c.name,company:c.name,position:role||"",
       email:c.email,phone:c.phone,website:c.site,linkedin:"",
       country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(c.city?" · "+c.city:"")+" · email from website"});});
     save();
-    const skipped=cands.length-keep.length;
     if(!keep.length)toast("Found "+cands.length+" businesses, but none publish an email on their site — try another city/category, or import a CSV.");
-    else toast("Added "+keep.length+" leads with a valid email"+(skipped?" · skipped "+skipped+" with no email published":"")+".");
+    else if(keep.length<limit)toast("Added "+keep.length+" leads with a valid email — that's all "+city+" had listed for this category (checked "+(cands.length)+" businesses). Try a bigger city for more.");
+    else toast("Added "+keep.length+" leads with a valid email. ✅");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
   finally{opStatus=null;}
