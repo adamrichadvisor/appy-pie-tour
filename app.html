@@ -1267,6 +1267,7 @@ async function authSubmit(){
         A.session=email;saveAuth();authMsg="";authGate();toast("Admin account updated — logged in");
         return;
       }
+      if(existing.status==="pending")return fail("You've already signed up — your request is waiting for admin approval. You'll get access once an admin approves you.");
       return fail("An account with that email already exists — log in, or use Forgot to reset the password.");
     }
     A.users.push({email:email,name:name||email.split("@")[0],pass:await hashPass(pass),status:admin?"approved":"pending",createdAt:Date.now()});
