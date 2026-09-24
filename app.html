@@ -526,33 +526,57 @@ let lastDir=null;
 const ROLES=["— any —","Owner","Founder","Co-Founder","CEO","Managing Director","Director","VP of Sales","Head of Sales","Sales Manager","CMO","Head of Marketing","Marketing Manager","Business Development","Operations Manager","General Manager","Partner","Procurement Manager","Office Manager","IT Manager","HR Manager"];
 const COUNTRIES=["United States","United Kingdom","Canada","Australia","India","Ireland","New Zealand","Singapore","United Arab Emirates","Saudi Arabia","Qatar","Germany","France","Spain","Italy","Netherlands","Belgium","Switzerland","Austria","Sweden","Norway","Denmark","Finland","Poland","Portugal","Greece","Czech Republic","Romania","Hungary","Ukraine","Turkey","Russia","Israel","South Africa","Nigeria","Kenya","Egypt","Morocco","Ghana","Brazil","Mexico","Argentina","Chile","Colombia","Peru","Japan","China","Hong Kong","South Korea","Taiwan","Malaysia","Indonesia","Thailand","Vietnam","Philippines","Pakistan","Bangladesh","Sri Lanka","Nepal"];
 function isFileOrigin(){return location.protocol==="file:";}
-async function robustGet(url){
-  try{const r=await fetch(url,{headers:{accept:"application/json"}});if(r.ok)return await r.text();}catch(e){}
-  const proxies=["https://api.allorigins.win/raw?url=","https://corsproxy.io/?url="];
+// fetch with a hard timeout so a blocked/hung request can never leave the button stuck spinning
+function fetchT(url,opts,ms){
+  ms=ms||12000;
+  const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),ms);
+  return fetch(url,Object.assign({signal:ctl.signal},opts||{})).finally(()=>clearTimeout(t));
+}
+async function robustGet(url,ms){
+  try{const r=await fetchT(url,{headers:{accept:"application/json"}},ms);if(r.ok)return await r.text();}catch(e){}
+  const proxies=["https://api.allorigins.win/raw?url=","https://corsproxy.io/?url=","https://thingproxy.freeboard.io/fetch/"];
   for(const px of proxies){
-    try{const r=await fetch(px+encodeURIComponent(url));if(r.ok){const t=await r.text();if(t)return t;}}catch(e){}
+    try{const r=await fetchT(px+encodeURIComponent(url),{},ms);if(r.ok){const t=await r.text();if(t)return t;}}catch(e){}
   }
   if(isFileOrigin())throw new Error("You've opened the downloaded file directly (file://). Browsers block all internet access from local files, so live search can't run here. Open the hosted link instead: https://adamrichadvisor.github.io/appy-pie-tour/app.html — or use 'Import CSV' below, which works offline.");
-  throw new Error("Network blocked — try a different network, or turn off ad/privacy blockers. (Directory search needs OpenStreetMap; some networks block it.)");
+  throw new Error("Network blocked — try a different network, disable ad/privacy blockers, or use 'Import CSV' below. (Live search needs OpenStreetMap, which some networks/extensions block.)");
 }
 async function geocode(q){
-  const txt=await robustGet("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(q));
-  let j;try{j=JSON.parse(txt);}catch(e){throw new Error("Location lookup failed — try again.");}
-  if(!j.length)throw new Error("Location not found — try 'City, Country' spelling.");
-  const b=j[0].boundingbox; // [south, north, west, east]
-  return {s:+b[0],n:+b[1],w:+b[2],e:+b[3]};
+  const hosts=["https://nominatim.openstreetmap.org/search","https://nominatim.geocoding.ai/search"];
+  let lastErr;
+  for(const h of hosts){
+    try{
+      const txt=await robustGet(h+"?format=json&limit=1&q="+encodeURIComponent(q),12000);
+      const j=JSON.parse(txt);
+      if(j.length){const b=j[0].boundingbox;return {s:+b[0],n:+b[1],w:+b[2],e:+b[3]};}
+    }catch(e){lastErr=e;}
+  }
+  return null; // caller falls back to area-name query
 }
-async function overpass(sel,bb,limit){
+function opQuery(sel,limit,areaClause,bb){
   const p=sel.split("="),k=p[0],v=p[1];
-  const filt='["'+k+'"="'+v+'"]('+bb.s+','+bb.w+','+bb.n+','+bb.e+')';
-  const q="[out:json][timeout:25];(node"+filt+";way"+filt+";);out center "+limit+";";
-  const eps=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+  const filt='["'+k+'"="'+v+'"]'+(bb?('('+bb.s+','+bb.w+','+bb.n+','+bb.e+')'):'(area.a)');
+  const body=areaClause?(areaClause+"(node"+filt+";way"+filt+";);out center "+limit+";"):("(node"+filt+";way"+filt+";);out center "+limit+";");
+  return "[out:json][timeout:25];"+body;
+}
+async function opRun(q){
+  const eps=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
   let lastErr;
   for(const ep of eps){
-    try{const txt=await robustGet(ep+"?data="+encodeURIComponent(q));const j=JSON.parse(txt);return j.elements||[];}
+    try{const txt=await robustGet(ep+"?data="+encodeURIComponent(q),25000);const j=JSON.parse(txt);return j.elements||[];}
     catch(e){lastErr=e;}
   }
   throw lastErr||new Error("Couldn't reach the directory service.");
+}
+async function overpass(sel,bb,limit){
+  if(bb)return opRun(opQuery(sel,limit,null,bb));
+  throw new Error("no bbox");
+}
+// geocoder-free path: let Overpass resolve the city by name itself
+async function overpassByArea(sel,city,limit){
+  const areaName=(city||"").replace(/"/g,"");
+  const area='area["name"~"^'+areaName+'$",i]["boundary"="administrative"]->.a;';
+  return opRun(opQuery(sel,limit,area,null));
 }
 async function dirSearch(){
   const idx=+document.getElementById("d_cat").value;const cat=DIRCATS[idx]||DIRCATS[0];
@@ -568,7 +592,12 @@ async function dirSearch(){
   try{
     const bb=await geocode(where);
     st.textContent="Searching "+cat.label+" in "+where+"…";
-    const els=await overpass(cat.sel,bb,limit);
+    let els;
+    if(bb){els=await overpass(cat.sel,bb,limit);}
+    else{ // geocoder blocked/unavailable → ask Overpass to resolve the city itself
+      st.textContent="Searching "+cat.label+" in "+(city||where)+" (direct)…";
+      els=await overpassByArea(cat.sel,city||country,limit);
+    }
     const seen=new Set(S.leads.map(l=>((l.website||l.name||"")+"").toLowerCase()));
     let n=0,withEmail=0;
     els.forEach(el=>{const t=el.tags||{};const name=t.name;if(!name)return;
