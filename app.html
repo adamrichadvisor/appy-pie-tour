@@ -1226,6 +1226,11 @@ function renderAuth(ov){
     document.getElementById("auLogout").onclick=()=>{A.session=null;saveAuth();authGate();};
     return;
   }
+  if(u&&u.status==="blocked"&&!isAdminEmail(u.email)){
+    ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:40px">'+AUTH_BRAND+'<h3>Access disabled</h3><div class="desc">Your account <b>'+esc(u.email)+'</b> has been disabled by the administrator ('+esc(ADMIN_EMAIL)+'). Contact them to restore access.</div><button class="btn btn-ghost" id="auLogout" style="margin-top:10px">Log out</button></div>';
+    document.getElementById("auLogout").onclick=()=>{A.session=null;saveAuth();authGate();};
+    return;
+  }
   const tabBtn=(id,lbl)=>'<button class="pill'+(authTab===id?" on":"")+'" data-tab="'+id+'">'+lbl+'</button>';
   let form="";
   if(authTab==="login"){
@@ -1259,7 +1264,8 @@ async function authSubmit(){
     const u=A.users.find(x=>x.email===email);
     if(!u)return fail("No account for that email — sign up first.");
     if(u.pass!==await hashPass(pass))return fail("Wrong password.");
-    if(autoApproved(u.email))u.status="approved"; // admins & pre-approved users are always approved
+    if(u.status==="blocked"&&!isAdminEmail(u.email))return fail("This account has been disabled by the administrator.");
+    if(autoApproved(u.email)&&u.status!=="blocked")u.status="approved"; // admins & pre-approved auto-approve, unless admin disabled them
     A.session=u.email;saveAuth();authMsg="";authGate();
     if(u.status==="approved")toast("Welcome back, "+(u.name||u.email));
   }else if(authTab==="signup"){
@@ -1268,6 +1274,7 @@ async function authSubmit(){
     const existing=A.users.find(x=>x.email===email);
     const auto=autoApproved(email);
     if(existing){
+      if(existing.status==="blocked"&&!isAdminEmail(email))return fail("This account has been disabled by the administrator.");
       if(auto){ // admin or pre-approved: allow re-signup — overwrite password & approve
         existing.pass=await hashPass(pass);existing.status="approved";if(name)existing.name=name;
         A.session=email;saveAuth();authMsg="";authGate();toast("Account updated — you're logged in");
@@ -1305,7 +1312,8 @@ VIEWS.admin=function(m){
   if(!u||!isAdminEmail(u.email)){m.innerHTML=viewTop("Admin","")+'<div class="empty">Admins only.</div>';return;}
   const pend=A.users.filter(x=>x.status==="pending");
   const appr=A.users.filter(x=>x.status==="approved");
-  let html=viewTop("Admin — user access","approve or remove accounts for this portal");
+  const blkd=A.users.filter(x=>x.status==="blocked");
+  let html=viewTop("Admin — user access","approve, disable, or remove accounts for this portal");
   html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>Accounts live in <b>this browser only</b> (front-end prototype). A person signing up on another device/browser won\'t appear here — real cross-device sign-up &amp; approval needs a backend (Firebase/Supabase). Ask me to wire it when you\'re ready.</div></div>';
   // email notification setup
   const nk=(S.settings.notifyKey||"");
@@ -1318,14 +1326,18 @@ VIEWS.admin=function(m){
   html+='</div>';
   html+='<div class="card"><h3>Approved users ('+appr.length+')</h3>';
   if(!appr.length)html+='<div class="empty">None yet.</div>';
-  else appr.forEach(x=>html+=admRow(x,'<span class="chip '+(isAdminEmail(x.email)?"c-info":"c-good")+'"><i></i>'+(isAdminEmail(x.email)?"Admin":"User")+'</span>'+(isAdminEmail(x.email)?"":' <button class="btn btn-ghost aRevoke" data-e="'+esc(x.email)+'" style="padding:6px 13px">Revoke</button> <button class="btn btn-ghost aDelete" data-e="'+esc(x.email)+'" style="padding:6px 13px">Delete</button>')));
+  else appr.forEach(x=>html+=admRow(x,'<span class="chip '+(isAdminEmail(x.email)?"c-info":"c-good")+'"><i></i>'+(isAdminEmail(x.email)?"Admin":"User")+'</span>'+(isAdminEmail(x.email)?"":' <button class="btn btn-ghost aBlock" data-e="'+esc(x.email)+'" style="padding:6px 13px">Disable</button> <button class="btn btn-ghost aDelete" data-e="'+esc(x.email)+'" style="padding:6px 13px">Delete</button>')));
+  html+='</div>';
+  html+='<div class="card"><h3>Disabled users ('+blkd.length+')</h3>';
+  if(!blkd.length)html+='<div class="empty">None.</div>';
+  else blkd.forEach(x=>html+=admRow(x,'<span class="chip c-invalid"><i></i>Disabled</span> <button class="btn btn-primary aApprove" data-e="'+esc(x.email)+'" style="padding:6px 13px">Enable</button> <button class="btn btn-ghost aDelete" data-e="'+esc(x.email)+'" style="padding:6px 13px">Delete</button>'));
   html+='</div>';
   m.innerHTML=html;
   const nkSave=document.getElementById("nkSave");if(nkSave)nkSave.onclick=()=>{S.settings.notifyKey=document.getElementById("nkey").value.trim();save();toast(S.settings.notifyKey?"Notification key saved":"Key cleared");render();};
   const nkTest=document.getElementById("nkTest");if(nkTest)nkTest.onclick=async()=>{S.settings.notifyKey=document.getElementById("nkey").value.trim();save();const st=document.getElementById("nkStatus");if(!S.settings.notifyKey){st.innerHTML='<span style="color:var(--bad)">Enter a key first.</span>';return;}st.textContent="Sending test…";const ok=await notifyAdmin("test@vantage.demo","Test User");st.innerHTML=ok?'<span style="color:var(--good)">✓ Sent — check '+esc(ADMIN_EMAIL)+' (and spam).</span>':'<span style="color:var(--bad)">Failed — check the key is correct.</span>';};
   m.querySelectorAll(".aApprove").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="approved";saveAuth();toast("Approved "+x.email);render();}});
   m.querySelectorAll(".aDelete").forEach(b=>b.onclick=()=>{A.users=A.users.filter(y=>y.email!==b.dataset.e);saveAuth();toast("User deleted — that email can sign up again");render();});
-  m.querySelectorAll(".aRevoke").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="pending";saveAuth();toast("Access revoked");render();}});
+  m.querySelectorAll(".aBlock").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="blocked";saveAuth();toast("Access disabled for "+x.email);render();}});
 };
 
 /* ---------- boot ---------- */
