@@ -165,6 +165,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.82rem;min-width:640px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 .donut{width:120px;height:120px;border-radius:100px;flex:none;-webkit-mask:radial-gradient(circle 32px at center,transparent 98%,#000);mask:radial-gradient(circle 32px at center,transparent 98%,#000)}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div class="shell">
@@ -1023,9 +1024,10 @@ VIEWS.send=function(m){
   if(!selSendCampaign)selSendCampaign=S.campaigns[S.campaigns.length-1].id;
   const c=S.campaigns.find(x=>x.id===selSendCampaign)||S.campaigns[0];selSendCampaign=c.id;
   const recips=campaignRecipients(c);
-  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>The full sending engine runs live here — verified-only queue, randomized <span class="mono">'+S.settings.delayMin+'–'+S.settings.delayMax+'s</span> intervals, daily cap, duplicate &amp; suppression checks, and bounce-triggered stops. In <b>Simulate</b> mode it produces realistic delivery events for analytics; <b>Export .eml</b> writes personalized, ready-to-send emails.</div></div>';
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>The full sending engine runs live here — verified-only queue, randomized <span class="mono">'+S.settings.delayMin+'–'+S.settings.delayMax+'s</span> intervals, daily cap, duplicate &amp; suppression checks, and bounce-triggered stops. In <b>Simulate</b> mode it produces realistic delivery events for analytics; <b>Export .eml</b> writes personalized files you send manually; <b>Send REAL email via Gmail</b> actually delivers each email through your connected Gmail account (open/reply tracking isn\'t available for real sends).</div></div>';
   html+='<div class="card"><div class="card-head"><div style="flex:1;min-width:220px"><label>Campaign</label><select id="sCampaign">'+S.campaigns.map(x=>'<option value="'+x.id+'"'+(x.id===c.id?" selected":"")+'>'+esc(x.name)+'</option>').join("")+'</select></div>'+
-    '<div style="min-width:180px"><label>Mode</label><select id="sMode"><option value="simulate">Simulate delivery</option><option value="eml">Export .eml files</option></select></div></div>';
+    '<div style="min-width:180px"><label>Mode</label><select id="sMode"><option value="simulate">Simulate delivery</option><option value="eml">Export .eml files</option><option value="gmail">Send REAL email via Gmail</option></select></div>'+
+    '<div style="min-width:180px"><label>Gmail</label><button class="btn '+(gmailConnected()?"btn-ghost":"btn-primary")+'" id="sGmail" style="width:100%">'+(gmailConnected()?("✓ "+esc(gmailEmail||"connected")):(gmailConfigured()?"Connect Gmail":"Gmail not set up"))+'</button></div></div>';
   html+='<div class="kpis" style="margin-bottom:16px">'+kpi("Queue (verified)",recips.length,"unique, not suppressed")+kpi("Daily cap",S.settings.dailyCap,"per run")+kpi("Interval",S.settings.delayMin+"–"+S.settings.delayMax+"s",S.settings.demoSpeed?"demo speed on":"real timing")+kpi("Suppressed",S.suppression.length,"bounced/opt-out")+'</div>';
   html+='<div class="mrow"><b style="font-weight:600" id="sCount">0 / '+recips.length+'</b><span id="sPct">0%</span></div><div class="meter" style="height:12px;margin-bottom:16px"><i id="sBar" style="width:0%"></i></div>';
   html+='<div class="kpis" style="margin-bottom:16px">'+["Sent","Delivered","Opened","Replied","Bounced"].map(k=>'<div class="kpi"><div class="l">'+k+'</div><div class="v" id="s-'+k.toLowerCase()+'">0</div></div>').join("")+'</div>';
@@ -1037,6 +1039,8 @@ VIEWS.send=function(m){
   document.getElementById("sStart").onclick=()=>startSend(c);
   document.getElementById("sPause").onclick=pauseSend;
   document.getElementById("sStop").onclick=stopSend;
+  const sg=document.getElementById("sGmail");if(sg)sg.onclick=()=>connectGmail();
+  const sm=document.getElementById("sMode");if(sm)sm.value=ENGINE.mode||"simulate";
   m.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 };
 function logLine(cls,msg){const el=document.getElementById("sLog");if(!el)return;const d=document.createElement("div");d.innerHTML='<span class="'+cls+'">'+msg+'</span>';el.appendChild(d);el.scrollTop=el.scrollHeight;}
@@ -1045,6 +1049,7 @@ function startSend(c){
   const recips=campaignRecipients(c);
   if(!recips.length){toast("No verified recipients");return;}
   const mode=document.getElementById("sMode").value;
+  if(mode==="gmail"&&!gmailConnected()){toast("Click 'Connect Gmail' first, then Start.");return;}
   const cap=S.settings.dailyCap;
   ENGINE.running=true;ENGINE.paused=false;ENGINE.queue=recips.slice(0,cap);ENGINE.i=0;ENGINE.campaign=c;ENGINE.mode=mode;ENGINE.emls=[];
   c.status="sending";save();
@@ -1061,6 +1066,23 @@ function step(){
   const lead=ENGINE.queue[ENGINE.i++];const c=ENGINE.campaign;const tpl=S.templates.find(t=>t.id===c.templateId);
   const now=Date.now();
   const push=(type)=>S.events.push({id:uid(),campaignId:c.id,leadId:lead.id,type:type,ts:Date.now()});
+  // REAL sending via connected Gmail — actually delivers the email
+  if(ENGINE.mode==="gmail"){
+    const subject=mergeText(c.subject,lead);
+    const body=(tpl?mergeText(tpl.body,lead)+"\n\n"+mergeText(tpl.cta,lead)+"\n\n"+mergeText(tpl.signature,lead):"")+"\n\n"+S.settings.footer;
+    push("sent");
+    gmailSend(lead.email,subject,body,c.senderName||S.settings.senderName)
+      .then(()=>{push("delivered");logLine("t","→ "+lead.email+"  <span class=\"ok\">✓ sent via Gmail</span>");})
+      .catch(err=>{push("bounced");if(lead.email&&!S.suppression.includes(lead.email.toLowerCase()))S.suppression.push(lead.email.toLowerCase());
+        logLine("t","→ "+lead.email+"  <span class=\"bad\">✕ "+esc(err.message)+"</span>");
+        if(/expired|not connected/i.test(err.message)){ENGINE.paused=true;document.getElementById("sPause").textContent="Resume";logLine("warn","⏸ paused — click Connect Gmail, then Resume");}})
+      .finally(()=>{updateSendUI();save();
+        const base=(S.settings.delayMin+Math.random()*(S.settings.delayMax-S.settings.delayMin))*1000;
+        const delay=S.settings.demoSpeed?Math.max(2000,base/6):base; // keep spacing for real sends
+        ENGINE._t=setTimeout(step,delay);});
+    updateSendUI();
+    return;
+  }
   push("sent");
   if(ENGINE.mode==="eml"&&tpl){const oldN=S.settings.senderName;S.settings.senderName=c.senderName||S.settings.senderName;
     const eml="From: "+(c.senderName||S.settings.senderName)+" <"+((S.mailboxes.find(x=>x.id===c.mailboxId)||{}).fromEmail||S.settings.senderEmail||"you@example.com")+">\nTo: "+(lead.name||"")+" <"+lead.email+">\nSubject: "+mergeText(c.subject,lead)+"\n\n"+mergeText(tpl.body,lead)+"\n\n"+mergeText(tpl.cta,lead)+"\n\n"+mergeText(tpl.signature,lead)+"\n\n"+S.settings.footer+"\n";
@@ -1201,6 +1223,39 @@ async function notifyAdmin(email,name){
     })});
     return r.ok;
   }catch(e){return false;}
+}
+/* ---------- Gmail sending (client-side, via Google Identity Services + Gmail API) ---------- */
+const GOOGLE_CLIENT_ID=""; // <-- paste your Google OAuth Client ID here to enable "Connect Gmail"
+let gmailToken=null,gmailEmail=null;
+try{const g=JSON.parse(localStorage.getItem("vantage.gmail")||"null");if(g)gmailEmail=g.email;}catch(e){}
+function gmailConfigured(){return !!GOOGLE_CLIENT_ID;}
+function gmailConnected(){return !!gmailToken;}
+function connectGmail(cb){
+  if(!GOOGLE_CLIENT_ID){toast("Gmail sending isn't set up yet — the admin needs to add a Google Client ID.");return;}
+  if(!(window.google&&google.accounts&&google.accounts.oauth2)){toast("Google library still loading — try again in a few seconds.");return;}
+  const tc=google.accounts.oauth2.initTokenClient({
+    client_id:GOOGLE_CLIENT_ID,
+    scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email",
+    callback:async(resp)=>{
+      if(resp&&resp.error){toast("Gmail connect failed: "+resp.error);return;}
+      gmailToken=resp.access_token;
+      try{const r=await fetch("https://www.googleapis.com/oauth2/v3/userinfo",{headers:{Authorization:"Bearer "+gmailToken}});const j=await r.json();gmailEmail=j.email||gmailEmail;}catch(e){}
+      try{localStorage.setItem("vantage.gmail",JSON.stringify({email:gmailEmail}));}catch(e){}
+      toast("Gmail connected"+(gmailEmail?": "+gmailEmail:""));
+      if(cb)cb();render();
+    }
+  });
+  tc.requestAccessToken({prompt:gmailToken?"":"consent"});
+}
+function b64url(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+async function gmailSend(to,subject,body,fromName){
+  if(!gmailToken)throw new Error("Gmail not connected");
+  const from=fromName?(fromName+" <"+(gmailEmail||"me")+">"):(gmailEmail||"me");
+  const raw="From: "+from+"\r\nTo: "+to+"\r\nSubject: "+subject+"\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n"+body;
+  const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{method:"POST",headers:{Authorization:"Bearer "+gmailToken,"Content-Type":"application/json"},body:JSON.stringify({raw:b64url(raw)})});
+  if(r.status===401){gmailToken=null;throw new Error("Gmail session expired — reconnect Gmail");}
+  if(!r.ok){let t="";try{t=await r.text();}catch(e){}throw new Error("Gmail rejected the send"+(t?": "+t.slice(0,100):""));}
+  return true;
 }
 function curUser(){return A.session?A.users.find(u=>u.email===A.session):null;}
 function isAdminEmail(e){return ADMIN_EMAILS.indexOf((e||"").toLowerCase())>=0;}
