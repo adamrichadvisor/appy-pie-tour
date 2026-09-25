@@ -1193,7 +1193,7 @@ VIEWS.settings=function(m){
     out.textContent="Testing…";try{await callClaude("You are a test.","Reply with the single word OK.",20);out.innerHTML='<span style="color:var(--good)">✓ '+esc(s.provider==="gemini"?"Gemini":"Claude")+' key works</span>';save();refreshBadges();}catch(e){out.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';}};
   document.getElementById("dExport").onclick=()=>download("vantage-data-"+new Date().toISOString().slice(0,10)+".json","application/json",JSON.stringify(S,null,2));
   document.getElementById("dImport").onclick=()=>document.getElementById("dFile").click();
-  document.getElementById("dFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);if(p.vantagePack&&Array.isArray(p.templates)){const have=new Set(S.templates.map(t=>t.id));const add=p.templates.filter(t=>t&&t.id&&!have.has(t.id));S.templates=S.templates.concat(add);save();toast(add.length+" templates added from pack");render();return;}S=Object.assign({},DEFAULTS,p);save();toast("Data imported");render();}catch(err){toast("Invalid file");}};r.readAsText(f);};
+  document.getElementById("dFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=Object.assign({},DEFAULTS,JSON.parse(r.result));save();toast("Data imported");render();}catch(err){toast("Invalid file");}};r.readAsText(f);};
   document.getElementById("dReset").onclick=()=>{if(confirm("Delete all leads, templates, campaigns, and settings from this browser?")){S=JSON.parse(JSON.stringify(DEFAULTS));save();toast("Reset");render();}};
 };
 

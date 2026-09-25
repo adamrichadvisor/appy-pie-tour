@@ -22,7 +22,7 @@ Save as an Apollo list named `C7 – Enterprise Platform, White-Label & AI Creat
 
 ## Email sequence (4 steps)
 
-Merge tags: `{{first_name}}`, `{{company}}`, `{{position}}`, `{{industry}}`, `{{sender_name}}`. They work in both Apollo and Vantage. In Apollo, rename `{{industry}}` to a custom field or replace it with plain text.
+Merge tags: `{{first_name}}`, `{{company}}`, `{{position}}`, `{{industry}}`, `{{sender_name}}`. When pasting into Apollo, swap each one for the matching variable in Apollo's variable picker (e.g. job title, sender name). For `{{industry}}`, use a custom field or plain text.
 
 ### Step 1 · Day 1 · Partnership
 

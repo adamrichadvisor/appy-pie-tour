@@ -60,19 +60,11 @@ recognisable specialist, and a deliverability problem in one campaign doesn't af
 3. Save as a list named `C1 – AI Agents`, `C2 – Modernization`, and so on.
 4. Start with 400–600 contacts per campaign. Add more only after reply rates are proven.
 
-### 3. Load the sequences (choose one)
-
-**Option A: Apollo Sequences (recommended, simplest)**
+### 3. Load the sequences in Apollo
 1. Connect all 10 `appypie.es` inboxes in Apollo → Settings → Mailboxes.
 2. Create one sequence per campaign: 4 automatic email steps (Day 1, 3, 7, 14) plus 2 manual LinkedIn tasks.
-3. Paste the copy from the campaign file and assign the inbox(es) from the sender plan.
+3. Paste the copy from the campaign file, map the merge tags to Apollo variables, and assign the inbox(es) from the sender plan.
 4. Settings: send on recipient's business days, 8am–5pm in the recipient's time zone, stop on reply, and mark as finished if the recipient opts out.
-
-**Option B: Vantage (this repo's tool, [app.html](../app.html))**
-1. Apollo → export list as CSV → Vantage → Leads → **Import CSV**.
-2. Vantage → Settings → **Import JSON** → choose [`vantage-templates.json`](vantage-templates.json).
-   This adds all 28 templates (7 campaigns × 4 steps) to your saved templates without touching existing data.
-3. Add your company address in Settings → footer, verify leads, then build a campaign per step.
 
 ### 4. Daily routine (15–30 minutes per inbox)
 - Reply to every positive or neutral response within 2 business hours
