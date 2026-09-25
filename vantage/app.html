@@ -242,8 +242,22 @@ async function checkMX(domain){
     return Array.isArray(j.Answer)&&j.Answer.some(a=>a.type===15);
   }catch(e){return null;}
 }
+// Provider-specific local-part rules for free-mail (best possible without a mailbox check)
+function freeMailFormatOK(local,domain){
+  if(!local||/\.\./.test(local)||/^\.|\.$/.test(local))return false;
+  if(domain==="gmail.com"||domain==="googlemail.com"){
+    // Gmail: 6–30 chars, letters/numbers/dots only, start & end alphanumeric
+    if(!/^[a-z0-9](?:[a-z0-9.]{4,28})[a-z0-9]$/.test(local))return false;
+    return local.replace(/\./g,"").length>=6;
+  }
+  if(domain==="yahoo.com"||domain==="ymail.com"||domain==="rocketmail.com")
+    return /^[a-z][a-z0-9._]{2,31}$/.test(local); // Yahoo: start with letter, 4–32 chars
+  if(domain==="outlook.com"||domain==="hotmail.com"||domain==="live.com"||domain==="msn.com")
+    return /^[a-z][a-z0-9._-]{0,63}$/.test(local); // must start with a letter
+  return local.length>=1; // other free providers: accept any syntactically-valid local part
+}
 async function verifyEmail(email){
-  const out={syntax:false,freemail:false,role:false,disposable:false,mx:null};
+  const out={syntax:false,freemail:false,role:false,disposable:false,mx:null,fmtbad:false};
   email=(email||"").trim().toLowerCase();
   out.syntax=EMAIL_RE.test(email);
   if(!out.syntax)return finalize(out);
@@ -251,13 +265,14 @@ async function verifyEmail(email){
   out.freemail=FREEMAIL.has(domain);
   out.disposable=DISPOSABLE.has(domain);
   out.role=ROLE.has(local);
+  if(out.freemail)out.fmtbad=!freeMailFormatOK(local,domain);
   out.mx=await checkMX(domain);
   return finalize(out);
   function finalize(o){
     let status;
-    if(!o.syntax||o.disposable||o.mx===false)status="invalid";
-    else if(o.role||o.freemail||o.mx===null)status="risky";
-    else status="verified";
+    if(!o.syntax||o.disposable||o.mx===false||o.fmtbad)status="invalid";
+    else if(o.role||o.mx===null)status="risky";
+    else status="verified"; // well-formed free-mail with valid MX now counts as verified
     o.status=status;o.at=Date.now();return o;
   }
 }
