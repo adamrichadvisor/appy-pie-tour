@@ -233,14 +233,16 @@ const DISPOSABLE=new Set(["mailinator.com","10minutemail.com","guerrillamail.com
 const ROLE=new Set(["info","support","sales","admin","contact","hello","help","team","office","billing","careers","jobs","marketing","noreply","no-reply","webmaster","postmaster","enquiries","enquiry"]);
 const EMAIL_RE=/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
+const _mxCache={};
 async function checkMX(domain){
+  if(Object.prototype.hasOwnProperty.call(_mxCache,domain))return _mxCache[domain];
   try{
     const r=await fetch("https://dns.google/resolve?name="+encodeURIComponent(domain)+"&type=MX",{headers:{accept:"application/dns-json"}});
-    if(!r.ok)return null;
+    if(!r.ok)return (_mxCache[domain]=null);
     const j=await r.json();
-    if(j.Status!==0)return false;
-    return Array.isArray(j.Answer)&&j.Answer.some(a=>a.type===15);
-  }catch(e){return null;}
+    if(j.Status!==0)return (_mxCache[domain]=false);
+    return (_mxCache[domain]=(Array.isArray(j.Answer)&&j.Answer.some(a=>a.type===15)));
+  }catch(e){return (_mxCache[domain]=null);}
 }
 // Provider-specific local-part rules for free-mail (best possible without a mailbox check)
 function freeMailFormatOK(local,domain){
@@ -454,7 +456,7 @@ VIEWS.leads=function(m){
     '<input id="d_city_other" class="'+((dCity&&!(CITIES[dCountry]||[]).includes(dCity))?'':'hidden')+'" style="margin-top:6px" value="'+esc((dCity&&!(CITIES[dCountry]||[]).includes(dCity))?dCity:'')+'" placeholder="type a city name"></div>'+
     '<div class="field"><label>Target role (for outreach)</label><select id="d_role">'+ROLES.map(r=>{const val=(r==="— any —"?"":r);return '<option value="'+esc(val)+'"'+(val===dRole?" selected":"")+'>'+esc(r)+'</option>';}).join("")+'</select></div>'+
     '<div class="field"><label>Max results</label><select id="d_limit">'+[10,25,50,100].map(n=>'<option'+(n===dLimit?" selected":"")+'>'+n+'</option>').join("")+'</select></div>'+
-    '</div><div class="btn-row"><button class="btn btn-primary" id="dRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find businesses</button><span id="dStatus" class="small"></span></div></div>';
+    '</div><div class="btn-row" style="align-items:center"><button class="btn btn-primary" id="dRun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find businesses</button><label style="display:flex;align-items:center;gap:7px;margin:0;text-transform:none;font-family:var(--sans);font-weight:500;color:var(--ink);font-size:13px"><input type="checkbox" id="d_verified"'+(lastDir&&lastDir.vonly?" checked":"")+' style="width:auto"> Only fully-verified emails (stricter)</label><span id="dStatus" class="small"></span></div><div class="desc" style="margin-top:2px">Every email found is verified live (MX + format). Leave the box unticked to also keep deliverable ones; tick it to keep only fully-verified.</div></div>';
   // add form (hidden)
   html+='<div class="card hidden" id="lAddCard"><h3>Add a lead</h3><div class="desc">Only Name or Email is required.</div><div class="form-grid">'+
     ff("l_name","Full Name")+ff("l_email","Email")+ff("l_phone","Phone")+ff("l_linkedin","LinkedIn URL")+ff("l_company","Company")+ff("l_position","Job Title")+ff("l_industry","Industry")+ff("l_size","Company Size")+ff("l_revenue","Revenue")+ff("l_country","Country")+ff("l_website","Website")+ff("l_notes","Notes")+
@@ -699,7 +701,8 @@ async function dirSearch(){
   if(city==="__other"){const o=document.getElementById("d_city_other");city=o?o.value.trim():"";}
   const role=document.getElementById("d_role").value.trim();
   const limit=Math.max(1,Math.min(100,parseInt(document.getElementById("d_limit").value)||25));
-  lastDir={cat:idx,country:country,city:city,role:role,limit:limit};
+  const vOnly=!!(document.getElementById("d_verified")&&document.getElementById("d_verified").checked);
+  lastDir={cat:idx,country:country,city:city,role:role,limit:limit,vonly:vOnly};
   const st=document.getElementById("dStatus");const btn=document.getElementById("dRun");
   const where=[city,country].filter(Boolean).join(", ");
   if(!city){st.innerHTML='<span style="color:var(--bad)">Enter a City (e.g. London) — searching a whole country times out on the free map server.</span>';return;}
@@ -726,28 +729,35 @@ async function dirSearch(){
       cands.push({name:name,site:site,phone:t.phone||t["contact:phone"]||"",email:(t.email||t["contact:email"]||"").toLowerCase(),city:t["addr:city"]||""});
     });
     if(!cands.length){toast("No listed businesses found there — try a bigger city or another category.");btn.disabled=false;btn.innerHTML="Find businesses";return;}
-    // build the lead list; crawl each company site for ALL published emails (multiple leads per company)
+    // build the lead list; crawl each company site for ALL published emails, verify each, keep good ones
     const emailSeen=new Set(S.leads.map(l=>(l.email||"").toLowerCase()).filter(Boolean));
     const leads=[];
-    const addLead=(c,email,extra)=>{email=(email||"").toLowerCase();if(!email||emailSeen.has(email))return;emailSeen.add(email);
-      leads.push({id:uid(),source:"directory",verify:null,name:c.name,company:c.name,position:role||"",
+    // verify one email and add it as a lead if it passes the chosen quality bar
+    const tryAdd=async(c,email,extra)=>{
+      email=(email||"").toLowerCase();if(!email||emailSeen.has(email)||leads.length>=limit)return;
+      emailSeen.add(email);
+      const v=await verifyEmail(email);
+      const ok = vOnly ? (v.status==="verified") : (v.status!=="invalid");
+      if(!ok)return;
+      leads.push({id:uid(),source:"directory",verify:v,name:c.name,company:c.name,position:role||"",
         email:email,phone:c.phone,website:c.site,linkedin:"",country:country,industry:cat.industry,size:"",revenue:"",
-        notes:"Real business via OpenStreetMap"+(c.city?" · "+c.city:"")+(extra||" · email from website")});};
-    // OSM-listed emails first (free, no fetch)
-    cands.forEach(c=>{if(c.email)addLead(c,c.email," · email from directory");});
+        notes:"Real business via OpenStreetMap"+(c.city?" · "+c.city:"")+(extra||" · email from website")});
+    };
+    // OSM-listed emails first
+    for(const c of cands){if(leads.length>=limit)break;if(c.email)await tryAdd(c,c.email," · email from directory");}
     // then crawl company websites for more emails until we reach `limit`
     const toScrape=cands.filter(c=>c.site);
     let sc=0;const BATCH=6;
     for(let i=0;i<toScrape.length && leads.length<limit;i+=BATCH){
       const chunk=toScrape.slice(i,i+BATCH);
-      await Promise.all(chunk.map(async c=>{if(leads.length>=limit)return;const arr=await scrapeEmails(c.site,4);sc++;arr.forEach(e=>{if(leads.length<limit)addLead(c,e);});st.textContent="Finding valid emails… "+Math.min(leads.length,limit)+"/"+limit+" (checked "+sc+" sites)";}));
+      await Promise.all(chunk.map(async c=>{if(leads.length>=limit)return;const arr=await scrapeEmails(c.site,4);sc++;for(const e of arr){if(leads.length>=limit)break;await tryAdd(c,e);}st.textContent=(vOnly?"Verifying emails… ":"Finding valid emails… ")+Math.min(leads.length,limit)+"/"+limit+" (checked "+sc+" sites)";}));
     }
     const keep=leads.slice(0,limit);
     keep.forEach(l=>S.leads.push(l));
     save();
-    if(!keep.length)toast("Found "+cands.length+" businesses, but none publish an email on their site — try another city/category, or import a CSV.");
-    else if(keep.length<limit)toast("Added "+keep.length+" leads with a valid email — that's all "+city+" published for this category (checked "+cands.length+" businesses). Try a bigger city for more.");
-    else toast("Added "+keep.length+" leads with valid emails. ✅");
+    if(!keep.length)toast("Found "+cands.length+" businesses, but none had a"+(vOnly?" fully-verified":" valid")+" email — untick 'Only fully-verified', try a bigger city, or import a CSV.");
+    else if(keep.length<limit)toast("Added "+keep.length+(vOnly?" fully-verified":" valid")+" email leads — that's all "+city+" published for this category (checked "+cands.length+" businesses). Try a bigger city for more.");
+    else toast("Added "+keep.length+(vOnly?" fully-verified":" valid")+" email leads. ✅");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
   finally{opStatus=null;}
