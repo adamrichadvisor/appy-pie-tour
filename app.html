@@ -446,7 +446,7 @@ VIEWS.leads=function(m){
   // Directory search (real businesses, free)
   const dcatSel=(lastDir?lastDir.cat:0),dCountry=(lastDir?lastDir.country:"United States"),dCity=(lastDir?lastDir.city:""),dRole=(lastDir?lastDir.role:""),dLimit=(lastDir?lastDir.limit:25);
   html+='<div class="card"><div class="card-head"><h3>Directory search — find real businesses</h3><span class="chip c-info"><i></i>free · OpenStreetMap</span></div>'+
-    '<div class="desc">Pick a category and location to auto-pull real companies. Each result\'s website is checked for a real published email, and <b>only businesses that have a valid email are added</b> to your leads.</div>'+
+    '<div class="desc">Pick a category and location to auto-pull real companies. Each website is crawled (home, contact, about, team, people pages) for <b>all published emails</b> — so you get multiple contacts per company where listed. Only entries with a valid email are added.</div>'+
     '<div class="form-grid">'+
     '<div class="field"><label>Category</label><select id="d_cat">'+DIRCATS.map((c,i)=>'<option value="'+i+'"'+(i===dcatSel?" selected":"")+'>'+esc(c.label)+'</option>').join("")+'</select></div>'+
     '<div class="field"><label>Country</label><select id="d_country">'+COUNTRIES.map(c=>'<option'+(c===dCountry?" selected":"")+'>'+esc(c)+'</option>').join("")+'</select></div>'+
@@ -726,22 +726,28 @@ async function dirSearch(){
       cands.push({name:name,site:site,phone:t.phone||t["contact:phone"]||"",email:(t.email||t["contact:email"]||"").toLowerCase(),city:t["addr:city"]||""});
     });
     if(!cands.length){toast("No listed businesses found there — try a bigger city or another category.");btn.disabled=false;btn.innerHTML="Find businesses";return;}
-    // keep the ones that already list an email; scrape the rest until we reach `limit`
-    const found=cands.filter(c=>c.email);
-    const toScrape=cands.filter(c=>!c.email&&c.site);
+    // build the lead list; crawl each company site for ALL published emails (multiple leads per company)
+    const emailSeen=new Set(S.leads.map(l=>(l.email||"").toLowerCase()).filter(Boolean));
+    const leads=[];
+    const addLead=(c,email,extra)=>{email=(email||"").toLowerCase();if(!email||emailSeen.has(email))return;emailSeen.add(email);
+      leads.push({id:uid(),source:"directory",verify:null,name:c.name,company:c.name,position:role||"",
+        email:email,phone:c.phone,website:c.site,linkedin:"",country:country,industry:cat.industry,size:"",revenue:"",
+        notes:"Real business via OpenStreetMap"+(c.city?" · "+c.city:"")+(extra||" · email from website")});};
+    // OSM-listed emails first (free, no fetch)
+    cands.forEach(c=>{if(c.email)addLead(c,c.email," · email from directory");});
+    // then crawl company websites for more emails until we reach `limit`
+    const toScrape=cands.filter(c=>c.site);
     let sc=0;const BATCH=6;
-    for(let i=0;i<toScrape.length && found.length<limit;i+=BATCH){
+    for(let i=0;i<toScrape.length && leads.length<limit;i+=BATCH){
       const chunk=toScrape.slice(i,i+BATCH);
-      await Promise.all(chunk.map(async c=>{if(found.length>=limit)return;const e=await scrapeEmail(c.site);sc++;if(e){c.email=e;found.push(c);}st.textContent="Finding valid emails… "+Math.min(found.length,limit)+"/"+limit+" (checked "+sc+" sites)";}));
+      await Promise.all(chunk.map(async c=>{if(leads.length>=limit)return;const arr=await scrapeEmails(c.site,4);sc++;arr.forEach(e=>{if(leads.length<limit)addLead(c,e);});st.textContent="Finding valid emails… "+Math.min(leads.length,limit)+"/"+limit+" (checked "+sc+" sites)";}));
     }
-    const keep=found.slice(0,limit);
-    keep.forEach(c=>{S.leads.push({id:uid(),source:"directory",verify:null,name:c.name,company:c.name,position:role||"",
-      email:c.email,phone:c.phone,website:c.site,linkedin:"",
-      country:country,industry:cat.industry,size:"",revenue:"",notes:"Real business via OpenStreetMap"+(c.city?" · "+c.city:"")+" · email from website"});});
+    const keep=leads.slice(0,limit);
+    keep.forEach(l=>S.leads.push(l));
     save();
     if(!keep.length)toast("Found "+cands.length+" businesses, but none publish an email on their site — try another city/category, or import a CSV.");
-    else if(keep.length<limit)toast("Added "+keep.length+" leads with a valid email — that's all "+city+" had listed for this category (checked "+(cands.length)+" businesses). Try a bigger city for more.");
-    else toast("Added "+keep.length+" leads with a valid email. ✅");
+    else if(keep.length<limit)toast("Added "+keep.length+" leads with a valid email — that's all "+city+" published for this category (checked "+cands.length+" businesses). Try a bigger city for more.");
+    else toast("Added "+keep.length+" leads with valid emails. ✅");
     render();
   }catch(e){st.innerHTML='<span style="color:var(--bad)">✕ '+esc(e.message)+'</span>';btn.disabled=false;btn.innerHTML="Find businesses";}
   finally{opStatus=null;}
@@ -752,8 +758,8 @@ function domainFromUrl(u){
 }
 // --- Real email discovery: fetch each lead's website and extract published addresses ---
 const EMAIL_SCRAPE_RE=/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
-function pickEmail(html,domain){
-  // decode common obfuscations, then match
+function extractEmails(html,domain){
+  // decode common obfuscations, then match ALL addresses
   let text=(html||"").replace(/\s*\[at\]\s*|\s*\(at\)\s*/gi,"@").replace(/\s*\[dot\]\s*|\s*\(dot\)\s*/gi,".");
   let found=(text.match(EMAIL_SCRAPE_RE)||[]).map(e=>e.toLowerCase());
   found=found.filter(e=>
@@ -761,22 +767,29 @@ function pickEmail(html,domain){
     !/\.(png|jpe?g|gif|svg|webp|css|js|ico|woff2?|ttf)$/i.test(e) &&
     !/(example\.|sentry|wixpress|\.wix|\.png|\.jpg|@sentry|@2x|yourdomain|domain\.com|email\.com|sentry\.io|godaddy|cloudflare|schema\.org|@example|no-?reply@|core-?js)/i.test(e)
   );
-  if(!found.length)return "";
   const uniq=[...new Set(found)];
+  // prefer addresses on the company's own domain
   const own=domain?uniq.filter(e=>e.split("@")[1]===domain||e.endsWith("."+domain)):[];
-  const pool=own.length?own:uniq;
+  return own.length?own:uniq;
+}
+function pickEmail(html,domain){
+  const pool=extractEmails(html,domain);if(!pool.length)return "";
   const pref=pool.find(e=>/^(info|contact|hello|hi|enquir|sales|admin|office|mail|team|studio|press|marketing)@/i.test(e));
   return pref||pool[0];
 }
-async function scrapeEmail(website){
-  const d=domainFromUrl(website);if(!d)return "";
+// crawl several pages of a company site and return ALL distinct published emails
+async function scrapeEmails(website,cap){
+  const d=domainFromUrl(website);if(!d)return [];
   const base="https://"+d;
-  const urls=[base, base+"/contact", base+"/contact-us", base+"/about"];
+  const urls=[base,base+"/contact",base+"/contact-us",base+"/about",base+"/about-us",base+"/team",base+"/our-team",base+"/people",base+"/staff"];
+  const all=new Set();
   for(const u of urls){
-    try{const html=await robustGet(u,12000);const e=pickEmail(html,d);if(e)return e;}catch(err){}
+    try{const html=await robustGet(u,12000);extractEmails(html,d).forEach(e=>all.add(e));}catch(err){}
+    if(all.size>=(cap||6))break; // enough from this company
   }
-  return "";
+  return [...all];
 }
+async function scrapeEmail(website){const arr=await scrapeEmails(website,3);return arr[0]||"";}
 async function findEmails(){
   const targets=S.leads.filter(l=>!l.email&&l.website);
   const btn=document.getElementById("lFind");
