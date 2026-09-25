@@ -1,5 +1,7 @@
 # Enterprise Outreach Kit: Appy Pie · Flozic · Pixazo
 
+> **Daily lead generation:** see [DAILY_RUN.md](DAILY_RUN.md). It uses Apollo read-only; leads land in [`leads/`](leads/).
+
 Seven enterprise campaigns, each with Apollo targeting filters, a 4-step email sequence,
 LinkedIn messages and a matching proposal template. Everything is sent from the 9
 `appypie.es` inboxes so the main `appypie.com` domain's reputation stays protected.
