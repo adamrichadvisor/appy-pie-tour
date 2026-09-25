@@ -1239,15 +1239,22 @@ function connectGmail(cb){
     scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email",
     callback:async(resp)=>{
       if(resp&&resp.error){toast("Gmail connect failed: "+resp.error);return;}
+      // the user must grant the "Send email" permission — detect if they didn't
+      const grantedSend = resp&&resp.scope ? /gmail\.send/.test(resp.scope) : false;
+      if(!grantedSend){
+        gmailToken=null;
+        alert("You didn't grant the \"Send email on your behalf\" permission, so sending can't work.\n\nClick Connect Gmail again, and on Google's screen make sure the checkbox next to \"Send email on your behalf\" is TICKED before you click Continue.");
+        return;
+      }
       gmailToken=resp.access_token;
       try{const r=await fetch("https://www.googleapis.com/oauth2/v3/userinfo",{headers:{Authorization:"Bearer "+gmailToken}});const j=await r.json();gmailEmail=j.email||gmailEmail;}catch(e){}
       try{localStorage.setItem("vantage.gmail",JSON.stringify({email:gmailEmail}));}catch(e){}
       try{ENGINE.mode="gmail";}catch(e){} // auto-switch to real Gmail sending so Start actually delivers
-      toast("Gmail connected"+(gmailEmail?": "+gmailEmail:"")+" — mode set to REAL sending");
+      toast("Gmail connected"+(gmailEmail?": "+gmailEmail:"")+" — ready to send");
       if(cb)cb();render();
     }
   });
-  tc.requestAccessToken({prompt:gmailToken?"":"consent"});
+  tc.requestAccessToken({prompt:"consent"}); // always show the permission screen so the send scope can be granted
 }
 function b64url(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
 async function gmailSend(to,subject,body,fromName){
