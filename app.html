@@ -1225,7 +1225,7 @@ async function notifyAdmin(email,name){
   }catch(e){return false;}
 }
 /* ---------- Gmail sending (client-side, via Google Identity Services + Gmail API) ---------- */
-const GOOGLE_CLIENT_ID=""; // <-- paste your Google OAuth Client ID here to enable "Connect Gmail"
+const GOOGLE_CLIENT_ID="346095836357-pca4ic2ptlfb5ioluhsvldcn0piuuaod.apps.googleusercontent.com"; // Google OAuth Client ID (public, origin-restricted)
 let gmailToken=null,gmailEmail=null;
 try{const g=JSON.parse(localStorage.getItem("vantage.gmail")||"null");if(g)gmailEmail=g.email;}catch(e){}
 function gmailConfigured(){return !!GOOGLE_CLIENT_ID;}
