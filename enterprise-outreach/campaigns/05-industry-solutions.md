@@ -1,7 +1,7 @@
 # Campaign 5: Industry Solutions (Healthcare · Logistics · Retail)
 
 **Brand lead:** Appy Pie apps + Flozic automation + Pixazo visuals (retail)  
-**Sender inboxes:** S07 (Healthcare), S08 (Logistics & Retail) (see [sender plan](../README.md#sender-plan-10-appypiees-inboxes))  
+**Sender inboxes:** S07 (see [sender plan](../README.md#sender-plan-9-appypiees-inboxes))  
 **Proposal:** [05-industry-solutions.md](../proposals/05-industry-solutions.md)  
 **Core pain:** outdated patient/driver/customer apps, manual operations, slow content production
 

@@ -1,7 +1,7 @@
 # Campaign 6: Managed Services & Application Support
 
 **Brand lead:** Appy Pie enterprise services  
-**Sender inboxes:** S09 (see [sender plan](../README.md#sender-plan-10-appypiees-inboxes))  
+**Sender inboxes:** S08 (see [sender plan](../README.md#sender-plan-9-appypiees-inboxes))  
 **Proposal:** [06-managed-services.md](../proposals/06-managed-services.md)  
 **Core pain:** apps nobody maintains, rising cloud bills, stretched internal IT
 

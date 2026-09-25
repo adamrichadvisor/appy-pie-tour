@@ -1,7 +1,7 @@
 # Campaign 3: Enterprise Data & Knowledge AI (RAG)
 
 **Brand lead:** Appy Pie custom development + Flozic data pipelines  
-**Sender inboxes:** S05 (see [sender plan](../README.md#sender-plan-10-appypiees-inboxes))  
+**Sender inboxes:** S05 (see [sender plan](../README.md#sender-plan-9-appypiees-inboxes))  
 **Proposal:** [03-data-knowledge-ai.md](../proposals/03-data-knowledge-ai.md)  
 **Core pain:** knowledge trapped in documents, AI pilots stuck because data isn't ready
 

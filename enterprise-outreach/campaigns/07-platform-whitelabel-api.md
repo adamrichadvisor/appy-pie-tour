@@ -1,7 +1,7 @@
 # Campaign 7: Enterprise Platform, White-Label & AI Creative API
 
 **Brand lead:** Appy Pie platform (white-label / enterprise) + Pixazo API + Flozic  
-**Sender inboxes:** S10 (see [sender plan](../README.md#sender-plan-10-appypiees-inboxes))  
+**Sender inboxes:** S09 (see [sender plan](../README.md#sender-plan-9-appypiees-inboxes))  
 **Proposal:** [07-platform-whitelabel-api.md](../proposals/07-platform-whitelabel-api.md)  
 **Core pain:** agencies losing build revenue to AI, brands needing content at scale, SaaS teams needing gen-AI features fast
 

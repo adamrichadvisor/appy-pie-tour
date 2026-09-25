@@ -1,7 +1,7 @@
 # Enterprise Outreach Kit: Appy Pie · Flozic · Pixazo
 
 Seven enterprise campaigns, each with Apollo targeting filters, a 4-step email sequence,
-LinkedIn messages and a matching proposal template. Everything is sent from the 10
+LinkedIn messages and a matching proposal template. Everything is sent from the 9
 `appypie.es` inboxes so the main `appypie.com` domain's reputation stays protected.
 
 ## The 7 campaigns
@@ -16,9 +16,9 @@ LinkedIn messages and a matching proposal template. Everything is sent from the 
 | 6 | Managed Services & App Support | Appy Pie services | CIO, IT Director | Free app health check | [campaign](campaigns/06-managed-services.md) · [proposal](proposals/06-managed-services.md) |
 | 7 | Platform, White-Label & AI Creative API | Appy Pie platform + **Pixazo API** + Flozic | Agency founders, CMO, VP Product | Partner kit / API trial | [campaign](campaigns/07-platform-whitelabel-api.md) · [proposal](proposals/07-platform-whitelabel-api.md) |
 
-## Sender plan (10 appypie.es inboxes)
+## Sender plan (9 appypie.es inboxes)
 
-Replace `S01`–`S10` with your real addresses and sender names.
+Replace `S01`–`S09` with your real addresses and sender names.
 
 | Inbox | Campaign | Regions |
 |---|---|---|
@@ -28,21 +28,20 @@ Replace `S01`–`S10` with your real addresses and sender names.
 | S04 | 2 · Legacy Modernization | UK, EU, Middle East, Singapore |
 | S05 | 3 · Data & Knowledge AI | US, UK, EU |
 | S06 | 4 · AI Governance | EU, UK first (EU AI Act), then US and Middle East |
-| S07 | 5 · Industry: Healthcare | US, UK, Middle East |
-| S08 | 5 · Industry: Logistics & Retail | US, UK, Spain/LATAM (Spanish copy) |
-| S09 | 6 · Managed Services | US, UK, Australia |
-| S10 | 7 · Platform / White-label / Pixazo API | Global agencies, SaaS, e-commerce |
+| S07 | 5 · Industry: Healthcare, Logistics, Retail | US, UK, Middle East, Spain/LATAM (Spanish copy) |
+| S08 | 6 · Managed Services | US, UK, Australia |
+| S09 | 7 · Platform / White-label / Pixazo API | Global agencies, SaaS, e-commerce |
 
 **Why one campaign per inbox:** reply handling stays clean, each sender becomes a
 recognisable specialist, and a deliverability problem in one campaign doesn't affect the others.
 
 ### Sending limits
 
-| Period | Per inbox / day | All 10 inboxes / day | New contacts / day (4-step sequence) |
+| Period | Per inbox / day | All 9 inboxes / day | New contacts / day (4-step sequence) |
 |---|---|---|---|
-| Weeks 1–2 (warm-up) | 10 → 20 | 100 → 200 | ~5 per inbox |
-| Weeks 3–4 | 30 | 300 | ~10 per inbox |
-| Week 5+ | 40 (max 50) | 400 | ~12 per inbox · ~2,500 new contacts / month |
+| Weeks 1–2 (warm-up) | 10 → 20 | 90 → 180 | ~5 per inbox |
+| Weeks 3–4 | 30 | 270 | ~10 per inbox |
+| Week 5+ | 40 (max 50) | 360 | ~11 per inbox · ~2,000 new contacts / month |
 
 ## Step-by-step setup
 
@@ -61,7 +60,7 @@ recognisable specialist, and a deliverability problem in one campaign doesn't af
 4. Start with 400–600 contacts per campaign. Add more only after reply rates are proven.
 
 ### 3. Load the sequences in Apollo
-1. Connect all 10 `appypie.es` inboxes in Apollo → Settings → Mailboxes.
+1. Connect all 9 `appypie.es` inboxes in Apollo → Settings → Mailboxes.
 2. Create one sequence per campaign: 4 automatic email steps (Day 1, 3, 7, 14) plus 2 manual LinkedIn tasks.
 3. Paste the copy from the campaign file, map the merge tags to Apollo variables, and assign the inbox(es) from the sender plan.
 4. Settings: send on recipient's business days, 8am–5pm in the recipient's time zone, stop on reply, and mark as finished if the recipient opts out.
@@ -103,7 +102,7 @@ recognisable specialist, and a deliverability problem in one campaign doesn't af
 
 ## Before you send: fill these in
 
-- [ ] Real sender names and addresses for S01–S10
+- [ ] Real sender names and addresses for S01–S09
 - [ ] Company registered address for the footer
 - [ ] 2–3 case studies with numbers (one per campaign is ideal)
 - [ ] Certifications / partner badges you actually hold

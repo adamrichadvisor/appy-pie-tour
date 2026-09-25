@@ -1,7 +1,7 @@
 # Campaign 4: AI Governance, Security & Compliance
 
 **Brand lead:** Appy Pie enterprise services  
-**Sender inboxes:** S06 (see [sender plan](../README.md#sender-plan-10-appypiees-inboxes))  
+**Sender inboxes:** S06 (see [sender plan](../README.md#sender-plan-9-appypiees-inboxes))  
 **Proposal:** [04-ai-governance-security.md](../proposals/04-ai-governance-security.md)  
 **Core pain:** EU AI Act obligations, shadow AI use, no inventory of AI systems
 

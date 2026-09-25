@@ -1,7 +1,7 @@
 # Campaign 1: AI Agents & Workflow Automation
 
 **Brand lead:** Flozic (lead) + Appy Pie custom development  
-**Sender inboxes:** S01, S02 (see [sender plan](../README.md#sender-plan-10-appypiees-inboxes))  
+**Sender inboxes:** S01, S02 (see [sender plan](../README.md#sender-plan-9-appypiees-inboxes))  
 **Proposal:** [01-ai-agents-automation.md](../proposals/01-ai-agents-automation.md)  
 **Core pain:** manual back-office work, support ticket backlog, disconnected SaaS tools
 

@@ -1,7 +1,7 @@
 # Campaign 2: AI-Accelerated Legacy Modernization
 
 **Brand lead:** Appy Pie custom development  
-**Sender inboxes:** S03, S04 (see [sender plan](../README.md#sender-plan-10-appypiees-inboxes))  
+**Sender inboxes:** S03, S04 (see [sender plan](../README.md#sender-plan-9-appypiees-inboxes))  
 **Proposal:** [02-legacy-modernization.md](../proposals/02-legacy-modernization.md)  
 **Core pain:** ageing systems, retiring developers, slow releases, high maintenance cost
 
