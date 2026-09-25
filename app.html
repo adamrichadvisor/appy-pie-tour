@@ -1157,7 +1157,7 @@ function distCard(title,field){
 /* ---------- Settings ---------- */
 VIEWS.settings=function(m){
   const s=S.settings;
-  const cu=curUser();
+  const cu=gateUser();
   if(!cu||!isAdminEmail(cu.email)){m.innerHTML=viewTop("Settings","")+'<div class="empty">Settings are available to administrators only.</div>';return;}
   let html=viewTop("Settings","API key, sending defaults, compliance & data");
   if(cu)html+='<div class="card"><h3>Account</h3><div class="desc">Signed in as <b>'+esc(cu.email)+'</b>'+(isAdminEmail(cu.email)?" (admin)":"")+'.</div><button class="btn btn-ghost" id="setLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Log out</button></div>';
@@ -1289,16 +1289,16 @@ function startApp(){const h=location.hash.slice(1);CURRENT=(h&&VIEWS[h])?h:"dash
 function authField(id,label,type,val){return '<div class="field" style="margin-bottom:10px"><label>'+label+'</label><input id="'+id+'" type="'+(type||"text")+'" value="'+esc(val||"")+'"></div>';}
 const AUTH_BRAND='<div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:4px"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 20.5 13.2 11 16 16l2.8-5 5.2 9.5" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.2" fill="#fff"/></svg><b style="font-size:20px">Vantage</b></div>';
 function renderAuth(ov){
-  const u=curUser();
+  const u=gateUser();
   if(u&&u.status==="pending"&&!isAdminEmail(u.email)){
     const noteLine=u.notified?'<div class="desc" style="margin-top:6px;color:var(--good)">✓ The administrator has been emailed about your request.</div>':'';
     ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:40px">'+AUTH_BRAND+'<h3>Awaiting approval</h3><div class="desc">Your account <b>'+esc(u.email)+'</b> is pending approval from the administrator ('+esc(ADMIN_EMAIL)+'). You will get access once approved.</div>'+noteLine+'<button class="btn btn-ghost" id="auLogout" style="margin-top:10px">Log out</button></div>';
-    document.getElementById("auLogout").onclick=()=>{A.session=null;saveAuth();authGate();};
+    document.getElementById("auLogout").onclick=doLogout;
     return;
   }
   if(u&&u.status==="blocked"&&!isAdminEmail(u.email)){
     ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:40px">'+AUTH_BRAND+'<h3>Access disabled</h3><div class="desc">Your account <b>'+esc(u.email)+'</b> has been disabled by the administrator ('+esc(ADMIN_EMAIL)+'). Contact them to restore access.</div><button class="btn btn-ghost" id="auLogout" style="margin-top:10px">Log out</button></div>';
-    document.getElementById("auLogout").onclick=()=>{A.session=null;saveAuth();authGate();};
+    document.getElementById("auLogout").onclick=doLogout;
     return;
   }
   const tabBtn=(id,lbl)=>'<button class="pill'+(authTab===id?" on":"")+'" data-tab="'+id+'">'+lbl+'</button>';
@@ -1310,9 +1310,9 @@ function renderAuth(ov){
     form=authField("au_name","Full name")+authField("au_email","Email","email")+authField("au_pass","Password (min 6 chars)","password")+
       '<button class="btn btn-primary" id="auDo" style="width:100%;margin-top:4px">Create account</button>';
   }else{
-    form=authField("au_email","Email","email")+authField("au_pass","New password (min 6 chars)","password")+
-      '<button class="btn btn-primary" id="auDo" style="width:100%;margin-top:4px">Reset password</button>'+
-      '<div class="desc" style="margin-top:8px">No email server here, so this resets your password directly in this browser (prototype).</div>';
+    form=(SUPA_ON?authField("au_email","Email","email"):authField("au_email","Email","email")+authField("au_pass","New password (min 6 chars)","password"))+
+      '<button class="btn btn-primary" id="auDo" style="width:100%;margin-top:4px">'+(SUPA_ON?"Send reset email":"Reset password")+'</button>'+
+      '<div class="desc" style="margin-top:8px">'+(SUPA_ON?"We\'ll email you a secure link to set a new password.":"No email server here, so this resets your password directly in this browser (prototype).")+'</div>';
   }
   const msg=authMsg?'<div class="banner '+(authMsg[0]==="!"?"warn":"info")+'" style="margin:10px 0"><div>'+esc(authMsg.replace(/^!/,""))+'</div></div>':"";
   ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:30px">'+AUTH_BRAND+
@@ -1325,6 +1325,7 @@ function renderAuth(ov){
   const pass=document.getElementById("au_pass");if(pass)pass.onkeydown=e=>{if(e.key==="Enter")authSubmit();};
 }
 async function authSubmit(){
+  if(SUPA_ON)return supaSubmit();
   const ov=document.getElementById("authScreen");
   const g=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
   const email=g("au_email").toLowerCase(),pass=g("au_pass");
@@ -1364,7 +1365,7 @@ async function authSubmit(){
     u.pass=await hashPass(pass);saveAuth();authTab="login";authMsg="Password reset — log in with your new password.";renderAuth(ov);
   }
 }
-function doLogout(){A.session=null;saveAuth();appStarted=false;const c=document.getElementById("userChip");if(c)c.remove();location.hash="";authGate();}
+function doLogout(){if(SUPA_ON)return supaLogout();A.session=null;saveAuth();appStarted=false;const c=document.getElementById("userChip");if(c)c.remove();location.hash="";authGate();}
 function mountUserChip(u){
   const side=document.querySelector(".side");if(!side||document.getElementById("userChip"))return;
   const brand=side.querySelector(".brand");
@@ -1374,12 +1375,13 @@ function mountUserChip(u){
   if(brand&&brand.nextSibling)side.insertBefore(chip,brand.nextSibling);else side.insertBefore(chip,side.firstChild);
   document.getElementById("auOut").onclick=doLogout;
 }
-function updateAdminNav(){const u=curUser();const admin=!!(u&&isAdminEmail(u.email));
+function updateAdminNav(){const u=gateUser();const admin=!!(u&&isAdminEmail(u.email));
   const show=(id,on)=>{const el=document.getElementById(id);if(el)el.classList.toggle("hidden",!on);};
   show("navAdmin",admin);show("navSettings",admin);show("navsecSetup",admin); // Settings & Admin are admin-only
-  const b=document.getElementById("b-admin");if(b){const pend=A.users.filter(x=>x.status==="pending").length;b.textContent=pend;b.style.background=pend?"var(--bad)":"";b.style.color=pend?"#fff":"";}}
+  const b=document.getElementById("b-admin");if(b){if(SUPA_ON){b.textContent="";}else{const pend=A.users.filter(x=>x.status==="pending").length;b.textContent=pend;b.style.background=pend?"var(--bad)":"";b.style.color=pend?"#fff":"";}}}
 function admRow(x,btns){return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid rgba(128,128,128,.18);flex-wrap:wrap"><div style="flex:1;min-width:170px"><b>'+esc(x.name||"—")+'</b><div class="desc" style="margin:2px 0 0">'+esc(x.email)+'</div></div>'+btns+'</div>';}
 VIEWS.admin=function(m){
+  if(SUPA_ON)return supaAdminRender(m);
   const u=curUser();
   if(!u||!isAdminEmail(u.email)){m.innerHTML=viewTop("Admin","")+'<div class="empty">Admins only.</div>';return;}
   const pend=A.users.filter(x=>x.status==="pending");
@@ -1412,6 +1414,95 @@ VIEWS.admin=function(m){
   m.querySelectorAll(".aBlock").forEach(b=>b.onclick=()=>{const x=A.users.find(y=>y.email===b.dataset.e);if(x){x.status="blocked";saveAuth();toast("Access disabled for "+x.email);render();}});
 };
 
+/* ---------- Supabase backend (real cross-device auth + approval) ---------- */
+const SUPA_URL="https://fvqfflbqlvquaqacdpjf.supabase.co";
+const SUPA_KEY="sb_publishable_AXn24DZvn72BW-6fNSwY2A__WRlSlDK"; // publishable (public) key — safe to embed
+const SUPA_ON=!!(SUPA_URL&&SUPA_KEY);
+let sb=null,supaUser=null,supaProfile=null;
+async function supaClient(){
+  if(sb)return sb;
+  const m=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+  sb=m.createClient(SUPA_URL,SUPA_KEY);
+  return sb;
+}
+function gateUser(){
+  if(SUPA_ON)return supaUser?{email:(supaProfile&&supaProfile.email)||supaUser.email,name:(supaProfile&&supaProfile.name)||"",status:(supaProfile&&supaProfile.status)||"pending"}:null;
+  return curUser();
+}
+function ensureAuthOverlay(){
+  let ov=document.getElementById("authScreen");
+  if(!ov){ov=document.createElement("div");ov.id="authScreen";ov.style.cssText="position:fixed;inset:0;z-index:5000;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;padding:40px 18px;overflow:auto";document.body.appendChild(ov);}
+  return ov;
+}
+async function supaLoadProfile(){
+  const c=await supaClient();
+  const {data:{session}}=await c.auth.getSession();
+  if(!session){supaUser=null;supaProfile=null;return;}
+  supaUser=session.user;
+  try{const {data}=await c.from("profiles").select("*").eq("id",supaUser.id).maybeSingle();supaProfile=data||null;}catch(e){supaProfile=null;}
+  if(!supaProfile)supaProfile={id:supaUser.id,email:supaUser.email,name:"",status:isAdminEmail(supaUser.email)?"approved":"pending"};
+}
+async function supaGate(){
+  const shell=document.querySelector(".shell");
+  try{await supaLoadProfile();}
+  catch(e){if(shell)shell.style.display="none";const ov=ensureAuthOverlay();ov.innerHTML='<div class="card" style="max-width:420px;width:100%;margin-top:40px">'+AUTH_BRAND+'<h3>Connection problem</h3><div class="desc">Couldn\'t reach the login service. Check your internet connection and refresh the page.</div></div>';return false;}
+  const u=gateUser();
+  const ok=u&&(u.status==="approved"||isAdminEmail(u.email));
+  let ov=document.getElementById("authScreen");
+  if(ok){if(ov)ov.remove();if(shell)shell.style.display="";mountUserChip(u);updateAdminNav();if(!appStarted)startApp();else render();return true;}
+  if(shell)shell.style.display="none";
+  ensureAuthOverlay();renderAuth(document.getElementById("authScreen"));
+  return false;
+}
+async function supaSubmit(){
+  const ov=document.getElementById("authScreen");
+  const g=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
+  const email=g("au_email").toLowerCase(),pass=g("au_pass"),name=g("au_name");
+  const fail=m=>{authMsg="!"+m;renderAuth(ov);};
+  if(!validEmail(email))return fail("Enter a valid email address.");
+  let c;try{c=await supaClient();}catch(e){return fail("Login service failed to load — check your connection and retry.");}
+  if(authTab==="login"){
+    const {error}=await c.auth.signInWithPassword({email,password:pass});
+    if(error)return fail(error.message);
+    authMsg="";await supaGate();
+  }else if(authTab==="signup"){
+    if(pass.length<6)return fail("Password must be at least 6 characters.");
+    const {data,error}=await c.auth.signUp({email,password:pass,options:{data:{name:name||email.split("@")[0]}}});
+    if(error)return fail(error.message);
+    try{notifyAdmin(email,name);}catch(e){}
+    if(!data.session){const {error:e2}=await c.auth.signInWithPassword({email,password:pass});if(e2)return fail(e2.message);}
+    authMsg="";await supaGate();
+  }else{
+    const {error}=await c.auth.resetPasswordForEmail(email,{redirectTo:location.href});
+    if(error)return fail(error.message);
+    authTab="login";authMsg="Password reset email sent — check your inbox, then log in with the new password.";renderAuth(ov);
+  }
+}
+async function supaLogout(){try{const c=await supaClient();await c.auth.signOut();}catch(e){}supaUser=null;supaProfile=null;appStarted=false;const ch=document.getElementById("userChip");if(ch)ch.remove();location.hash="";supaGate();}
+async function supaAdminRender(m){
+  m.innerHTML=viewTop("Admin — user access","approve, disable, or remove accounts for this portal")+'<div class="empty">Loading users…</div>';
+  let c,rows;
+  try{c=await supaClient();const {data,error}=await c.from("profiles").select("*").order("created_at",{ascending:false});if(error)throw error;rows=data||[];}
+  catch(e){m.innerHTML=viewTop("Admin — user access","")+'<div class="banner warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/></svg><div>Couldn\'t load users: '+esc(e.message||String(e))+'</div></div>';return;}
+  const pend=rows.filter(x=>x.status==="pending"),appr=rows.filter(x=>x.status==="approved"),blkd=rows.filter(x=>x.status==="blocked");
+  let html=viewTop("Admin — user access","approve, disable, or remove accounts for this portal");
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div><b>Connected to your Supabase backend.</b> Signups from <b>any device</b> appear here in real time.</div></div>';
+  html+='<div class="card"><h3>Pending approval ('+pend.length+')</h3>';
+  if(!pend.length)html+='<div class="empty">No pending requests.</div>';
+  else pend.forEach(x=>html+=admRow(x,'<button class="btn btn-primary sbSet" data-e="'+esc(x.id)+'" data-s="approved" style="padding:6px 13px">Approve</button> <button class="btn btn-ghost sbSet" data-e="'+esc(x.id)+'" data-s="blocked" style="padding:6px 13px">Deny</button>'));
+  html+='</div>';
+  html+='<div class="card"><h3>Approved users ('+appr.length+')</h3>';
+  if(!appr.length)html+='<div class="empty">None yet.</div>';
+  else appr.forEach(x=>html+=admRow(x,'<span class="chip '+(isAdminEmail(x.email)?"c-info":"c-good")+'"><i></i>'+(isAdminEmail(x.email)?"Admin":"User")+'</span>'+(isAdminEmail(x.email)?"":' <button class="btn btn-ghost sbSet" data-e="'+esc(x.id)+'" data-s="blocked" style="padding:6px 13px">Disable</button>')));
+  html+='</div>';
+  html+='<div class="card"><h3>Disabled users ('+blkd.length+')</h3>';
+  if(!blkd.length)html+='<div class="empty">None.</div>';
+  else blkd.forEach(x=>html+=admRow(x,'<span class="chip c-invalid"><i></i>Disabled</span> <button class="btn btn-primary sbSet" data-e="'+esc(x.id)+'" data-s="approved" style="padding:6px 13px">Enable</button>'));
+  html+='</div>';
+  m.innerHTML=html;
+  m.querySelectorAll(".sbSet").forEach(b=>b.onclick=async()=>{b.disabled=true;try{const cc=await supaClient();const {error}=await cc.from("profiles").update({status:b.dataset.s}).eq("id",b.dataset.e);if(error)throw error;toast("Updated");render();}catch(e){b.disabled=false;toast("Failed: "+(e.message||e));}});
+}
+
 /* ---------- boot ---------- */
 function render(){const m=document.getElementById("main");const fn=VIEWS[CURRENT]||VIEWS.dashboard;fn(m);
   m.querySelectorAll("[data-go]").forEach(b=>{if(!b._b){b._b=1;b.onclick=()=>go(b.dataset.go);}});
@@ -1424,7 +1515,7 @@ refreshBadges();
     w.innerHTML='<span>⚠️ You opened the <b>downloaded file</b>. Browsers block internet access from local files, so live search, verification &amp; AI won\'t run. Use the hosted link → <a href="https://adamrichadvisor.github.io/appy-pie-tour/app.html" style="color:#fff;text-decoration:underline;font-weight:600">adamrichadvisor.github.io/appy-pie-tour/app.html</a>. (Offline features like <b>Import CSV</b>, templates &amp; export still work here.)</span><button onclick="this.parentNode.remove()" style="background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:13px">Dismiss</button>';
   }
 })();
-authGate();
+if(SUPA_ON){supaGate();}else{authGate();}
 </script>
 </body>
 </html>
