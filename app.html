@@ -979,9 +979,9 @@ function mbxStatus(s){const map={healthy:"c-verified",warming:"c-risky","at-risk
 let selCampaignTemplate=null;
 VIEWS.campaigns=function(m){
   let html=viewTop("Campaign Builder","assemble template + audience + sender, then preview");
-  const canBuild=S.templates.length&&verifiedLeads().length;
+  const canBuild=S.templates.length&&sendableLeads().length;
   if(!S.templates.length)html+=need("Create a template first.","templates","Go to Templates");
-  else if(!verifiedLeads().length)html+=need("Verify some leads first — campaigns only send to verified addresses.","verify","Go to Verification");
+  else if(!sendableLeads().length)html+=need("Add at least one lead with an email that isn't marked Invalid.","leads","Go to Lead Finder");
   html+='<div class="card"><h3>New campaign</h3><div class="form-grid">'+
     ff("c_name","Campaign name","Q3 Outreach")+
     '<div class="field"><label>Template</label><select id="c_template">'+S.templates.map(t=>'<option value="'+t.id+'"'+(selCampaignTemplate===t.id?" selected":"")+'>'+esc(t.name)+'</option>').join("")+'</select></div>'+
@@ -1014,25 +1014,27 @@ VIEWS.campaigns=function(m){
   m.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 };
 function need(msg,view,label){return '<div class="banner warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><div>'+esc(msg)+' <button class="btn btn-ghost btn-sm" data-go="'+view+'" style="margin-left:6px">'+esc(label)+'</button></div></div>';}
-function campaignRecipients(c){return verifiedLeads().filter(l=>l.email&&!S.suppression.includes(l.email.toLowerCase()));}
+// Sendable = has an email, not suppressed, and NOT verified-invalid (verified + risky + unchecked all send)
+function sendableLeads(){return S.leads.filter(l=>l.email&&!(l.verify&&l.verify.status==="invalid")&&!S.suppression.includes(l.email.toLowerCase()));}
+function campaignRecipients(c){return sendableLeads();}
 
 /* ---------- Smart Send ---------- */
 let selSendCampaign=null;const ENGINE={running:false,paused:false,queue:[],i:0,campaign:null};
 VIEWS.send=function(m){
-  let html=viewTop("Smart Sending","verified-only queue · paced intervals · caps · bounce handling");
+  let html=viewTop("Smart Sending","sends to all except invalid/suppressed · paced intervals · caps · bounce handling");
   if(!S.campaigns.length){html+=need("Create a campaign first.","campaigns","Go to Campaigns");m.innerHTML=html;m.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));return;}
   if(!selSendCampaign)selSendCampaign=S.campaigns[S.campaigns.length-1].id;
   const c=S.campaigns.find(x=>x.id===selSendCampaign)||S.campaigns[0];selSendCampaign=c.id;
   const recips=campaignRecipients(c);
-  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>The full sending engine runs live here — verified-only queue, randomized <span class="mono">'+S.settings.delayMin+'–'+S.settings.delayMax+'s</span> intervals, daily cap, duplicate &amp; suppression checks, and bounce-triggered stops. In <b>Simulate</b> mode it produces realistic delivery events for analytics; <b>Export .eml</b> writes personalized files you send manually; <b>Send REAL email via Gmail</b> actually delivers each email through your connected Gmail account (open/reply tracking isn\'t available for real sends).</div></div>';
+  html+='<div class="banner info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg><div>The full sending engine runs live here — queue includes everyone except <b>Invalid</b> and suppressed addresses (Risky/Gmail/unchecked are sent), randomized <span class="mono">'+S.settings.delayMin+'–'+S.settings.delayMax+'s</span> intervals, daily cap, duplicate &amp; suppression checks, and bounce-triggered stops. In <b>Simulate</b> mode it produces realistic delivery events for analytics; <b>Export .eml</b> writes personalized files you send manually; <b>Send REAL email via Gmail</b> actually delivers each email through your connected Gmail account (open/reply tracking isn\'t available for real sends).</div></div>';
   html+='<div class="card"><div class="card-head"><div style="flex:1;min-width:220px"><label>Campaign</label><select id="sCampaign">'+S.campaigns.map(x=>'<option value="'+x.id+'"'+(x.id===c.id?" selected":"")+'>'+esc(x.name)+'</option>').join("")+'</select></div>'+
     '<div style="min-width:180px"><label>Mode</label><select id="sMode"><option value="simulate">Simulate delivery</option><option value="eml">Export .eml files</option><option value="gmail">Send REAL email via Gmail</option></select></div>'+
     '<div style="min-width:180px"><label>Gmail</label><button class="btn '+(gmailConnected()?"btn-ghost":"btn-primary")+'" id="sGmail" style="width:100%">'+(gmailConnected()?("✓ "+esc(gmailEmail||"connected")):(gmailConfigured()?"Connect Gmail":"Gmail not set up"))+'</button></div></div>';
-  html+='<div class="kpis" style="margin-bottom:16px">'+kpi("Queue (verified)",recips.length,"unique, not suppressed")+kpi("Daily cap",S.settings.dailyCap,"per run")+kpi("Interval",S.settings.delayMin+"–"+S.settings.delayMax+"s",S.settings.demoSpeed?"demo speed on":"real timing")+kpi("Suppressed",S.suppression.length,"bounced/opt-out")+'</div>';
+  html+='<div class="kpis" style="margin-bottom:16px">'+kpi("Queue (sendable)",recips.length,"excludes invalid & suppressed")+kpi("Daily cap",S.settings.dailyCap,"per run")+kpi("Interval",S.settings.delayMin+"–"+S.settings.delayMax+"s",S.settings.demoSpeed?"demo speed on":"real timing")+kpi("Suppressed",S.suppression.length,"bounced/opt-out")+'</div>';
   html+='<div class="mrow"><b style="font-weight:600" id="sCount">0 / '+recips.length+'</b><span id="sPct">0%</span></div><div class="meter" style="height:12px;margin-bottom:16px"><i id="sBar" style="width:0%"></i></div>';
   html+='<div class="kpis" style="margin-bottom:16px">'+["Sent","Delivered","Opened","Replied","Bounced"].map(k=>'<div class="kpi"><div class="l">'+k+'</div><div class="v" id="s-'+k.toLowerCase()+'">0</div></div>').join("")+'</div>';
   html+='<div class="btn-row" style="margin-bottom:16px"><button class="btn btn-primary" id="sStart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4Z"/></svg>Start</button><button class="btn btn-ghost" id="sPause" disabled>Pause</button><button class="btn btn-ghost" id="sStop" disabled>Stop</button><label style="display:flex;align-items:center;gap:8px;margin:0;text-transform:none;font-family:var(--sans);font-weight:500;color:var(--ink)"><input type="checkbox" id="sDemo" '+(S.settings.demoSpeed?"checked":"")+' style="width:auto"> Demo speed</label></div>';
-  html+='<div class="log" id="sLog"><span class="t">// queue ready — '+recips.length+' verified recipients for "'+esc(c.name)+'"</span></div></div>';
+  html+='<div class="log" id="sLog"><span class="t">// queue ready — '+recips.length+' sendable recipients for "'+esc(c.name)+'"</span></div></div>';
   m.innerHTML=html;
   document.getElementById("sCampaign").onchange=e=>{selSendCampaign=e.target.value;render();};
   document.getElementById("sDemo").onchange=e=>{S.settings.demoSpeed=e.target.checked;save();};
@@ -1047,7 +1049,7 @@ function logLine(cls,msg){const el=document.getElementById("sLog");if(!el)return
 function startSend(c){
   if(ENGINE.running)return;
   const recips=campaignRecipients(c);
-  if(!recips.length){toast("No verified recipients");return;}
+  if(!recips.length){toast("No sendable recipients (all are invalid or suppressed)");return;}
   const mode=document.getElementById("sMode").value;
   if(mode==="gmail"&&!gmailConnected()){toast("Click 'Connect Gmail' first, then Start.");return;}
   if(mode==="simulate"&&gmailConnected()){if(!confirm("Heads up: Gmail is connected, but the Mode is 'Simulate' — that sends NO real email (it only produces demo numbers). To actually send, click Cancel and choose 'Send REAL email via Gmail'.\n\nContinue with Simulate anyway?"))return;}
