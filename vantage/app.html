@@ -1050,6 +1050,7 @@ function startSend(c){
   if(!recips.length){toast("No verified recipients");return;}
   const mode=document.getElementById("sMode").value;
   if(mode==="gmail"&&!gmailConnected()){toast("Click 'Connect Gmail' first, then Start.");return;}
+  if(mode==="simulate"&&gmailConnected()){if(!confirm("Heads up: Gmail is connected, but the Mode is 'Simulate' — that sends NO real email (it only produces demo numbers). To actually send, click Cancel and choose 'Send REAL email via Gmail'.\n\nContinue with Simulate anyway?"))return;}
   const cap=S.settings.dailyCap;
   ENGINE.running=true;ENGINE.paused=false;ENGINE.queue=recips.slice(0,cap);ENGINE.i=0;ENGINE.campaign=c;ENGINE.mode=mode;ENGINE.emls=[];
   c.status="sending";save();
@@ -1241,7 +1242,8 @@ function connectGmail(cb){
       gmailToken=resp.access_token;
       try{const r=await fetch("https://www.googleapis.com/oauth2/v3/userinfo",{headers:{Authorization:"Bearer "+gmailToken}});const j=await r.json();gmailEmail=j.email||gmailEmail;}catch(e){}
       try{localStorage.setItem("vantage.gmail",JSON.stringify({email:gmailEmail}));}catch(e){}
-      toast("Gmail connected"+(gmailEmail?": "+gmailEmail:""));
+      try{ENGINE.mode="gmail";}catch(e){} // auto-switch to real Gmail sending so Start actually delivers
+      toast("Gmail connected"+(gmailEmail?": "+gmailEmail:"")+" — mode set to REAL sending");
       if(cb)cb();render();
     }
   });
