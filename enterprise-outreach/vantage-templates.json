@@ -1,0 +1,369 @@
+{
+ "vantagePack": "appy-pie-enterprise-v1",
+ "templates": [
+  {
+   "id": "c1s1",
+   "name": "C1 AI Agents & Workflow Automation · Step 1 (Day 1)",
+   "style": "Cold Outreach",
+   "subjects": [
+    "AI agents for {{company}}'s back office",
+    "{{first_name}}, what if 40% of tickets handled themselves?",
+    "Automating {{company}}'s busiest workflows"
+   ],
+   "body": "Hi {{first_name}},\n\nMost {{industry}} teams I speak with have the same story: support tickets, invoices and onboarding steps still bounce between inboxes, spreadsheets and five different SaaS tools.\n\nWe build AI agents that sit inside those workflows. They read the ticket or document, decide the next step, update Salesforce/SAP/Zendesk and only escalate to a human when needed. Our Flozic platform connects to 1,000+ apps, and our engineering team handles the enterprise integration, security and rollout.",
+   "cta": "Worth a 20-minute call to map two or three workflows at {{company}} we could automate first?",
+   "signature": "{{sender_name}}\nEnterprise Automation · Flozic by Appy Pie\nflozic.ai · appypie.com"
+  },
+  {
+   "id": "c1s2",
+   "name": "C1 AI Agents & Workflow Automation · Step 2 (Day 3)",
+   "style": "Sales Pitch",
+   "subjects": [
+    "How a 6-week AI pilot works",
+    "Re: AI agents for {{company}}",
+    "{{first_name}} — pilot scope, not a sales deck"
+   ],
+   "body": "Hi {{first_name}},\n\nA quick follow-up with something concrete. Our standard pilot for {{industry}} companies looks like this:\n\n• Week 1: process discovery, pick one high-volume workflow\n• Weeks 2–4: build the agent + integrations, human-in-the-loop approvals\n• Weeks 5–6: run live, measure hours saved and accuracy\n\nFixed scope, fixed price, and you keep the workflows whether or not you continue with us.",
+   "cta": "Shall I send a one-page pilot proposal tailored to {{company}}?",
+   "signature": "{{sender_name}}\nEnterprise Automation · Flozic by Appy Pie\nflozic.ai · appypie.com"
+  },
+  {
+   "id": "c1s3",
+   "name": "C1 AI Agents & Workflow Automation · Step 3 (Day 7)",
+   "style": "Follow-up",
+   "subjects": [
+    "Workflows we usually automate first",
+    "One idea for {{company}}",
+    "Quick list, {{first_name}}"
+   ],
+   "body": "Hi {{first_name}},\n\nIn case it helps with prioritising, these are the workflows {{industry}} companies most often hand to AI agents first:\n\n1. Tier-1 customer support replies and ticket routing\n2. Invoice, PO and document data extraction into ERP\n3. Employee and customer onboarding checklists\n4. Lead qualification and CRM hygiene\n\nEach one usually pays back within the first quarter.",
+   "cta": "Does any of these sit on your team's list for this year?",
+   "signature": "{{sender_name}}\nEnterprise Automation · Flozic by Appy Pie\nflozic.ai · appypie.com"
+  },
+  {
+   "id": "c1s4",
+   "name": "C1 AI Agents & Workflow Automation · Step 4 (Day 14)",
+   "style": "Reminder",
+   "subjects": [
+    "Closing the loop",
+    "Should I close your file, {{first_name}}?",
+    "Last note from me"
+   ],
+   "body": "Hi {{first_name}},\n\nI don't want to crowd your inbox, so this is my last note. If AI automation isn't a priority at {{company}} right now, no problem at all.\n\nIf it becomes one, reply with 'later' and I'll check back next quarter, or 'yes' and I'll send the pilot outline.",
+   "cta": "Either reply helps. Thanks, {{first_name}}.",
+   "signature": "{{sender_name}}\nEnterprise Automation · Flozic by Appy Pie\nflozic.ai · appypie.com"
+  },
+  {
+   "id": "c2s1",
+   "name": "C2 AI-Accelerated Legacy Modernization · Step 1 (Day 1)",
+   "style": "Cold Outreach",
+   "subjects": [
+    "Modernising {{company}}'s legacy apps, faster",
+    "{{first_name}}, a faster path off legacy systems",
+    "Legacy rewrite in months, not years"
+   ],
+   "body": "Hi {{first_name}},\n\nMany {{industry}} companies still run critical work on systems written 15–25 years ago: .NET Framework, Oracle Forms, COBOL or old on-premise portals. The people who know them are retiring, and every change is slow and risky.\n\nOur engineering team uses AI to read and document the legacy code, generate tests that lock in current behaviour, and rebuild it as modern cloud, web and mobile apps. The result is typically a much shorter timeline and lower cost than a traditional rewrite, with no big-bang cutover.",
+   "cta": "Open to a short call about which system at {{company}} is the biggest headache today?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c2s2",
+   "name": "C2 AI-Accelerated Legacy Modernization · Step 2 (Day 3)",
+   "style": "Sales Pitch",
+   "subjects": [
+    "A free legacy assessment for {{company}}",
+    "Re: modernising {{company}}'s apps",
+    "What we'd deliver in 2 weeks"
+   ],
+   "body": "Hi {{first_name}},\n\nTo make this low-risk, we offer a two-week modernization assessment on one application:\n\n• AI-generated documentation of the current code and data flows\n• A target architecture (cloud, API, web and mobile)\n• A phased migration plan with a fixed-price estimate\n\nYou keep the documentation and plan whatever you decide.",
+   "cta": "Which application would you want assessed first?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c2s3",
+   "name": "C2 AI-Accelerated Legacy Modernization · Step 3 (Day 7)",
+   "style": "Follow-up",
+   "subjects": [
+    "How we avoid the risky 'big bang'",
+    "{{first_name}} — the strangler approach",
+    "Modernise without downtime"
+   ],
+   "body": "Hi {{first_name}},\n\nThe usual fear with modernization is a long project and a risky cutover. We avoid that by replacing the system piece by piece: new modules run alongside the old ones behind the same APIs, and traffic moves over gradually with automated regression tests at every step.\n\nYour users keep working, and you see a working release within the first few weeks.",
+   "cta": "Would a one-page example plan for a system like yours be useful?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c2s4",
+   "name": "C2 AI-Accelerated Legacy Modernization · Step 4 (Day 14)",
+   "style": "Reminder",
+   "subjects": [
+    "Closing the loop on modernization",
+    "Last note, {{first_name}}",
+    "Not now? No problem"
+   ],
+   "body": "Hi {{first_name}},\n\nThis is my last note on this. If modernization isn't on {{company}}'s roadmap this year, just let me know and I'll step back.\n\nIf it is, the free two-week assessment is still open.",
+   "cta": "Reply 'assessment' and I'll send the scope.",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c3s1",
+   "name": "C3 Enterprise Data & Knowledge AI (RAG) · Step 1 (Day 1)",
+   "style": "Cold Outreach",
+   "subjects": [
+    "An AI assistant that knows {{company}}'s documents",
+    "{{first_name}}, where does your team's knowledge live?",
+    "Making {{company}}'s data AI-ready"
+   ],
+   "body": "Hi {{first_name}},\n\nMost {{industry}} companies have thousands of policies, contracts, manuals and reports spread across SharePoint, drives and email, and staff spend hours searching for answers that already exist.\n\nWe build private AI assistants on top of that knowledge. They answer questions with citations to the source document, respect existing access permissions, and run in your own cloud if required. We also build the data pipelines that keep everything current.",
+   "cta": "Would a 20-minute call to look at one knowledge area at {{company}} be worthwhile?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c3s2",
+   "name": "C3 Enterprise Data & Knowledge AI (RAG) · Step 2 (Day 3)",
+   "style": "Sales Pitch",
+   "subjects": [
+    "What a 4-week knowledge AI pilot includes",
+    "Re: AI assistant for {{company}}",
+    "Pilot outline, {{first_name}}"
+   ],
+   "body": "Hi {{first_name}},\n\nA quick outline of our pilot:\n\n• Pick one document set (e.g. policies, contracts, SOPs or product manuals)\n• Build a secure assistant with source citations and role-based access\n• Test with 20–50 real users and measure time saved and answer accuracy\n\nIt deploys in your cloud tenancy, and your data is never used to train public models.",
+   "cta": "Shall I send a short proposal for {{company}}?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c3s3",
+   "name": "C3 Enterprise Data & Knowledge AI (RAG) · Step 3 (Day 7)",
+   "style": "Follow-up",
+   "subjects": [
+    "Why most AI pilots stall",
+    "{{first_name}} — the data problem",
+    "The unglamorous part of AI"
+   ],
+   "body": "Hi {{first_name}},\n\nMost stalled enterprise AI projects share one cause: messy, duplicated or inaccessible data. That's why our projects start with data readiness: cleaning, structuring and connecting the sources before any model is involved.\n\nIt's the difference between a demo that impresses and a system people actually use every day.",
+   "cta": "Is data readiness something {{company}} is working on this year?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c3s4",
+   "name": "C3 Enterprise Data & Knowledge AI (RAG) · Step 4 (Day 14)",
+   "style": "Reminder",
+   "subjects": [
+    "Closing the loop",
+    "Last note, {{first_name}}",
+    "Should I follow up later?"
+   ],
+   "body": "Hi {{first_name}},\n\nMy last note here. If a knowledge AI project isn't a priority for {{company}} right now, no problem.\n\nReply 'later' and I'll check back next quarter.",
+   "cta": "Thanks, {{first_name}}.",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c4s1",
+   "name": "C4 AI Governance, Security & Compliance · Step 1 (Day 1)",
+   "style": "Cold Outreach",
+   "subjects": [
+    "EU AI Act readiness at {{company}}",
+    "{{first_name}}, do you know every AI tool in use at {{company}}?",
+    "AI governance without slowing teams down"
+   ],
+   "body": "Hi {{first_name}},\n\nWith EU AI Act obligations phasing in and regulators asking harder questions, many {{industry}} companies are discovering AI tools in use that nobody formally approved.\n\nWe help risk and compliance teams get in control: an inventory of AI systems, risk classification, testing of chatbots and models for data leakage and harmful outputs, and practical controls such as PII redaction, logging and private model hosting.",
+   "cta": "Would a short call on where {{company}} stands today be helpful?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c4s2",
+   "name": "C4 AI Governance, Security & Compliance · Step 2 (Day 3)",
+   "style": "Sales Pitch",
+   "subjects": [
+    "A 3-week AI risk assessment",
+    "Re: AI governance at {{company}}",
+    "What you'd get, {{first_name}}"
+   ],
+   "body": "Hi {{first_name}},\n\nOur AI risk assessment runs about three weeks and delivers:\n\n• An inventory of AI systems and shadow-AI usage\n• A risk classification mapped to the EU AI Act and ISO 42001\n• Security testing of your highest-risk AI use cases\n• A prioritised remediation roadmap your board can read\n\nFixed fee, clear deliverables.",
+   "cta": "Shall I send the full scope?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c4s3",
+   "name": "C4 AI Governance, Security & Compliance · Step 3 (Day 7)",
+   "style": "Follow-up",
+   "subjects": [
+    "The three questions regulators ask",
+    "{{first_name}} — a quick checklist",
+    "AI audit readiness"
+   ],
+   "body": "Hi {{first_name}},\n\nThree questions we hear auditors ask most often:\n\n1. Which AI systems do you run, and who owns each one?\n2. How do you stop personal or confidential data reaching external models?\n3. How do you test and monitor outputs over time?\n\nIf any of those would be hard to answer at {{company}} today, we can help close the gap quickly.",
+   "cta": "Is this something your team is working on now?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c4s4",
+   "name": "C4 AI Governance, Security & Compliance · Step 4 (Day 14)",
+   "style": "Reminder",
+   "subjects": [
+    "Closing the loop",
+    "Last note on AI governance",
+    "Later, perhaps?"
+   ],
+   "body": "Hi {{first_name}},\n\nMy last note. If AI governance is already covered at {{company}}, that's great to hear. Just reply and I'll close this out.\n\nIf it's still open, the three-week assessment is available.",
+   "cta": "Thanks for your time, {{first_name}}.",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c5s1",
+   "name": "C5 Industry Solutions (Healthcare · Logistics · Retail) · Step 1 (Day 1)",
+   "style": "Cold Outreach",
+   "subjects": [
+    "A ready-built {{industry}} app for {{company}}",
+    "{{first_name}}, launch in weeks, not quarters",
+    "{{industry}} apps, pre-built and customised"
+   ],
+   "body": "Hi {{first_name}},\n\nWe've built repeatable solutions for {{industry}}, not blank-slate projects. Depending on your needs that could be patient booking and telehealth apps, driver and proof-of-delivery apps with live tracking, or AI-generated product imagery and video for large catalogues.\n\nBecause the core is already built, {{company}} gets a customised, branded, integrated solution in weeks, with our engineers handling your systems, compliance and security.",
+   "cta": "Would you be open to a 20-minute demo of the {{industry}} solution?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c5s2",
+   "name": "C5 Industry Solutions (Healthcare · Logistics · Retail) · Step 2 (Day 3)",
+   "style": "Sales Pitch",
+   "subjects": [
+    "What {{company}} would get in 8 weeks",
+    "Re: {{industry}} solution for {{company}}",
+    "Scope in one page"
+   ],
+   "body": "Hi {{first_name}},\n\nA typical engagement:\n\n• Weeks 1–2: workshop, branding, integration mapping (EHR, TMS, ERP or e-commerce platform)\n• Weeks 3–6: configure and customise the pre-built solution; add AI automation\n• Weeks 7–8: testing, compliance checks, app store launch and training\n\nThen optional managed support so your team doesn't carry the maintenance.",
+   "cta": "Shall I put together a one-page proposal for {{company}}?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c5s3",
+   "name": "C5 Industry Solutions (Healthcare · Logistics · Retail) · Step 3 (Day 7)",
+   "style": "Follow-up",
+   "subjects": [
+    "Where AI helps most in {{industry}}",
+    "Three quick wins, {{first_name}}",
+    "Ideas for {{company}}"
+   ],
+   "body": "Hi {{first_name}},\n\nA few AI quick wins we see in {{industry}}:\n\n• Healthcare: automated appointment reminders, intake forms and claims pre-checks\n• Logistics: route exceptions, automatic proof-of-delivery matching and customer ETA updates\n• Retail: product photos, lifestyle images and short videos generated at catalogue scale\n\nEach can start small and scale once the numbers prove out.",
+   "cta": "Would any of these be relevant at {{company}}?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c5s4",
+   "name": "C5 Industry Solutions (Healthcare · Logistics · Retail) · Step 4 (Day 14)",
+   "style": "Reminder",
+   "subjects": [
+    "Closing the loop",
+    "Last note, {{first_name}}",
+    "Not a priority right now?"
+   ],
+   "body": "Hi {{first_name}},\n\nMy last note. If the timing isn't right for {{company}}, I completely understand.\n\nReply 'demo' anytime and I'll set up a walkthrough of the {{industry}} solution.",
+   "cta": "Thanks, {{first_name}}.",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c6s1",
+   "name": "C6 Managed Services & Application Support · Step 1 (Day 1)",
+   "style": "Cold Outreach",
+   "subjects": [
+    "Who looks after {{company}}'s apps at 2am?",
+    "{{first_name}}, predictable app support for {{company}}",
+    "Keeping {{company}}'s apps healthy"
+   ],
+   "body": "Hi {{first_name}},\n\nMany {{industry}} companies launch apps and portals with an agency, and then the agency moves on. Bugs pile up, OS updates break things, and cloud costs creep upwards.\n\nWe take over the running of your web and mobile applications: 24/7 monitoring, bug fixes, OS and security updates, cloud cost optimisation and small enhancements, all under a clear monthly SLA. Our AI-assisted tooling lets us do it at a lower cost than a traditional support team.",
+   "cta": "Would a free health check of one of {{company}}'s apps be useful?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c6s2",
+   "name": "C6 Managed Services & Application Support · Step 2 (Day 3)",
+   "style": "Sales Pitch",
+   "subjects": [
+    "Free app health check for {{company}}",
+    "Re: app support at {{company}}",
+    "What the health check covers"
+   ],
+   "body": "Hi {{first_name}},\n\nOur free health check covers one app or platform and reports on:\n\n• Crash rates, performance and app store rating trends\n• Security vulnerabilities and outdated dependencies\n• Cloud cost savings opportunities\n• A support plan with fixed monthly pricing\n\nNo obligation. The report is yours either way.",
+   "cta": "Which app should we look at first?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c6s3",
+   "name": "C6 Managed Services & Application Support · Step 3 (Day 7)",
+   "style": "Follow-up",
+   "subjects": [
+    "The hidden cost of 'unowned' apps",
+    "{{first_name}} — quick thought",
+    "Cloud bill check"
+   ],
+   "body": "Hi {{first_name}},\n\nOne pattern we see often: cloud infrastructure set up for launch and never revisited. Right-sizing servers, databases and storage alone often cuts the bill noticeably, and it's usually the first thing we fix when we take over support.",
+   "cta": "Would it help if we started with a cloud cost review for {{company}}?",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c6s4",
+   "name": "C6 Managed Services & Application Support · Step 4 (Day 14)",
+   "style": "Reminder",
+   "subjects": [
+    "Closing the loop",
+    "Last note, {{first_name}}",
+    "Later?"
+   ],
+   "body": "Hi {{first_name}},\n\nMy last note on this. If {{company}}'s apps are well covered, great. Just let me know and I'll close the loop.\n\nThe free health check remains open if you want it later.",
+   "cta": "Thanks, {{first_name}}.",
+   "signature": "{{sender_name}}\nEnterprise Solutions · Appy Pie\nappypie.com · flozic.ai · pixazo.ai"
+  },
+  {
+   "id": "c7s1",
+   "name": "C7 Enterprise Platform, White-Label & AI Creative API · Step 1 (Day 1)",
+   "style": "Partnership",
+   "subjects": [
+    "A new revenue line for {{company}}",
+    "{{first_name}}, white-label AI app & automation platform",
+    "{{company}} + Appy Pie partnership?"
+   ],
+   "body": "Hi {{first_name}},\n\nAI is squeezing traditional build fees for agencies and IT service firms. One way partners are responding is by reselling platforms rather than billing hours.\n\nWe offer {{company}} a white-label programme across our products: the Appy Pie app and website builder, Flozic AI workflow automation, and Pixazo AI image, video and audio generation. That means your brand, your pricing and recurring revenue, with our engineering team behind you for complex client projects.",
+   "cta": "Open to a 20-minute call to see if the partner model fits {{company}}?",
+   "signature": "{{sender_name}}\nPartnerships · Appy Pie & Pixazo\nappypie.com · pixazo.ai"
+  },
+  {
+   "id": "c7s2",
+   "name": "C7 Enterprise Platform, White-Label & AI Creative API · Step 2 (Day 3)",
+   "style": "Sales Pitch",
+   "subjects": [
+    "Pixazo API: gen-AI images & video for {{company}}",
+    "Re: partnership — the API angle",
+    "Add AI creative to your product"
+   ],
+   "body": "Hi {{first_name}},\n\nIf {{company}} would rather build AI into its own product or content operation, the Pixazo API gives access to leading image, video and audio generation models through one integration, plus 900+ ready-made creative tools (banners, product shots, headshots and more).\n\nUse cases we see: e-commerce catalogues, marketing content at scale, and SaaS products adding gen-AI features without training models.",
+   "cta": "Shall I send API docs and a pricing sheet?",
+   "signature": "{{sender_name}}\nPartnerships · Appy Pie & Pixazo\nappypie.com · pixazo.ai"
+  },
+  {
+   "id": "c7s3",
+   "name": "C7 Enterprise Platform, White-Label & AI Creative API · Step 3 (Day 7)",
+   "style": "Follow-up",
+   "subjects": [
+    "How partners typically start",
+    "{{first_name}} — a simple first step",
+    "Low-risk pilot"
+   ],
+   "body": "Hi {{first_name}},\n\nMost partners start small: pick one or two existing clients, deliver an AI app, automation or content project under your brand, and use it as a case study. We provide sales material, a sandbox and technical support throughout.",
+   "cta": "Would a partner kit with pricing and margins be useful?",
+   "signature": "{{sender_name}}\nPartnerships · Appy Pie & Pixazo\nappypie.com · pixazo.ai"
+  },
+  {
+   "id": "c7s4",
+   "name": "C7 Enterprise Platform, White-Label & AI Creative API · Step 4 (Day 14)",
+   "style": "Reminder",
+   "subjects": [
+    "Closing the loop",
+    "Last note, {{first_name}}",
+    "Partnership, later?"
+   ],
+   "body": "Hi {{first_name}},\n\nMy last note. If a partnership isn't a fit for {{company}} right now, no problem.\n\nReply 'kit' anytime and I'll send the partner pack.",
+   "cta": "Thanks, {{first_name}}.",
+   "signature": "{{sender_name}}\nPartnerships · Appy Pie & Pixazo\nappypie.com · pixazo.ai"
+  }
+ ]
+}
