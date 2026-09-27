@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search — AJ SHOP</title>
+<link rel="icon" href="assets/img/logo.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main class="wrap">
+  <nav class="crumb"><a href="index.html">Home</a><span>›</span><span>Search</span></nav>
+  <div class="catalog-head" style="margin-top:16px">
+    <div><h1 id="title">Search results</h1><span class="count" id="count"></span></div>
+    <select class="sortsel" id="sort">
+      <option value="pop">Sort: Popularity</option>
+      <option value="low">Price: Low to High</option>
+      <option value="high">Price: High to Low</option>
+      <option value="rating">Top Rated</option>
+    </select>
+  </div>
+  <div class="prod-grid" id="grid"></div>
+</main>
+<div id="site-footer"></div>
+
+<script src="assets/js/art.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  AJ.mount();
+  const qstr = (new URLSearchParams(location.search).get('q') || '').trim();
+  document.getElementById('title').textContent = qstr ? `Results for "${qstr}"` : 'All Products';
+  const gs = document.getElementById('globalSearch'); if (gs) gs.value = qstr;
+
+  function run() {
+    const q = qstr.toLowerCase();
+    let list = AJ_PRODUCTS.filter(p =>
+      !q || p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) ||
+      AJ.catName(p.cat).toLowerCase().includes(q) || (p.group||'').toLowerCase().includes(q));
+    const s = document.getElementById('sort').value;
+    if (s==='low') list.sort((a,b)=>a.price-b.price);
+    else if (s==='high') list.sort((a,b)=>b.price-a.price);
+    else if (s==='rating') list.sort((a,b)=>b.rating-a.rating);
+    else list.sort((a,b)=>(b.rating*b.reviews)-(a.rating*a.reviews));
+    document.getElementById('count').textContent = list.length + ' products';
+    AJ.renderGrid(document.getElementById('grid'), list);
+  }
+  document.getElementById('sort').addEventListener('change', run);
+  run();
+</script>
+</body>
+</html>
