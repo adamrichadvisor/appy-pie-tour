@@ -1357,7 +1357,7 @@ function renderAuth(ov){
     '<div class="desc" style="text-align:center;margin-bottom:14px">AI lead-gen &amp; cold outreach portal</div>'+
     '<div class="pills" style="justify-content:center;margin-bottom:14px">'+tabBtn("login","Log in")+tabBtn("signup","Sign up")+tabBtn("forgot","Forgot")+'</div>'+
     msg+form+
-    '<div class="desc" style="margin-top:14px;font-size:11.5px;line-height:1.5;opacity:.8">Prototype sign-in — accounts are stored only in this browser, so this is not real security. New sign-ups need approval from the admin ('+esc(ADMIN_EMAIL)+').</div></div>';
+    '<div class="desc" style="margin-top:14px;font-size:11.5px;line-height:1.5;opacity:.8">'+(SUPA_ON?"Secure sign-in via Supabase. New sign-ups need approval from the admin ("+esc(ADMIN_EMAIL)+").":"Prototype sign-in — accounts are stored only in this browser, so this is not real security. New sign-ups need approval from the admin ("+esc(ADMIN_EMAIL)+").")+'</div></div>';
   ov.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{authTab=b.dataset.tab;authMsg="";renderAuth(ov);});
   document.getElementById("auDo").onclick=authSubmit;
   const pass=document.getElementById("au_pass");if(pass)pass.onkeydown=e=>{if(e.key==="Enter")authSubmit();};
@@ -1499,6 +1499,8 @@ async function supaSubmit(){
   const fail=m=>{authMsg="!"+m;renderAuth(ov);};
   if(!validEmail(email))return fail("Enter a valid email address.");
   let c;try{c=await supaClient();}catch(e){return fail("Login service failed to load — check your connection and retry.");}
+  const netMsg="Couldn't reach the backend. Your Supabase project may be paused (free tier pauses after inactivity) — open the Supabase dashboard and click Restore, then try again.";
+  try{
   if(authTab==="login"){
     const {error}=await c.auth.signInWithPassword({email,password:pass});
     if(error)return fail(error.message);
@@ -1513,8 +1515,9 @@ async function supaSubmit(){
   }else{
     const {error}=await c.auth.resetPasswordForEmail(email,{redirectTo:location.href});
     if(error)return fail(error.message);
-    authTab="login";authMsg="Password reset email sent — check your inbox, then log in with the new password.";renderAuth(ov);
+    authTab="login";authMsg="Password reset email sent — check your inbox (and spam), then log in with the new password.";renderAuth(ov);
   }
+  }catch(e){return fail(/fetch|network/i.test(String(e&&e.message))?netMsg:(e&&e.message||"Something went wrong — try again."));}
 }
 async function supaLogout(){try{const c=await supaClient();await c.auth.signOut();}catch(e){}supaUser=null;supaProfile=null;appStarted=false;const ch=document.getElementById("userChip");if(ch)ch.remove();location.hash="";supaGate();}
 async function supaAdminRender(m){
